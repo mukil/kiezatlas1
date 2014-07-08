@@ -31,10 +31,10 @@ var kiezatlas = new function() {
     this.base_url = ""
     this.map_web_alias = ""
     this.webservice_endpoint = ""
-    //
+    // 
     this.map_topics = undefined
     this.selected_topic = undefined
-    //
+    // 
     this.defaultMapCenter = undefined
     this.locationCircle = undefined // L.Circle () if already set once..
     this.mapLayer = undefined
@@ -73,30 +73,26 @@ var kiezatlas = new function() {
      *  fixme: fails if there is just 1 element in the geomap result */
     this.render_mobile_city_map_view = function () {
         // check if, and if not, initialize leaflet
-        if (kiezatlas.map == undefined) {
-            // console.log(" map is not initialized.. initializing..")
-            kiezatlas.set_map(new L.Map('map'), { "trackResize": false, "zoomAnimation": false })
+        if (typeof kiezatlas.map === "undefined") {
+            kiezatlas.set_map(new L.map('map'), { "trackResize": true, "zoomAnimation": false })
         }
         // update model
         // kiezatlas.loadCityObjectInfo(kiezatlas.get_map_topic_id())
         if (typeof kiezatlas.get_map_topics().topics === "undefined") {
             console.warn("Maps Topics must be set first. use kiezatlas.set_map_topics()")
         }
-        kiezatlas.setup_leaflet_markers(true) // all L.LatLng()s are constructed here
+        kiezatlas.setup_leaflet_markers()
         kiezatlas.render_leaflet_container(true)
         // ask for users location
         // kiezatlas.ask_users_location()
-        $('#present').click(function(e) {
-            $('#present').remove()
-        })
     }
 
     /** called by deep init link and user-interaction */
     this.show_page_panel = function () {
-        //
+        // 
         var page_width = $("#kiezatlas").width() / 3
         kiezatlas.set_page_panel_width(page_width)
-        //
+        // 
         $("#overview").width($("#kiezatlas").width() - page_width)
         $("#details").show()
         kiezatlas.pageVisible = true
@@ -105,11 +101,11 @@ var kiezatlas = new function() {
     }
 
     this.hide_page_panel = function () {
-        //
+        // 
         $("#details").hide()
         $("#overview").width($("#kiezatlas").width())
         kiezatlas.pageVisible = false
-        //
+        // 
         kiezatlas.render_leaflet_container()
     }
 
@@ -122,7 +118,7 @@ var kiezatlas = new function() {
 
     this.set_leaflet_container_width = function (page_width) {
         if (kiezatlas.pageVisible) {
-            $("#map").width($("#kiezatlas").width() - (page_width + 8))
+            $("#map").width($("#kiezatlas").width() - (page_width + 11))
         } else {
             $("#map").width($("#kiezatlas").width())
         }
@@ -133,23 +129,22 @@ var kiezatlas = new function() {
 
         if (!kiezatlas.printView) {
             // update gui
-            $("#map").height($("#kiezatlas").height() - 35)
-            $("#details").height($("#kiezatlas").height() - 20) // fixme: move to another method
-            $("#page-body").height($("#details").height() - $('#criteria-list').height() - 30)
-            //
+            $("#map").height($("#kiezatlas").height() - 19)
+            $("#details").height($("#kiezatlas").height() - 19) // fixme: move to another method
+            $("#page-body").height(
+                $("#details").height() - $('#criteria-list').height() - 30
+            )
+            kiezatlas.map.invalidateSize()
+            // 
             var page_width = $("#kiezatlas").width() / 3
             kiezatlas.set_leaflet_container_width(page_width)
             if (kiezatlas.pageVisible) kiezatlas.set_page_panel_width(page_width)
-            kiezatlas.map.invalidateSize()
-            //
+            // 
             if (reset) {
                 kiezatlas.set_leaflet_map_to_current_bounds()
                 kiezatlas.load_map_tiles()
-                // set new page titles to citymap name
-                // fixme: kiezatlas.render_mobile_info_title(kiezatlas.mapTopic.value)
+                kiezatlas.map.setView(kiezatlas.get_current_bounds().getCenter(), kiezatlas.LEVEL_OF_CITY_ZOOM)
             }
-        } else {
-            console.log("Not updating Leaflet Container (onPrintView)")
         }
 
     }
@@ -178,14 +173,12 @@ var kiezatlas = new function() {
     } **/
 
     this.load_map_tiles = function() {
-        var cloudmadeUrl = 'http://{s}.tiles.mapbox.com/v3/kiezatlas.map-feifsq6f/{z}/{x}/{y}.png',
+        /** var cloudmadeUrl = 'http://{s}.tiles.mapbox.com/v3/kiezatlas.map-feifsq6f/{z}/{x}/{y}.png',
             cloudmadeAttribution = "Tiles &copy; <a href='http://mapbox.com/'>MapBox</a> | " +
               "Data &copy; <a href='http://www.openstreetmap.org/'>OpenStreetMap</a> and contributors, CC-BY-SA",
-            cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution});
-        // mapbox: "http://a.tiles.mapbox.com/v3/kiezatlas.map-feifsq6f/${z}/${x}/${y}.png",
-        //            attribution: "Tiles &copy; <a href='http://mapbox.com/'>MapBox</a> | " +
-        //            "Data &copy; <a href='http://www.openstreetmap.org/'>OpenStreetMap</a> " +
-        //            "and contributors, CC-BY-SA",
+            cloudmade = new L.tileLayer(cloudmadeUrl, {maxZoom: 18, attribution: cloudmadeAttribution}) 
+        kiezatlas.map.addLayer(cloudmade)
+        **/
         // osm: "http://b.tile.openstreetmap.de/tiles/osmde/"
         //        attribution: 'Tile server sponsored by STRATO / <b>Europe only</b> /
         //  <a href="http://www.openstreetmap.de/germanstyle.html">About style</a>',
@@ -194,7 +187,10 @@ var kiezatlas = new function() {
           // is just fired when panning the first time out of our viewport, but strangely not on initiali tile-loading
           console.log("tilelayer loaded.. could invaldate #maps size..")
         }); **/
-        kiezatlas.map.addLayer(cloudmade);
+        var osmLayer = new L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(kiezatlas.map)
+        
     }
 
     this.on_bubble_click = function (e) {
@@ -248,7 +244,7 @@ var kiezatlas = new function() {
                     skip = true
                 }
                 if (!skip) {
-                    latlng = new L.LatLng(parseFloat(lat), parseFloat(lng))
+                    latlng = new L.latLng(parseFloat(lat), parseFloat(lng))
                 }
                 // 0) Valid address topic
                 if (latlng != undefined) {
@@ -260,7 +256,7 @@ var kiezatlas = new function() {
                         marker = existingMarker
                         marker.options.topics.push(topicId)
                     } else {
-                        marker = new L.Marker(latlng, {
+                        marker = new L.marker(latlng, {
                             'clickable': true ,  'topics': [topicId], 'labels': []
                         })
                     }
@@ -303,7 +299,7 @@ var kiezatlas = new function() {
         if (!isTopicId) {
             topicId = kiezatlas.get_citymap_topic_by_origin_id(someId).id
         }
-        //
+        // 
         kiezatlas.load_old_object_info(topicId, function(e) {
             kiezatlas.render_page()
             kiezatlas.focus_selected_topic_in_map()
@@ -312,26 +308,25 @@ var kiezatlas = new function() {
 
     /** Precondition: topic must be set as selected */
     this.focus_selected_topic_in_map = function () {
-        //
+        // 
         var topic = kiezatlas.get_selected_topic().result
-        // 1) show topic in map
+        // 1) show topic in map 
         var marker = kiezatlas.add_topic_to_map(topic.name, topic.id)
         if (typeof marker === "undefined") {
             // zoom to it and pop up its name
             console.warn("Topic is not in any marker")
         } else {
             marker.openPopup()
-            kiezatlas.map.panTo(marker.getLatLng())
-            kiezatlas.map.setZoom(kiezatlas.LEVEL_OF_STREET_ZOOM)
+            kiezatlas.map.setView(marker.getLatLng(), kiezatlas.LEVEL_OF_KIEZ_ZOOM);
 
         }
     }
 
     /** Precondition: topic must be set as selected */
     this.close_popup_of_selected_topic = function () {
-        //
+        // 
         var topic = kiezatlas.get_selected_topic().result
-        // 1) show topic in map
+        // 1) show topic in map 
         var marker = kiezatlas.get_marker_by_topic_id(topic.id)
         if (typeof marker === "undefined") {
             // zoom to it and pop up its name
@@ -341,27 +336,27 @@ var kiezatlas = new function() {
         }
     }
 
-    this.show_topics_in_map = function (items_to_show, cat_id, skip_state) {
+    this.show_topics_in_map = function (items_to_show, fit_bounds) {
         // 1) add topics to map
         for (var i=0; i < items_to_show.length; i++) {
             var topic = items_to_show[i]
             kiezatlas.add_topic_to_map(topic.name, topic.id)
         }
         // 2) update viewport
-        kiezatlas.map.fitBounds(kiezatlas.get_current_bounds())
+        if (fit_bounds) kiezatlas.map.fitBounds(kiezatlas.get_current_bounds())
     }
 
     this.hide_topics_in_map = function (items_to_hide, skip_state) {
-        //
+        // 
         for (var i=0; i < items_to_hide.length; i++) {
             var topic = items_to_hide[i]
             kiezatlas.remove_topic_from_map(topic.id)
         }
     }
 
-    this.show_all_topics_in_map = function () {
+    this.show_all_topics_in_map = function (fit_bounds) {
         // todo: just use with select_all_categories_of_current_criteria()
-        kiezatlas.show_topics_in_map(kiezatlas.get_map_topics().topics)
+        kiezatlas.show_topics_in_map(kiezatlas.get_map_topics().topics, fit_bounds)
     }
 
     this.hide_all_topics_in_map = function () {
@@ -433,7 +428,7 @@ var kiezatlas = new function() {
     }
 
     this.get_marker_by_topic_id = function (topic_id) {
-        //
+        // 
         for (var i=0; i < kiezatlas.markers.length; i++) {
             var marker = kiezatlas.markers[i]
             for (var m=0; m < marker.options.topics.length; m++) {
@@ -448,7 +443,7 @@ var kiezatlas = new function() {
     }
 
     this.get_citymap_topic_by_id = function (topic_id) {
-        //
+        // 
         for (var i=0; i < kiezatlas.get_map_topics().topics.length; i++) {
             var object = kiezatlas.get_map_topics().topics[i]
             if (topic_id === object.id) {
@@ -459,7 +454,7 @@ var kiezatlas = new function() {
     }
 
     this.get_citymap_topic_by_origin_id = function (topic_id) {
-        //
+        // 
         for (var i=0; i < kiezatlas.get_map_topics().topics.length; i++) {
             var object = kiezatlas.get_map_topics().topics[i]
             if (topic_id === object.originId) {
@@ -470,7 +465,7 @@ var kiezatlas = new function() {
     }
 
     this.get_origin_id_by_topic_id = function (topic_id) {
-        //
+        // 
         for (var i=0; i < kiezatlas.get_map_topics().topics.length; i++) {
             var object = kiezatlas.get_map_topics().topics[i]
             if (topic_id === object.id) {
@@ -509,13 +504,13 @@ var kiezatlas = new function() {
 
         } else if (typeof html_message !== "undefined") {
 
-            $('#page-body').html('<h3>Hinweis</h3><p>'+ html_message +'</p>')
+            $('#page-body').html('<h3 class="info-label">Hinweis</h3><p>'+ html_message +'</p>')
             kiezatlas.hide_page_print_button()
 
         } else {
 
             kiezatlas.render_category_list()
-            kiezatlas.show_all_topics_in_map()
+            kiezatlas.show_all_topics_in_map(true)
             kiezatlas.select_all_categories_of_current_criteria()
             kiezatlas.hide_page_print_button()
 
@@ -528,12 +523,12 @@ var kiezatlas = new function() {
     }
 
     this.setup_additional_map_handlers = function () {
-        //
+        // 
         $('#show-all').unbind('click')
         $('#reset').unbind('click')
-        //
+        // 
         $('#show-all').click(function(e) {
-            kiezatlas.show_all_topics_in_map()
+            kiezatlas.show_all_topics_in_map(true)
             kiezatlas.render_category_list()
             kiezatlas.select_all_categories_of_current_criteria()
         })
@@ -545,7 +540,7 @@ var kiezatlas = new function() {
     }
 
     this.render_veranstaltungs_headline = function () {
-        $('<span>Insgesamt <b>' +kiezatlas.get_map_topics().topics.length+ '</b> Veranstaltungen Heute</span><br/><br/>')
+        $('<h3 class="event-label">Insgesamt ' +kiezatlas.get_map_topics().topics.length+ ' Veranstaltungen Heute</h3>')
             .insertBefore('#categories-table')
     }
 
@@ -561,31 +556,28 @@ var kiezatlas = new function() {
         if (onProjectMap || onEventMap) {
             var $branding = $('#branding-area')
                 if (onProjectMap) {
-                    $branding.html(
-                        '<a class="active-map"><img src="http://www.berlin.de/_bde/css/list_bullet.png"/>&nbsp;Einsatzm&ouml;glichkeiten</a><br/>'
-                        + '&nbsp;&nbsp;&nbsp;<a href="/atlas/veranstaltungen-ehrenamt" title="Zum heutigen Ehrenamts-Veranstaltungskalender">Veranstaltungen Heute</a>'
-                    )
+                    // 
+                    $('li.citymap-navi.ehrenamt-projects').addClass('selected')
+                    $('li.citymap-navi.ehrenamt-events.selected').removeClass('selected')
                 } else if (onEventMap) {
-                    console.log("Veranstaltungen ..")
-                    $branding.html(
-                        '&nbsp;&nbsp;&nbsp;<a href="/atlas/ehrenamt" title="Zu allen Einsatzm&ouml;glichkeiten">Einsatzm&ouml;glichkeiten</a><br/>'
-                        + '<a class="active-map"><img src="http://www.berlin.de/_bde/css/list_bullet.png"/>&nbsp;Veranstaltungen Heute</a>'
-                    )
+                    // 
+                    $('li.citymap-navi.ehrenamt-projects.selected').removeClass('selected')
+                    $('li.citymap-navi.ehrenamt-events').addClass('selected')
                 }
-                $branding.show()
+                // $branding.show()
             // var $logo = $('<img alt="Kiezatlas Logo" title="Gehe zur '+mapTitle+'-Homepage" '
                 // + 'src="'+ IMAGES_URL + workspaceLogo +'"/>')
                 // $logo.click(function(e) { window.location.href = workspaceHomepage})
                 // $branding.html($logo)
             // var $criteria = $('#criteria-list')
         }
-        // var $crosslinks = $('#cross-links-area')
+        var $crosslinks = $('#cross-links-area')
 
     }
 
     this.render_page_body = function (result) {
         var topic_copy = jQuery.extend(true, {}, result)
-        //
+        // 
         var $body = $("#page-body")
             $body.empty()
             $body.removeClass('categories')
@@ -668,7 +660,7 @@ var kiezatlas = new function() {
             }
         }
         $body.append($properties)
-        // ..) Append page-info area to DOM
+        // ..) Append page-info area to DOM        
         // $body.html($content)
 
 
@@ -693,7 +685,7 @@ var kiezatlas = new function() {
 
         function create_berlin_fahrinfo_link (street, city_name, code) {
             var target = street + "%20" + code + "%20" + city_name
-            var url = "http://www.fahrinfo-berlin.de/fahrinfo/bin/query.exe/d?Z=" + target
+            var url = "http://www.fahrinfo-berlin.de/fahrinfo/bin/query.exe/d?Z=" + target 
                 + "&REQ0JourneyStopsZA1=2&start=1"
             var link = '<a href="'+ url + '" target="_blank" class="fahrinfo-link">'
                 + '<img src=\"'+IMAGES_URL+'fahrinfo.gif" title="Der Fahrinfo-Link liefert Fahrzeiten in '
@@ -724,15 +716,15 @@ var kiezatlas = new function() {
               critLinkList += tabsHtml; // render special tab selection for inner ehrenamtsnetz navigation
             } **/
         table += '<table width="95%" id="criterias-table" cellpadding="0" border="0"><tbody>'
-        //
+        // 
         table += '<tr valign="top">'; // TODO: onclick
         table += '<td rowspan="'+ (workspaceCriterias.result.length + 1) +'" align="left">'
         // rebuild upper part of the sideBar stub
-        table += '<a id="homepage-link href="'+ workspaceHomepage +'"><img alt="Kiezatlas Logo" title="Gehe zur '
+        table += '<a id="homepage-link" href="'+ workspaceHomepage +'"><img alt="Kiezatlas Logo" title="Gehe zur '
             + mapTitle +'-Homepage" src="'+ IMAGES_URL + workspaceLogo +'"/>'
         table += '<td></td><td></td>'
         table += '</tr>'
-        //
+        // 
         for (var i = 0; i < workspaceCriterias.result.length; i++) {
             var critName = [workspaceCriterias.result[i].critName]
             if (i == 0 && workspaceCriterias.result.length == 2) {
@@ -770,7 +762,7 @@ var kiezatlas = new function() {
         }
         if (!skip_state) {
             //  // permalink: cause users start counting from 1
-            // updatePermaLink(baseUrl+mapAlias+"/criteria/"+(parseInt(criteria)+1),
+            // updatePermaLink(baseUrl+mapAlias+"/criteria/"+(parseInt(criteria)+1), 
                 // {name: "renderCritCatListing", parameter: parseInt(criteria)} );
         }
         var $body = $("#page-body")
@@ -816,26 +808,23 @@ var kiezatlas = new function() {
     }
 
     this.deselect_all_categories_of_current_criteria = function () {
-        for (var i = 0; i < workspaceCriterias.result[kiezatlas.get_selected_criteria()].categories.length; i++) {
-            var category_id = workspaceCriterias.result[kiezatlas.get_selected_criteria()].categories[i].catId
-            if (kiezatlas.marker_group_ids.length > 0) {
-                kiezatlas.remove_cat_id_from_marker_group_list(category_id)
-                $("#catRow-"+ category_id).attr("class", "cat-deselected");
-            }
+        for (var m = 0; m < kiezatlas.marker_group_ids.length; m++) {
+            // = null; // delete catId from the list of currently visible categories
+            $("#catRow-"+ kiezatlas.marker_group_ids[m]).attr("class", "cat-deselected")
         }
+        kiezatlas.marker_group_ids = []
     }
 
     this.remove_cat_id_from_marker_group_list = function (category_id) {
         for (var m = 0; m < kiezatlas.marker_group_ids.length; m++) {
-            if (category_id == kiezatlas.marker_group_ids[m]) {
-                // = null; // delete catId from the list of currently visible categories
-                kiezatlas.marker_group_ids.splice(m,1);
+            if (category_id === kiezatlas.marker_group_ids[m]) {
+                kiezatlas.marker_group_ids.splice(m,1)
             }
         }
     }
 
     this.toggle_category = function (category_id) {
-        //
+        // 
         var catSelected = kiezatlas.is_cat_visible(category_id)
         //
         if (!catSelected) {
@@ -869,7 +858,7 @@ var kiezatlas = new function() {
         // 3) Render list
         var $content = $("#page-body")
             $content.empty()
-            $content.append('<h3>' + cat_label + '</h3>')
+            $content.append('<h3 class="category-label">' + cat_label + '</h3>')
         var $results = $('<ul class="result-list list">')
         for (var i=0; i < items_to_show.length; i++) {
             var topic = items_to_show[i]
@@ -878,7 +867,7 @@ var kiezatlas = new function() {
                     kiezatlas.load_old_object_info(e.target.id)
                     kiezatlas.focus_selected_topic_in_map(e.target.id)
                 })
-            //
+            // 
             $results.append($item)
         }
         // 4) Append results to DOM
@@ -894,7 +883,7 @@ var kiezatlas = new function() {
         // 3) Render list
         var $content = $("#page-body")
             $content.empty()
-            $content.append('<h3>Suche nach \"' + value + '\"</h3>')
+            $content.append('<h3 class="search-label">Suche nach \"' + value + '\"</h3>')
         var $results = $('<ul class="result-list list">')
         for (var i=0; i < items_to_show.length; i++) {
             var topic = items_to_show[i]
@@ -903,7 +892,7 @@ var kiezatlas = new function() {
                     kiezatlas.load_old_object_info(e.target.id)
                     kiezatlas.focus_selected_topic_in_map(e.target.id)
                 })
-            //
+            // 
             $results.append($item)
         }
         // 4) Append results to DOM
@@ -917,21 +906,21 @@ var kiezatlas = new function() {
     this.show_page_print_button = function(e) {
         $('.nav li.icon-printer_32').show()
         $('.nav li.icon-printer_32').click(function(event) {
-            //
+            // 
             event.preventDefault()
             kiezatlas.printView = true
-            //
+            // 
             // kiezatlas.set_page_panel_width($('#kiezatlas').width() / 2)
             // kiezatlas.set_leaflet_container_width($('#kiezatlas').width() / 3)
             $('#kiezatlas').height(700)
             $("#details").height($("#kiezatlas").height() - 20) // fixme: move to another method
             $('#details').width(350)
-            $('#page-body').width(350)
+            $('#page-body').width(360)
             $("#page-body").height($("#details").height() - $('#criteria-list').height() - 30)
             $("#overview").width(300)
             $("#map").height(300)
             $("#map").width(300)
-            //
+            // 
             $('#page-body').css("overflow-y", "visible")
             $('#page-body').css("padding-top", "10")
             $("#map").css("top", 35)
@@ -940,20 +929,17 @@ var kiezatlas = new function() {
             $("#search-controls").hide()
             $("#show-all").hide()
             $("#reset").hide()
-            //
+            // 
             kiezatlas.focus_selected_topic_in_map()
             kiezatlas.map.setZoom(kiezatlas.LEVEL_OF_DETAIL_ZOOM)
             kiezatlas.close_popup_of_selected_topic()
-            //
-            // var page_width = $("#kiezatlas").width() / 3
-            // kiezatlas.set_leaflet_container_width(page_width)
-            // if (kiezatlas.pageVisible) kiezatlas.set_page_panel_width(page_width)
+            // 
             kiezatlas.map.invalidateSize()
-            //
+            // 
             var $back = $('<a class="print-back" style="position: absolute; right: 0px;">')
                 $back.html("Zur&uuml;ck zur Detailansicht<br/>").click(function(e) {
                     kiezatlas.printView = false
-                    console.log("Link zur Detailansicht zurück aus der Printansicht")
+                    // fixme:
                     $("#criteria-list").show()
                     $("#search-controls").show()
                 })
@@ -1161,6 +1147,11 @@ var kiezatlas = new function() {
                 kiezatlas.alternative_items = null
                 kiezatlas.alternative_items = obj.results
                 kiezatlas.autocomplete_item = 0
+                
+                // Show all topics in map
+                kiezatlas.show_all_topics_in_map(false)
+                kiezatlas.select_all_categories_of_current_criteria()
+                
                 if (kiezatlas.alternative_items.length == 1) {
                     // select_current_item()
                     focus_current_item()
@@ -1168,9 +1159,7 @@ var kiezatlas = new function() {
                     if (kiezatlas.alternative_items.length <= 1) {
                         $('#street-alternatives').hide()
                     }
-
                 } else if (kiezatlas.alternative_items.length > 1) {
-
                     focus_current_item() // focus the first result
                     render_alternatives()
                 }
@@ -1183,22 +1172,22 @@ var kiezatlas = new function() {
         function focus_current_item () {
             var item = kiezatlas.alternative_items[kiezatlas.autocomplete_item]
             if (typeof item !== "undefined") {
-                kiezatlas.map.panTo(new L.LatLng(item.geometry.location.lat, item.geometry.location.lng))
-                kiezatlas.map.setZoom(15)
+                kiezatlas.map.setView(new L.latLng(item.geometry.location.lat, item.geometry.location.lng), 
+                    kiezatlas.LEVEL_OF_KIEZ_ZOOM)
                 // update gui (search-input field) to contents of first result entry
                 $("#near-by").val(item['formatted_address'])
                 // Display location
                 if (kiezatlas.location_circle != undefined) {
                     kiezatlas.map.removeLayer(kiezatlas.location_circle);
                 }
-                kiezatlas.location_circle = new L.Circle(item.geometry.location, 30, {"stroke": true,
-                    "clickable": false, "color": "#1d1d1d", "fillOpacity": 0.3, "opacity": 0.3, "weight":10});
+                kiezatlas.location_circle = new L.circle(item.geometry.location, 200, {"stroke": true,
+                    "clickable": false, "color": "#dae3f8", "fillOpacity": 0.6, "opacity": 0.8, "weight":10});
                 kiezatlas.map.addLayer(kiezatlas.location_circle, {"clickable" : false});
             }
         }
 
         function render_alternatives () {
-            //
+            // 
             var prev_location = kiezatlas.alternative_items[kiezatlas.autocomplete_item - 1]
             var next_location = kiezatlas.alternative_items[kiezatlas.autocomplete_item + 1]
             var $prev = ""
@@ -1226,7 +1215,7 @@ var kiezatlas = new function() {
                 // empty next button
                 $next = $('<span class="next-location" title="">></span>')
             }
-            //
+            // 
             $('#street-alternatives').html($prev).append($next)
                 .append(kiezatlas.alternative_items.length + ' Standorte gefunden')
             $('#street-alternatives').show()
@@ -1280,9 +1269,9 @@ var kiezatlas = new function() {
     }
 
     this.on_location_found = function(e) {
-        var radius = e.accuracy;
+        var radius = e.accuracy
         if (kiezatlas.location_circle != undefined) {
-          kiezatlas.map.removeLayer(kiezatlas.location_circle);
+            kiezatlas.map.removeLayer(kiezatlas.location_circle);
         }
         var $mapMessage = $("#message.notification")
         // $mapMessage.show("fast")
@@ -1293,12 +1282,11 @@ var kiezatlas = new function() {
         setTimeout(function(e) {
             $mapMessage.fadeOut(3000)
         }, 3000)
-        kiezatlas.location_circle = new L.Circle(e.latlng, radius, {"stroke": true, "clickable": false, "color":
-            "#1d1d1d", "fillOpacity": 0.3, "opacity": 0.3, "weight":10}); // show double sized circle..
-        kiezatlas.map.addLayer(kiezatlas.location_circle, {"clickable" : true});
-        kiezatlas.location_circle.bindPopup("You are within " + radius + " meters from this point");
-        kiezatlas.map.setView(e.latlng, kiezatlas.LEVEL_OF_KIEZ_ZOOM);
-        // kiezatlas.map.panTo(e.latlng);
+        kiezatlas.location_circle = new L.circle(e.latlng, radius, {"stroke": true, "clickable": false, "color":
+            "#1d1d1d", "fillOpacity": 0.3, "opacity": 0.3, "weight":10})
+        kiezatlas.map.addLayer(kiezatlas.location_circle, {"clickable" : true})
+        kiezatlas.location_circle.bindPopup("You are within " + radius + " meters from this point")
+        kiezatlas.map.setView(e.latlng, kiezatlas.LEVEL_OF_KIEZ_ZOOM)
     }
 
     this.on_location_error = function (e) {
@@ -1322,8 +1310,7 @@ var kiezatlas = new function() {
             } else if (state.view === "SEARCH") {
                 kiezatlas.do_search(true)
             } else {
-                console.log("History Pop NYI")
-                console.log(state)
+                // fixme: console.log(state) // not yet implemented
             }
         }
     }
@@ -1351,7 +1338,7 @@ var kiezatlas = new function() {
         } else {
             link = kiezatlas.get_base_url() + "/" + kiezatlas.get_map_web_alias() + "/p/" + permalink_entry_id
         }
-        //
+        // 
         var data = { "id": selected_topic.id, "view": "DETAIL_PAGE" }
         // build history entry
         kiezatlas.push_history(data, link)
@@ -1367,14 +1354,14 @@ var kiezatlas = new function() {
 
     this.push_categorical_state = function () {
 
-        var link = kiezatlas.get_base_url() + "/" + kiezatlas.get_map_web_alias() + "/criteria/"
+        var link = kiezatlas.get_base_url() + "/" + kiezatlas.get_map_web_alias() + "/criteria/" 
             + (kiezatlas.get_selected_criteria() + 1) + "/categories/"
-        //
+        // 
         for ( var mi = 0; mi < kiezatlas.marker_group_ids.length; mi++ ) {
             link += kiezatlas.marker_group_ids[mi] + "%2C";
         }
-        //
-        var data = {
+        // 
+        var data = { 
             "categories": kiezatlas.marker_group_ids, "criteria": kiezatlas.get_selected_criteria(),
             "view": "CATEGORICAL"
         }
@@ -1411,34 +1398,33 @@ var kiezatlas = new function() {
     }
 
     this.get_current_bounds = function () {
-        var bounds = new L.LatLngBounds();
+        var bounds = new L.LatLngBounds()
         for (var i = 0; i < kiezatlas.markers.length; i++) {
-            var m = kiezatlas.markers[i];
+            var m = kiezatlas.markers[i]
             // if (kiezatlas.map.hasLayer(m)) {
-                var lng = m._latlng.lng;
-                var lat = m._latlng.lat;
-                var skip = false;
+                var lng = m._latlng.lng
+                var lat = m._latlng.lat
+                var skip = false
                 if (lat == 0.0 || lng == 0.0) {
                     skip = true;
                 } else if (lng < -180.0 || lng > 180.0) {
-                    skip = true;
+                    skip = true
                 } else if (lat < -90.0 || lat > 90.0) {
-                    skip = true;
+                    skip = true
                 } else if (isNaN(lat) || isNaN(lng)) {
-                    skip = true;
+                    skip = true
                 }
                 if (!skip) {
-                    var point = new L.LatLng(parseFloat(lat), parseFloat(lng));
-                    bounds.extend(point);
+                    var point = new L.LatLng(parseFloat(lat), parseFloat(lng))
+                    bounds.extend(point)
                 }
             // }
         }
-        return bounds;
+        return bounds
     }
 
     /** sorting desc by item.value */
     this.alphabetical_sort_desc = function (a, b) {
-        // console.log(a)
         var scoreA = a.value
         var scoreB = b.value
         if (scoreA < scoreB) // sort string descending
@@ -1559,3 +1545,4 @@ var kiezatlas = new function() {
     }
 
 }
+
