@@ -1,21 +1,39 @@
 
 body {
-  padding: 0;
-  margin: 0;
-  height: 100%;
+    padding: 0;
+    margin: 0;
+    overflow-y: scroll !important;
+    height: 1200px;
 }
 
 html, body {
-  height: 100%;
-  overflow: hidden;
+    height: 100%;
+    overflow: hidden;
 }
 
 img.more {
-  padding: 4px;
+    padding: 4px;
 }
 
 h1.my-title {
-  margin: 10px 10px !important;
+    margin: 10px 10px !important;
+}
+
+.content-navi-top ul.level1 li a {
+    text-shadow: 0 0 transparent;
+}
+
+.html5-nav.meta-navi li a {
+    display: inline-block;
+}
+
+.citymap-navi.ehrenamt-projects {
+    margin-left: 10px;
+}
+
+.nav.level1 .citymap-navi.selected a {
+    background-color: #253276;
+    color: #fff;
 }
 
 /** .html5-section.content.type-article {
@@ -25,16 +43,16 @@ h1.my-title {
 #kiezatlas {
     width: 100%;
     height: 580px;
-    position: relative; top: 10px;
+    position: relative;
     font-family: Arial, sans-serif;
     font-size: 13px;
     line-height: 18px;
-    color: #3b3b3b;
+    color: #000;
 }
 
 .leaflet-popup-content div.topic-name.item b,
 #kiezatlas a {
-    color: #003684;
+    color: #253276;
     text-decoration: none;
     cursor: pointer;
 }
@@ -51,23 +69,46 @@ h1.my-title {
     left: 0px;
 }
 
-#map {
+/* *#map {
     font-size: 14px;
-}
+} **/
 
 #details {
     position: absolute;
-    right: 10px; top: 40px;
-    /* border-left: 1px solid #253276;
-    border-top: 0px solid transparent; **/
+    right: 10px; top: 59px;
+    border-left: 1px solid #253276;
+    border-bottom: 1px solid #C6C6C6;
 }
 
 #branding-area {
     position: relative;
-    top: 0px; left: 5px;
+    top: 15px; left: 15px;
     cursor: pointer;
-    padding-bottom: 10px;
+    padding-bottom: 15px;
     display: none;
+}
+
+#branding-area .active-map {
+    text-decoration: none;
+    cursor: default;
+    color: #e50033;
+    font-weight: bold;
+}
+
+#branding-area .active-map:hover {
+    text-decoration: none;
+}
+
+li.citymap-navi {
+    line-height: 1em;
+    position: relative;
+    top: -7px;
+    padding-top: 4px;
+}
+
+li.citymap-navi.selected {
+    background-color: #253276;
+    color: #fff;
 }
 
 #criteria-list {
@@ -105,9 +146,9 @@ h1.my-title {
 
 #page-body {
     position: relative;
-    top: 0px; left: 2px;
+    top: 0px; left: 0px;
     padding-bottom: 10px;
-    padding-left: 10px;
+    /** padding-left: 10px; **/
     padding-right: 5px;
     overflow-y: scroll;
 }
@@ -135,15 +176,20 @@ h1.my-title {
 #page-body.categories td.cell-label,
 #page-body.categories td.cell-ikon {
     cursor: pointer;
-    color: #003684;
+    color: #3b3b3b;
 }
 
 #page-body.categories td.cell-label:hover {
     text-decoration: underline;
 }
 
+/** #page-body.categories tr.cat-selected td.cell-label {
+    color: #3b3b3b;
+} **/
+
 #page-body.categories .cat-selected {
-    background-color: #f1f1f1;
+    background-color: #ececec;
+    /** background-color: #dae3f8; **/
 }
 
 #page-body.categories .cat-deselected {
@@ -151,7 +197,8 @@ h1.my-title {
 }
 
 #page-body.entry {
-    background-color: #f1f1f1;
+    background-color: #fff; /** #dad4d2; **/
+    padding-left: 10px;
 }
 
 #page-body .fahrinfo-link {
@@ -168,9 +215,18 @@ h1.my-title {
     top: 10px;
 }
 
+
+#page-body h3.event-label,
+#page-body h3.search-label,
+#page-body h3.info-label,
+#page-body h3.category-label,
+#page-body ul.result-list {
+    padding-left: 10px;
+}
+
 #page-body ul.result-list.list li {
     cursor: pointer;
-    color: #003684;
+    color: #3b3b3b;
     margin-top: 10px;
 }
 
@@ -209,11 +265,15 @@ h1.my-title {
     padding: 6px 4px;
 }
 
+#kiezatlas #search-controls {
+    position: relative; left: 10px;
+}
+
 #kiezatlas #street-alternatives {
     display: inline-block;
     width: 320px;
     z-index: 101;
-    color: #003684;
+    color: #3b3b3b;
     position: relative;
     top: -5px;
 }
@@ -221,14 +281,22 @@ h1.my-title {
 #kiezatlas #street-alternatives .prev-location,
 #kiezatlas #street-alternatives .next-location {
     font-weight: bold;
-    padding: 4px;
-    cursor: pointer;
+    padding: 6px; padding-bottom: 5px;
     margin: 4px;
+    color: #a9a9a9;
 }
 
-#kiezatlas #street-alternatives .prev-location:hover,
-#kiezatlas #street-alternatives .next-location:hover {
-    background-color: #003684;
+#kiezatlas #street-alternatives .next-location.btn {
+    margin-right: 12px;
+}
+
+#kiezatlas #street-alternatives .btn {
+    cursor: pointer;
+    color: #fff;
+}
+
+#kiezatlas #street-alternatives .btn:hover {
+    background-color: #253276;
     color: #fff;
 }
 
@@ -236,16 +304,29 @@ h1.my-title {
 #kiezatlas #reset {
     display: inline-block;
     position: absolute; top: 0px;
-    left: 60%; margin-right: 10px;
+    left: 70%; margin-right: 10px;
     z-index: 201; background-color: #fff; padding: 4px;
+    padding-right: 6px; padding-left: 6px;
     cursor: pointer;
+    color: #253276;
+}
+
+#kiezatlas #show-all:hover,
+#kiezatlas #reset:hover {
+    background-color: #253276;
+    color: #fff;
 }
 
 #kiezatlas #show-all {
-    left: 40%;
+    left: 50%;
+}
+
+#simple-search {
+    padding-top: 7px;
+    padding-bottom: 6px;
+    margin-bottom: 3px;
 }
 
 /** .nav li.icon-printer_32 {
     display: none;
 } **/
-
