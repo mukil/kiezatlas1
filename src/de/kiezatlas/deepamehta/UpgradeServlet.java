@@ -42,10 +42,9 @@ public class UpgradeServlet extends DeepaMehtaServlet implements KiezAtlas {
     // --- KiezAtlas 1 Upgrade Servlet
     // --
 
-    private final static String KA2_SERVICE_URL = "http://localhost:8182";
+    private final static String KA2_SERVICE_URL = "http://212.87.44.116:8283";
+    // private final static String KA2_SERVICE_URL = "http://localhost:8182";
     //
-    private final static String KA2_DEFAULT_WS_TOPIC_ID = "988";
-
     private static final String KA2_ADMIN_PASSWORD = "";
 
 

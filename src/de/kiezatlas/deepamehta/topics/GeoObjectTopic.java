@@ -52,8 +52,9 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
     static final String DEFAULT_PASSWORD = "geheim";
     static final String KA2_TOPIC_INSTANCE_URI_PREFIX = "de.kiezatlas.topic.";
     //
-    private static final String KA2_SERVICE_URL = "http://localhost:8182";
-    private static final String KA2_DEFAULT_WS_TOPIC_ID = "988";
+    private static String KA2_SERVICE_URL = "http://212.87.44.116:8283";
+    // private static final String KA2_SERVICE_URL = "http://localhost:8182";
+    private static final String KA2_DEFAULT_WS_TOPIC_ID = "870";
 
     private static final String KA2_ADMIN_PASSWORD = "";
 
@@ -407,7 +408,9 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
         postContactFacets(getID(), newTopicId);
         postImageFileFacet(getID(), newTopicId);
         postAgencyFacet(getID(), newTopicId);
-        postBezirksregionFacet(getID(), newTopicId, mapAlias);
+        if (mapAlias.toLowerCase().indexOf("gesamt") == -1) { // no gesamt-plan..
+            postBezirksregionFacet(getID(), newTopicId, mapAlias);
+        }
         postBezirksFacet(getID(), newTopicId, as.getLiveTopic(workspaceId, 1).getName());
         // Post Category of GeoObjectTopic
         for (int k = 0; k < criterias.length; k++) {
@@ -635,6 +638,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
             if (postalCode.indexOf("Berlin") != -1) {
                 postalCode = postalCode.replaceAll("Berlin", "");
             }
+            // ..) Check if postalCode exists (KA 2)
             String existingPostalCodeId = getPostalCodeEntityByValue(postalCode);
             if (existingPostalCodeId != null) {
                 // .. ) Reference the KA 2 Postal Code Topic
@@ -717,6 +721,8 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
     private void postGeoCoordinateFacet(String oldTopicId, String addressTopicId) {
         String latValue = as.getTopicProperty(oldTopicId, 1, PROPERTY_GPS_LAT);
         String lngValue = as.getTopicProperty(oldTopicId, 1, PROPERTY_GPS_LONG);
+        double latitude = 0;
+        double longitude = 0;
         if (latValue.isEmpty() || lngValue.isEmpty()) {
             //
             System.out.println("--------");
@@ -724,21 +730,29 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
                     as.getLiveTopic(oldTopicId, 1).getName() + " is EMPTY");
             System.out.println("--------");
             // If GPS is not set in KA 1 we could possibly correct this (through a ka2 geo-code request)
-            // postTopicAddress(addressTopicId);
+            postTopicAddress(addressTopicId);
+        } else {
+            try {
+                latitude = Double.parseDouble(latValue);
+                longitude = Double.parseDouble(lngValue);
+                setGeoCoordinateFacet(latitude, longitude, addressTopicId);
+            } catch (NumberFormatException ne) {
+                // If GPS is not set in KA 1 we could possibly correct this (through a ka2 geo-code request)
+                postTopicAddress(addressTopicId);
+            }
         }
-        setGeoCoordinateFacet(latValue, lngValue, addressTopicId);
     }
 
     private void postPropertyFacets(String oldTopicId, String newTopicId) {
 
         // Set Sonstiges Facet => Beschreibung
-        String sonstigesTypeURI = "ka2.beschreibung.facet";
+        String sonstigesTypeURI = "ka2.beschreibung.facet"; // HTML
         String sonstigesChildTypeURI = "ka2.beschreibung";
         String sonstigesValue = as.getTopicProperty(oldTopicId, 1, PROPERTY_SONSTIGES);
         setSimpleFacetValue(oldTopicId, newTopicId, sonstigesTypeURI, sonstigesChildTypeURI, sonstigesValue);
 
         // Set Oeffnungszeiten Facet
-        String openingTypeURI = "ka2.oeffnungszeiten.facet";
+        String openingTypeURI = "ka2.oeffnungszeiten.facet"; // Text
         String openingChildTypeURI = "ka2.oeffnungszeiten";
         String openingHours = as.getTopicProperty(oldTopicId, 1, PROPERTY_OEFFNUNGSZEITEN);
         setSimpleFacetValue(oldTopicId, newTopicId, openingTypeURI, openingChildTypeURI, openingHours);
@@ -1235,7 +1249,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
         writer.endObject();
     }
 
-    private void setGeoCoordinateFacet(String latValue, String lngValue, String addressTopicId) {
+    private void setGeoCoordinateFacet(double latValue, double lngValue, String addressTopicId) {
         String geoCoordinateFacetTypeUri = "dm4.geomaps.geo_coordinate_facet";
         // String geoCordinateTypeURI = "dm4.geomaps.geo_coordinate";
         try {
@@ -1267,7 +1281,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
         }
     }
 
-    private void writeGeoCoordinateFacet(JsonWriter writer, String latValue, String lngValue) throws IOException {
+    private void writeGeoCoordinateFacet(JsonWriter writer, double latValue, double lngValue) throws IOException {
         // 1) write new geo-coordinate facet
         writer.beginObject();
         writer.name("dm4.geomaps.geo_coordinate");
@@ -1280,10 +1294,15 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 
     private void writeNewFacetValue(JsonWriter writer, String facetValue, String facetChildTypeUri)
             throws IOException {
-        if (facetValue.indexOf("\r") != -1) {
-            facetValue = facetValue.replaceAll("\r", "<br/>");
+        // re-write line breaks for our HMTL fields
+        if (facetChildTypeUri.equals("ka2.sonstiges") ||
+                facetChildTypeUri.equals("ka2.oeffnungszeiten") ||
+                facetChildTypeUri.equals("ka2.beschreibung")) {
+            if (facetValue.indexOf("\r") != -1) {
+                facetValue = facetValue.replaceAll("\r", "<br/>");
+            }
+            facetValue = "<p>"+ facetValue +"</p>";
         }
-        //
         writer.beginObject();
         writer.name(facetChildTypeUri).value(facetValue);
         writer.endObject();
@@ -1901,7 +1920,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
         String givenAddress = getAddressString();
         if (givenAddress.equals("")) {
             return new String[4]; // skip gps fetch for just " Berlin" without a street
-        }        // StringBuffer requestUrl = new StringBuffer("http://maps.google.com/maps/geo?");
+        } // StringBuffer requestUrl = new StringBuffer("http://maps.google.com/maps/geo?");
         StringBuffer requestUrl = new StringBuffer("https://maps.googleapis.com/maps/api/geocode/json?");
         requestUrl.append("address=");
         requestUrl.append(convertAddressForRequest(givenAddress));
