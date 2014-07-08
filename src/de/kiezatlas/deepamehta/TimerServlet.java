@@ -100,7 +100,7 @@ public class TimerServlet implements Servlet, ApplicationServiceHost {
         try {
         scheduler.scheduleJob(engagementJob, indexdeTrigger);
         scheduler.scheduleJob(eventJob, eventTrigger);
-        System.out.println("INFO: The Importer Jobs are now scheduled for... 00:45 AM (Project) and 06:15 AM (Event)");
+        System.out.println("INFO: The Importer Jobs are now scheduled for... 01:45 AM (Project) and 06:15 AM (Event)");
         } catch (SchedulerException ex) {
         ex.printStackTrace();
         }
