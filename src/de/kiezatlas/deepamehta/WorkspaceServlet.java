@@ -35,19 +35,19 @@ import org.apache.commons.fileupload.FileItem;
  */
 public class WorkspaceServlet extends DeepaMehtaServlet implements KiezAtlas {
 
-  static final String ASSOCTYPE_SUBMITTER = "t-822236";
+    static final String ASSOCTYPE_SUBMITTER = "t-822236";
 
-	protected String performAction(String action, RequestParameter params, Session session, CorporateDirectives directives)
-																									throws ServletException {
-		if (action == null) {
-			try {
-				String pathInfo = params.getPathInfo();
-				// error check
-				if (pathInfo == null || pathInfo.length() == 1) {
-					throw new DeepaMehtaException("Fehler in URL");
-				}
-				//
-				String alias = pathInfo.substring(1);
+    protected String performAction(String action, RequestParameter params, Session session, CorporateDirectives directives)
+            throws ServletException {
+        if (action == null) {
+            try {
+                String pathInfo = params.getPathInfo();
+                // error check
+                if (pathInfo == null || pathInfo.length() == 1) {
+                    throw new DeepaMehtaException("Fehler in URL");
+                }
+                //
+                String alias = pathInfo.substring(1);
                 Hashtable aliasProperty = new Hashtable();
                 aliasProperty.put(PROPERTY_WORKSPACE_ALIAS, alias);
                 BaseTopic workspace = as.getTopic(TOPICTYPE_WORKSPACE, aliasProperty, null, directives);
@@ -58,23 +58,23 @@ public class WorkspaceServlet extends DeepaMehtaServlet implements KiezAtlas {
                     return PAGE_WORKSPACE_ERROR;
                 }
                 //
-				return PAGE_WORKSPACE_LOGIN;
-			} catch (DeepaMehtaException e) {
-				System.out.println("*** WorkspaceServlet.performAction(): " + e);
-				session.setAttribute("error", e.getMessage());
-				return PAGE_WORKSPACE_ERROR;
-			}
-		}
-		// session timeout?
-		if (getWorkspaceObject(session) == null) {	// ### doesn't return null but throws exception!
-			System.out.println("*** Session Expired ***");
+                return PAGE_WORKSPACE_LOGIN;
+            } catch (DeepaMehtaException e) {
+                System.out.println("*** WorkspaceServlet.performAction(): " + e);
+                session.setAttribute("error", e.getMessage());
+                return PAGE_WORKSPACE_ERROR;
+            }
+        }
+        // session timeout?
+        if (getWorkspaceObject(session) == null) {	// ### doesn't return null but throws exception!
+            System.out.println("*** Session Expired ***");
 			session.setAttribute("error", "Timeout: Kiezatlas wurde mehr als " +
 				((WebSession) session).session.getMaxInactiveInterval() / 60 + " Minuten nicht benutzt");
-			return PAGE_WORKSPACE_ERROR;
-		}
-		//
-		if (action.equals(ACTION_TRY_LOGIN)) {
-			// GeoObjectTopic geo = getGeoObject(session);
+            return PAGE_WORKSPACE_ERROR;
+        }
+        //
+        if (action.equals(ACTION_TRY_LOGIN)) {
+            // GeoObjectTopic geo = getGeoObject(session);
             // BaseTopic workspace = getWorkspaceTopicByAlias();
             String password = params.getValue(PROPERTY_PASSWORD);
             String username = params.getValue(PROPERTY_USERNAME);
@@ -94,7 +94,7 @@ public class WorkspaceServlet extends DeepaMehtaServlet implements KiezAtlas {
                     session.setAttribute("error", "Login incorrect");
                     return PAGE_WORKSPACE_ERROR;
                 }
-            } catch(DeepaMehtaException ex) {
+            } catch (DeepaMehtaException ex) {
                 System.out.println("User is NOT available or credentials are not correct.. ");
                 session.setAttribute("error", "Login incorrect");
                 return PAGE_WORKSPACE_ERROR;
@@ -126,15 +126,15 @@ public class WorkspaceServlet extends DeepaMehtaServlet implements KiezAtlas {
             // String geoPw = as.getTopicProperty(geo, PROPERTY_PASSWORD);
             // return password.equals(geoPw) ? PAGE_WORKSPACE_FORM : PAGE_WORKSPACE_LOGIN;
             return PAGE_WORKSPACE_LOGIN;
-                    //
+            //
         } else if (action.equals(ACTION_SHOW_WORKSPACE_FORM)) {
-                // create properly a new item
-                BaseTopic ws = (BaseTopic) session.getAttribute("workspace");
-                // load current workspace geo-topictype
-                BaseTopic geoType = getWorkspaceGeoType(ws.getID());
-                session.setAttribute("instTypeId", geoType.getID());
-                return PAGE_WORKSPACE_FORM;
-                //
+            // create properly a new item
+            BaseTopic ws = (BaseTopic) session.getAttribute("workspace");
+            // load current workspace geo-topictype
+            BaseTopic geoType = getWorkspaceGeoType(ws.getID());
+            session.setAttribute("instTypeId", geoType.getID());
+            return PAGE_WORKSPACE_FORM;
+            //
         } else if (action.equals(ACTION_CREATE_GEO)) {
             // load all selected citymap-ids..
             String[] cityMaps = params.getParameterValues("cityMap");
@@ -159,7 +159,7 @@ public class WorkspaceServlet extends DeepaMehtaServlet implements KiezAtlas {
                 System.out.println("*** Error catched along... should redirect to form with UDPATE_GEO..");
             }
             //
-            for (int i=0; i<cityMaps.length; i++) {
+            for (int i = 0; i < cityMaps.length; i++) {
                 String cityMapId = cityMaps[i];
                 System.out.println("DEBUG: cityMaps to publish this object to.. " + cityMapId);
                 // --- place in city map ---
@@ -167,13 +167,13 @@ public class WorkspaceServlet extends DeepaMehtaServlet implements KiezAtlas {
                 // This way YADE-based autopositioning can perform through geo object's propertiesChanged() hook.
                 cm.createViewTopic(cityMapId, 1, VIEWMODE_USE, geoObjectId, 1, 0, 0, false);	// performExistenceCheck=false
             }
-			// --- get geo object ---
-			setGeoObject(cm.getTopic(geoObjectId, 1), session);
-			GeoObjectTopic geo = getGeoObject(session);
-			setGPSCoordinates(geo, directives); //{ // loads gps coordinates
+            // --- get geo object ---
+            setGeoObject(cm.getTopic(geoObjectId, 1), session);
+            GeoObjectTopic geo = getGeoObject(session);
+            setGPSCoordinates(geo, directives); //{ // loads gps coordinates
             // --- store image ---
-                    // EditServlet.writeFiles(params.getUploads(), geo.getImage(), as);
-            //
+            // EditServlet.writeFiles(params.getUploads(), geo.getImage(), as);
+            // --- possibly create notification to logged in user if entry was created
             BaseTopic user = (BaseTopic) session.getAttribute("user");
             String userMailbox = "";
             if (user != null && as.getMailboxURL(user.getID()) != null) {
@@ -194,62 +194,60 @@ public class WorkspaceServlet extends DeepaMehtaServlet implements KiezAtlas {
             }
             sendNotificationEmail(userMailbox, geoObjectId, ws);
             return PAGE_WORKSPACE_OBJECT_ADDED;
-		} else if (action.equals(ACTION_UPDATE_GEO)) {
-			GeoObjectTopic geo = getGeoObject(session);
-			// --- update geo object ---
-			updateTopic(geo.getType(), params, session, directives);
-			// --- store image ---
-			writeFiles(params.getUploads(), geo.getImage(), as);
-			//
-			return PAGE_WORKSPACE_OBJECT_ADDED;
-			//
-		} else {
-			return super.performAction(action, params, session, directives);
-		}
-	}
+        } else if (action.equals(ACTION_UPDATE_GEO)) {
+            GeoObjectTopic geo = getGeoObject(session);
+            // --- update geo object ---
+            updateTopic(geo.getType(), params, session, directives);
+            // --- store image ---
+            writeFiles(params.getUploads(), geo.getImage(), as);
+            //
+            return PAGE_WORKSPACE_OBJECT_ADDED;
+            //
+        } else {
+            return super.performAction(action, params, session, directives);
+        }
+    }
 
-	protected void preparePage(String page, RequestParameter params, Session session, CorporateDirectives directives) {
-		if (page.equals(PAGE_GEO_HOME)) {
-			// String geoID = getGeoObject(session).getID();
-			// TopicBean topicBean = as.createTopicBean(geoID, 1);
-			// session.setAttribute("topicBean", topicBean);
-			// updateImagefile(session);
-		}
-	}
-
-
-
-	// *****************
-	// *** Utilities ***
-	// *****************
+    protected void preparePage(String page, RequestParameter params, Session session, CorporateDirectives directives) {
+        if (page.equals(PAGE_GEO_HOME)) {
+            // String geoID = getGeoObject(session).getID();
+            // TopicBean topicBean = as.createTopicBean(geoID, 1);
+            // session.setAttribute("topicBean", topicBean);
+            // updateImagefile(session);
+        }
+    }
 
 
 
-	private void sendNotificationEmail(String mailbox, String topicId, BaseTopic workspace) {
-		try {
+    // *****************
+    // *** Utilities ***
+    // *****************
+
+    private void sendNotificationEmail(String mailbox, String topicId, BaseTopic workspace) {
+        try {
             GeoObjectTopic inst = (GeoObjectTopic) as.getLiveTopic(topicId, 1);
             BaseTopic geoType = getWorkspaceGeoType(workspace.getID());
             TypeTopic topicType = (TypeTopic) as.getLiveTopic(geoType);
-			// "from"
-			String from = as.getEmailAddress("t-rootuser");		// ###
-			if (from == null || from.equals("")) {
-				throw new DeepaMehtaException("email address of root user is unknown");
-			}
-			// "to"
-			BaseTopic email = inst.getEmail();
+            // "from"
+            String from = as.getEmailAddress("t-rootuser");		// ###
+            if (from == null || from.equals("")) {
+                throw new DeepaMehtaException("email address of root user is unknown");
+            }
+            // "to"
+            BaseTopic email = inst.getEmail();
             String to = "";
-			if (email == null || email.getName().equals("")) {
+            if (email == null || email.getName().equals("")) {
                 // use given mailbox
                 System.out.println("User MAILBOX : " + mailbox);
                 to = mailbox;
                 // throw new DeepaMehtaException("email address of \"" + inst.getName() + "\" is unknown");
-                    } else {
+            } else {
                 // use institution mailbox..
                 to = email.getName();
             }
-			// "subject"
-			String subject = "Kiezatlas: Neuer Datensatz";
-			// "body"
+            // "subject"
+            String subject = "Kiezatlas: Neuer Datensatz";
+            // "body"
             // Hashtable props = formType.getProperties();
             StringBuffer topicBody = new StringBuffer("");
             try {
@@ -265,52 +263,50 @@ public class WorkspaceServlet extends DeepaMehtaServlet implements KiezAtlas {
                         // Note: the hook returns _parameter names_ and the page delivers _field labels_
                         // if (hiddenProps == null || !hiddenProps.contains(propName)) {
                         // }
-                        if (propLabel.equals("LONG") || propLabel.equals("LAT") || propLabel.equals("Password") || propLabel.equals("Name") ||
-                            propLabel.equals("Owner ID") || propLabel.equals("Locked Geometry") || propLabel.equals("YADE x") || propLabel.equals("YADE y")
-                            || propLabel.equals("Stichworte") || propLabel.equals("Description") || propLabel.equals("Icon")) {
+                        if (propLabel.equals("LONG") || propLabel.equals("LAT") || propLabel.equals("Password") || propLabel.equals("Name")
+                                || propLabel.equals("Owner ID") || propLabel.equals("Locked Geometry") || propLabel.equals("YADE x") || propLabel.equals("YADE y")
+                                || propLabel.equals("Stichworte") || propLabel.equals("Description") || propLabel.equals("Icon")) {
                             // do not append
                         } else {
-                            topicBody.append(""+propLabel+":" + propValue +"\r");
+                            topicBody.append("" + propLabel + ":" + propValue + "\r");
                         }
                     }
                 }
             } catch (NullPointerException ex) {
-                System.out.println("ERROR: sendNotificationMail.. " + topicBody.toString() + " message: \r-------" +
-                    "\r" + ex.getMessage());
+                System.out.println("ERROR: sendNotificationMail.. " + topicBody.toString() + " message: \r-------"
+                        + "\r" + ex.getMessage());
             }
-			Hashtable topic = cm.getTopicData(topicId, 1);
-			String body = "Dies ist eine automatische Benachrichtigung von www.kiezatlas.de\r\r" +
-				"Im Workspace \"" + workspace.getName() + "\" wurde in ihrem Namen der folgende Datensatz neu eingetragen:\r\r"+
-				"------------------------------\r" +
-				topic.get("Trägerident") + "\r\r" + topicBody.toString() +
-				// "Autor: " + topic.get(PROPERTY_) + "\r" +
-				// "Email: " + topic.get(PROPERTY_) + "\r" +
-				// "Datum: " + topic.get(PROPERTY_) + "\r" +
-				// "Uhrzeit: " + topic.get(PROPERTY_COMMENT_TIME) + "\r" +
-				"------------------------------\r\r" +
-				"Im Falle des Mißbrauchs: Kontakieren Sie bitte den Kiez-Administrator vom " +
-                workspace.getName() + " Workspace.\r" +
-				"Die Kontakt-Email ist Thomas.Moser@ba-ts.berlin.de \r" +
-				"\r\r" +
-				"Mit freundlichen Grüßen\r" +
-				"ihr Kiezatlas-Team";
-			//
-			System.out.println(">>> send notification email");
-			System.out.println("  > SMTP server: \"" + as.getSMTPServer() + "\"");	// as.getSMTPServer() throws DME
-			System.out.println("  > from: \"" + from + "\"");
-			System.out.println("  > to: \"" + to + "\"");
-			// send email
-			EmailTopic.sendMail(as.getSMTPServer(), from, to, subject, body);		// EmailTopic.sendMail() throws DME
-		} catch (Exception e) {
-			System.out.println("*** notification email not send (" + e + ")");
-		}
-	}
-
-
+            Hashtable topic = cm.getTopicData(topicId, 1);
+            String body = "Dies ist eine automatische Benachrichtigung von www.kiezatlas.de\r\r"
+                    + "Im Workspace \"" + workspace.getName() + "\" wurde in ihrem Namen der folgende Datensatz neu eingetragen:\r\r"
+                    + "------------------------------\r"
+                    + topic.get("Trägerident") + "\r\r" + topicBody.toString()
+                    + // "Autor: " + topic.get(PROPERTY_) + "\r" +
+                    // "Email: " + topic.get(PROPERTY_) + "\r" +
+                    // "Datum: " + topic.get(PROPERTY_) + "\r" +
+                    // "Uhrzeit: " + topic.get(PROPERTY_COMMENT_TIME) + "\r" +
+                    "------------------------------\r\r"
+                    + "Im Falle des Mißbrauchs: Kontakieren Sie bitte den Kiez-Administrator vom "
+                    + workspace.getName() + " Workspace.\r"
+                    + "Die Kontakt-Email ist Thomas.Moser@ba-ts.berlin.de \r"
+                    + "\r\r"
+                    + "Mit freundlichen Grüßen\r"
+                    + "ihr Kiezatlas-Team";
+            //
+            System.out.println(">>> send notification email");
+            System.out.println("  > SMTP server: \"" + as.getSMTPServer() + "\"");	// as.getSMTPServer() throws DME
+            System.out.println("  > from: \"" + from + "\"");
+            System.out.println("  > to: \"" + to + "\"");
+            // send email
+            EmailTopic.sendMail(as.getSMTPServer(), from, to, subject, body);		// EmailTopic.sendMail() throws DME
+        } catch (Exception e) {
+            System.out.println("*** notification email not send (" + e + ")");
+        }
+    }
 
     /**
-     * returns null if there is no topictype assigned to the given workspace,
-     * or is topictype is not a subtype of "GeoObjectTopic"
+     * returns null if there is no topictype assigned to the given workspace, or is topictype is not a subtype of
+     * "GeoObjectTopic"
      *
      * @param workspaceId
      * @return
@@ -337,100 +333,98 @@ public class WorkspaceServlet extends DeepaMehtaServlet implements KiezAtlas {
         return null;
     }
 
-	/**
-	 * @see		#performAction
-	 * @see		ListServlet#performAction
-	 */
-	static Vector writeFiles(Vector fileItems, BaseTopic topic, ApplicationService as) {
-		Vector fileNames = new Vector();
-		for (int i = 0; i < fileItems.size(); i++) {
-			try {
-				System.out.println(">>> WorkspaceServlet.writeFiles(): " + fileItems.size() + " files uploaded, writing fileItem: " + i);
-				FileItem item = (FileItem) fileItems.get(i);
-				String propName = getFileChooserFieldName(item);
-				String fileext = getFileExtension(item.getName());	// ### explorer includes entire path
-				String filename = getFilename(item.getName());	// ### explorer includes entire path
-				System.out.println("  > filename=\"" + filename + "\" extension=\"" + fileext + "\"");
-				String path = "/home/jrichter/deepamehta/install/client/documents/";	// ### hardcoded
-				if (fileext.equalsIgnoreCase("png") || fileext.equalsIgnoreCase("jpg") || fileext.equalsIgnoreCase("gif")) {
-					path = "/home/jrichter/deepamehta/install/client/images/";	// ### hardcoded
-				}
-				File fileToWrite = new File(path + filename);
-				// find new filename if already exists
-				int copyCount = 0;
-				String newFilename = null;
-				int pos = filename.lastIndexOf('.');
-				while (fileToWrite.exists()) {
-					copyCount++;
-					newFilename = filename.substring(0, pos) + "-" + copyCount + filename.substring(pos);
-					fileToWrite = new File(path + newFilename);
-					System.out.println("  > file already exists, try \"" + newFilename + "\"");
-				}
-				//
-				item.write(fileToWrite);
-				// ### item.write(new File(as.getCorporateWebBaseURL().substring(5) + "images/" + filename));
-				System.out.println("  > file \"" + fileToWrite + "\" written successfully");
-				if (copyCount > 0) {
-					if (newFilename != null) {
-						as.setTopicProperty(topic, propName, newFilename);
-					}
-					fileNames.add(newFilename);
-				} else {
-					fileNames.add(filename);
-				}
-			} catch (Exception e) {
-				System.out.println("*** WorkspaceServlet.writeFiles(): " + e);
-			}
-		}
-		return fileNames;
-	}
+    /**
+     * @see	#performAction
+     * @see	ListServlet#performAction
+     */
+    static Vector writeFiles(Vector fileItems, BaseTopic topic, ApplicationService as) {
+        Vector fileNames = new Vector();
+        for (int i = 0; i < fileItems.size(); i++) {
+            try {
+                System.out.println(">>> WorkspaceServlet.writeFiles(): " + fileItems.size() + " files uploaded, writing fileItem: " + i);
+                FileItem item = (FileItem) fileItems.get(i);
+                String propName = getFileChooserFieldName(item);
+                String fileext = getFileExtension(item.getName());	// ### explorer includes entire path
+                String filename = getFilename(item.getName());	// ### explorer includes entire path
+                System.out.println("  > filename=\"" + filename + "\" extension=\"" + fileext + "\"");
+                String path = "/home/jrichter/deepamehta/install/client/documents/";	// ### hardcoded
+                if (fileext.equalsIgnoreCase("png") || fileext.equalsIgnoreCase("jpg") || fileext.equalsIgnoreCase("gif")) {
+                    path = "/home/jrichter/deepamehta/install/client/images/";	// ### hardcoded
+                }
+                File fileToWrite = new File(path + filename);
+                // find new filename if already exists
+                int copyCount = 0;
+                String newFilename = null;
+                int pos = filename.lastIndexOf('.');
+                while (fileToWrite.exists()) {
+                    copyCount++;
+                    newFilename = filename.substring(0, pos) + "-" + copyCount + filename.substring(pos);
+                    fileToWrite = new File(path + newFilename);
+                    System.out.println("  > file already exists, try \"" + newFilename + "\"");
+                }
+                //
+                item.write(fileToWrite);
+                // ### item.write(new File(as.getCorporateWebBaseURL().substring(5) + "images/" + filename));
+                System.out.println("  > file \"" + fileToWrite + "\" written successfully");
+                if (copyCount > 0) {
+                    if (newFilename != null) {
+                        as.setTopicProperty(topic, propName, newFilename);
+                    }
+                    fileNames.add(newFilename);
+                } else {
+                    fileNames.add(filename);
+                }
+            } catch (Exception e) {
+                System.out.println("*** WorkspaceServlet.writeFiles(): " + e);
+            }
+        }
+        return fileNames;
+    }
 
-	static String getFileChooserFieldName(FileItem item) {
-		String fieldName = item.getFieldName();
-		int pos = fieldName.lastIndexOf(":");
-		return pos != -1 ? fieldName.substring(pos + 1) : fieldName;
-	}
+    static String getFileChooserFieldName(FileItem item) {
+        String fieldName = item.getFieldName();
+        int pos = fieldName.lastIndexOf(":");
+        return pos != -1 ? fieldName.substring(pos + 1) : fieldName;
+    }
 
-	// ###
-	static String getFilename(String path) {
-		int pos = path.lastIndexOf('\\');
-		return pos != -1 ? path.substring(pos + 1) : path;
-	}
+    // ###
+    static String getFilename(String path) {
+        int pos = path.lastIndexOf('\\');
+        return pos != -1 ? path.substring(pos + 1) : path;
+    }
 
-	static String getFileExtension(String path) {
-		int pos = path.lastIndexOf('.');
-		return pos != -1 ? path.substring(pos + 1) : "";
-	}
-
-
-
-	// *************************
-	// *** Session Utilities ***
-	// *************************
+    static String getFileExtension(String path) {
+        int pos = path.lastIndexOf('.');
+        return pos != -1 ? path.substring(pos + 1) : "";
+    }
 
 
 
-	private void setWorkspaceObject(BaseTopic workspace, Session session) {
-		session.setAttribute("workspace", workspace);
-		System.out.println("> \"workspace\" stored in session: " + workspace);
-	}
+    // *************************
+    // *** Session Utilities ***
+    // *************************
 
-	private BaseTopic getWorkspaceObject(Session session) {
-		return ((BaseTopic) session.getAttribute("workspace"));
-	}
+    private void setWorkspaceObject(BaseTopic workspace, Session session) {
+        session.setAttribute("workspace", workspace);
+        System.out.println("> \"workspace\" stored in session: " + workspace);
+    }
+
+    private BaseTopic getWorkspaceObject(Session session) {
+        return ((BaseTopic) session.getAttribute("workspace"));
+    }
 
     private GeoObjectTopic getGeoObject(Session session) {
-		return (GeoObjectTopic) as.getLiveTopic((BaseTopic) session.getAttribute("geo"));
-	}
+        return (GeoObjectTopic) as.getLiveTopic((BaseTopic) session.getAttribute("geo"));
+    }
 
     private void setGeoObject(BaseTopic geo, Session session) {
-		session.setAttribute("geo", geo);
-		System.out.println("> \"geo\" stored in session: " + geo);
-	}
+        session.setAttribute("geo", geo);
+        System.out.println("> \"geo\" stored in session: " + geo);
+    }
 
     /**
-     * Connects to Google's GeoCoder and gets for the Ojbects resp. Address
-     * the GPS Coordinates and saves them into the Corporate Memory
+     * Connects to Google's GeoCoder and gets for the Ojbects resp. Address the GPS Coordinates and saves them into the
+     * Corporate Memory
      *
      * @param geo
      * @param directives
@@ -439,26 +433,26 @@ public class WorkspaceServlet extends DeepaMehtaServlet implements KiezAtlas {
         geo.setGPSCoordinates(directives);
     }
 
-	// ---
+    // ---
 
-	// ### compare to class Institution
-	private void updateImagefile(Session session) {
-		String imageURL = null;
-		BaseTopic image = getGeoObject(session).getImage();
-		if (image != null) {
-			String imagefile = as.getTopicProperty(image, PROPERTY_FILE);
-			if (imagefile.length() > 0) {
-        // yes, users store pdf or docs as object's logo image into the system,
-        // we have to adjust the path so that they can see what they're doing
-        if (imagefile.indexOf("png") != -1 || imagefile.indexOf("jpg") != -1 || imagefile.indexOf("gif") != -1 ||
-                imagefile.indexOf("PNG") != -1 || imagefile.indexOf("JPG") != -1 || imagefile.indexOf("GIF") != -1) {
-            imageURL = as.getCorporateWebBaseURL() + FILESERVER_IMAGES_PATH + imagefile;
-        } else {
-            imageURL = as.getCorporateWebBaseURL() + FILESERVER_DOCUMENTS_PATH + imagefile;
+    // ### compare to class Institution
+    private void updateImagefile(Session session) {
+        String imageURL = null;
+        BaseTopic image = getGeoObject(session).getImage();
+        if (image != null) {
+            String imagefile = as.getTopicProperty(image, PROPERTY_FILE);
+            if (imagefile.length() > 0) {
+                // yes, users store pdf or docs as object's logo image into the system,
+                // we have to adjust the path so that they can see what they're doing
+                if (imagefile.indexOf("png") != -1 || imagefile.indexOf("jpg") != -1 || imagefile.indexOf("gif") != -1
+                        || imagefile.indexOf("PNG") != -1 || imagefile.indexOf("JPG") != -1 || imagefile.indexOf("GIF") != -1) {
+                    imageURL = as.getCorporateWebBaseURL() + FILESERVER_IMAGES_PATH + imagefile;
+                } else {
+                    imageURL = as.getCorporateWebBaseURL() + FILESERVER_DOCUMENTS_PATH + imagefile;
+                }
+            }
         }
-			}
-		}
-		session.setAttribute("imagefile", imageURL);
-		System.out.println("> \"imagefile\" stored in session: " + imageURL);
-	}
+        session.setAttribute("imagefile", imageURL);
+        System.out.println("> \"imagefile\" stored in session: " + imageURL);
+    }
 }
