@@ -1,0 +1,251 @@
+
+body {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+img.more {
+  padding: 4px;
+}
+
+h1.my-title {
+  margin: 10px 10px !important;
+}
+
+/** .html5-section.content.type-article {
+    height: 800px;
+} **/
+
+#kiezatlas {
+    width: 100%;
+    height: 580px;
+    position: relative; top: 10px;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    line-height: 18px;
+    color: #3b3b3b;
+}
+
+.leaflet-popup-content div.topic-name.item b,
+#kiezatlas a {
+    color: #003684;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.leaflet-popup-content div.topic-name.item b:hover,
+#kiezatlas a:hover {
+    text-decoration: underline;
+}
+
+/** red: #b5050e, blue: #253276; */
+
+#overview {
+    position: relative;
+    left: 0px;
+}
+
+#map {
+    font-size: 14px;
+}
+
+#details {
+    position: absolute;
+    right: 10px; top: 40px;
+    /* border-left: 1px solid #253276;
+    border-top: 0px solid transparent; **/
+}
+
+#branding-area {
+    position: relative;
+    top: 0px; left: 5px;
+    cursor: pointer;
+    padding-bottom: 10px;
+    display: none;
+}
+
+#criteria-list {
+    position: relative;
+    top: 0px; right: 5px;
+}
+
+#criteria-list table td.selected-criteria {
+    font-weight: bold;
+}
+
+#criteria-list table td.criteria {
+    font-weight: normal;
+    cursor: pointer;
+    width: 38%;
+}
+
+#kiezatlas table td {
+    border: 0px solid transparent;
+    padding: 3px 3px;
+    vertical-align: inherit;
+}
+
+/** berlin.de style matches all classes with "icon".. */
+#kiezatlas table td.cell-ikon {
+    text-align: center;
+}
+
+#cross-links-area {
+    border: 1px solid #f77f7f;
+    position: relative;
+    height: 20px; left: 5px;
+    display: none;
+}
+
+#page-body {
+    position: relative;
+    top: 0px; left: 2px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    padding-right: 5px;
+    overflow-y: scroll;
+}
+
+#page-body p {
+    margin: 10px 0px 10px 0px
+}
+
+#page-body .property-label {
+    font-weight: bold;
+}
+
+#page-body .property-field {
+    margin: 0px 0px 10px 0px;
+}
+
+#page-body .property-fields {
+    margin: 0px 0px 10px 0px;
+}
+
+#page-body.categories {
+    background-color: #fff;
+}
+
+#page-body.categories td.cell-label,
+#page-body.categories td.cell-ikon {
+    cursor: pointer;
+    color: #003684;
+}
+
+#page-body.categories td.cell-label:hover {
+    text-decoration: underline;
+}
+
+#page-body.categories .cat-selected {
+    background-color: #f1f1f1;
+}
+
+#page-body.categories .cat-deselected {
+    background-color: #fff;
+}
+
+#page-body.entry {
+    background-color: #f1f1f1;
+}
+
+#page-body .fahrinfo-link {
+    padding: 5px;
+    padding-bottom: 10px;
+    background-color: #fff;
+    position: relative;
+    top: 5px;
+    margin-bottom: 10px;
+}
+
+#page-body p.info-area {
+    position: relative;
+    top: 10px;
+}
+
+#page-body ul.result-list.list li {
+    cursor: pointer;
+    color: #003684;
+    margin-top: 10px;
+}
+
+#page-body ul.result-list.list li:hover {
+    text-decoration: underline;
+}
+
+#print-sign {
+    display: none;
+    position: absolute;
+    bottom: 60px;
+    left: 10px;
+}
+
+#footer-area {
+    position: relative;
+    top: 10px;
+    left: 0px;
+}
+
+#kiezatlas #search-controls label,
+#kiezatlas #search-controls form {
+    display: inline-block;
+}
+
+#kiezatlas #search-controls label {
+    vertical-align: super;
+    margin-right: 10px;
+}
+
+#kiezatlas #search-controls #search-form {
+    position: absolute; right: 20px;
+}
+
+#kiezatlas #search-controls input[type='text']{
+    padding: 6px 4px;
+}
+
+#kiezatlas #street-alternatives {
+    display: inline-block;
+    width: 320px;
+    z-index: 101;
+    color: #003684;
+    position: relative;
+    top: -5px;
+}
+
+#kiezatlas #street-alternatives .prev-location,
+#kiezatlas #street-alternatives .next-location {
+    font-weight: bold;
+    padding: 4px;
+    cursor: pointer;
+    margin: 4px;
+}
+
+#kiezatlas #street-alternatives .prev-location:hover,
+#kiezatlas #street-alternatives .next-location:hover {
+    background-color: #003684;
+    color: #fff;
+}
+
+#kiezatlas #show-all,
+#kiezatlas #reset {
+    display: inline-block;
+    position: absolute; top: 0px;
+    left: 60%; margin-right: 10px;
+    z-index: 201; background-color: #fff; padding: 4px;
+    cursor: pointer;
+}
+
+#kiezatlas #show-all {
+    left: 40%;
+}
+
+/** .nav li.icon-printer_32 {
+    display: none;
+} **/
+

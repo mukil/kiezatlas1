@@ -1,0 +1,31 @@
+/* 
+ * Kiezatlas Alternative Maps Interface - berlin.de Stylesheet
+ * 
+ * @author Malte Reißig - mre@deepamehta.de (14th of May 2010)
+ */
+
+/** cutout 
+#kiezatlas { font: 76% Arial, Helvetica, sans-serif; } 
+#focusInput { font-family: "Arial", "Sans-Serif"; font-size: 11px; color: #fff; } font-family: "Arial", "Sans-Serif"; font-size: 11px; color: #fff, #b60033
+background:#3F5DA6; 
+.activeField textarea input { border: 1px solid #007; }
+.idle textarea input { }
+.olControlPanel .olControlNavigationItemActive { background-color: #fff }
+.olControlPanel .olControlNavigationItemInactive { background-color: #aaa  font: 76% Arial,Helvetica,sans-serif}
+; background-color: #6C6C6C; background-image: http://www.berlin.de/.img/bde/menubar-grey-bg.gif; border-right-color: white; border-right-style: groove; border-right-width: 2px; border-left-style: groove; border-left-width: 2px; 
+*/
+#kiezatlas { font: 76% Arial, Helvetica, sans-serif;  height: 2000px; }
+#kaheader { position: absolute; left:0px; top:63px; width:999px; background: #e6edff; height: 21px; border: 0px solid #4170D4; border-right: 1px solid #4170D4; border-bottom: 1px solid #4170D4; font: Arial, Helvetica, sans-serif; }
+#helpContent { position: absolute; left:0px; top:85px; width:999px; background: #fff; border: 0px solid #4170D4; border-right: 1px solid #4170D4; border-bottom: 1px solid #4170D4; font: Arial, Helvetica, sans-serif; }
+#mapName { font: 10px Arial, Helvetica, sans-serif; font-weight: bold; position: absolute; left:3px; top: 6px; color: #4170D4; }
+#kafooter { background: #fff; height:20px; position:absolute; left: 5px; }
+#footerImprint { position:absolute; left:18px; bottom: 21px; }
+#footerPoweredBy { position:absolute; left:48px; bottom: 21px; }
+#helpFont { position: absolute; bottom: 2px; font-size: 24px; font-weight: bold; color: #4170d4; text-decoration: none;}
+#helpPageOne {position: relative; left: 10px; top: 20px; }
+.redTitle { position: relative; left: 25px; top: 5px; color: #b60033; }
+.darkTitle { position: relative; left: 32px; top: 5px; color: #333333; }
+.content { position: relative; left: 35px; width: 940px;}
+.back { color: #999999; font-size: 10px;}
+img { border: 1px dashed #ff0000; margin: 2px;}
+a { text-decoration: none; }

@@ -1,0 +1,123 @@
+/*
+ * Kiezatlas Alternative Maps Interface - Kiezatlas Labs Stylesheet
+ *
+ * @author Malte Reißig - mre@deepamehta.de (2011/11/21)
+ */
+
+#kiezatlas { font: 76% Arial, Helvetica, sans-serif; width:98%; }
+#kiezatlas a { text-decoration: none; }
+#kiezatlas a:hover { text-decoration: underline; } /** 3f5da6 **/
+#kaheader { position: absolute; left:0px; top:0px; height:35px; background:#fff; border-bottom: 5px solid #3f5da6; }
+#mapName { position: relative; left: 7px; margin-top: 0px; font-family:"Verdana", "Tahoma", "sans-serif"; font-size:13px; color:#3f5da6; width: 400px; }
+#mapName a { text-decoration: none; padding: 10px; color: #3f4da6; }
+#mapName a:hover { text-decoration: none; background-color: #3f5da6; color: #fff; }
+/** #mapName:hover { background-color: #3f5da6; color: #fff; height: 20px; }**/
+.mapTitle { font-weight: bold; }
+/** .mapTitle:hover { background-color: #3f5da6; color: #fff; padding-top: 10px; padding-bottom: 5px; padding-right: 10px; } **/
+#cityMapDialog { z-index: 1003; background-color: #fff; position:absolute; top:39px; left: 435px; border: 1px solid #3F5DA6; }
+#cityMapDialog a { cursor: pointer; }
+#cityMapDialog img { border: 0px solid #fff; }
+#cityMapNav { list-style: none; padding: 0px; }
+#cityMapNav ul { padding: 0px; -webkit-padding-start: 0px; -webkit-margin-before: 0px; -webkit-margin-after: 0px; }
+#cityMapNav li { padding: 8px; font-weight: bold; font-size: 13px; font-family: "Verdana", "Tahoma", "sans-serif"; color: #3f5da6; }
+#cityMapNav li:hover { background-color: #3f5da6; color: #fff; cursor: pointer; }
+#cityMapNav li:hover a { background-color: #3f5da6; color: #fff !important; cursor: pointer; }
+#cityMapNav li a:link { color: #3f5da6; padding-left: 4px; padding-right: 4px; }
+#cityMapNav li a:hover { text-decoration: none; color: #fff; padding-left: 4px; padding-right: 4px; }
+
+/** most stuff positioned in the kiezatlas.js script **/
+#focusInput { position: absolute; height: 30px; top:3px; font-family:"Verdana", "Tahoma", "sans-serif"; font-size:13px; color: #3f5da6; }
+/**  #focusInput label { color: #40B0E2; } **/
+#focusInput input, #focusInput textarea { border: 1px solid #40B0E2; font-weight: bold; font-family:"Verdana", "Tahoma", "sans-serif"; font-size:13px; padding: 4px; background-color:#fff; color: #3f5da6; width:180px; }
+#searchInput { position: absolute; height: 30px; top:3px; font-family:"Verdana", "Tahoma", "sans-serif"; font-size:13px; color: #3f5da6; }
+/** #searchInput label { color: #40B0E2; } **/
+#searchInput input, #searchInput textarea { border: 1px solid #40B0E2; font-weight: bold; font-family:"Verdana", "Tahoma", "sans-serif"; font-size:13px; padding: 4px; background-color:#fff; color: #3f5da6; width:160px; }
+#headerButtons { position: absolute; top:1px; }
+#mapControl { position: absolute; vertical-align: top; height: 25px; padding-right: 10px; color:#3F5DA6; background-color: #fff; font-family:"Verdana", "Tahoma", "sans-serif"; font-weight: bold; background-color: #fff; border: 1px solid #3f5da6; z-index: 1001; }
+#moreLabel { cursor: pointer; padding: 5px; display: inline-block; padding-bottom: 6px; }
+#moreLabel:hover { text-decoration: underline; background-color: #3f5da6; color: #fff; }
+#moreLabel.selected { background-color: #3f5da6; color: #fff; }
+#mapControl a { color:#3f5da6; font-size: 12px; padding: 5px; }
+#mapControl img { cursor: pointer; }
+
+a.go-search, a.go-focus { padding: 3px; padding-right: 5px; padding-top: 5px; position: relative; top: 0px; left: -30px; color: #3f5da6; font-size: 10px; font-weight: normal; }
+a.go-search:hover, a.go-focus:hover, a.go-search:focus, a.go-focus:focus { cursor: pointer; background-color: #3f5da6; color: #fff; text-decoration: none; }
+
+#dialogMessage { margin-left: auto; margin-right: auto; position: relative; top: 150px; width: 310px; height: 150px; background-color: #fff; border: 1px solid #3f5da6; cursor: pointer; }
+#modalTitle { position: relative; top: 5px; padding: 10px; margin-right: auto; margin-left: auto; width: 260px; }
+#modalMessage { padding: 10px; width: 290px; }
+#closeDialog { position: relative; top: 130px; left: 175px; }
+#mapSwitcher { font-family:"Verdana", "Tahoma", "sans-serif"; font-size: 12px; font-weight: bold; color: #3F5DA6 !important; position: absolute; top: 30px; width: 160px;}
+#memu { position: absolute; top: 4px; left: 10px; background-color: #fff; width:325px; font-family:"Verdana", "Tahoma", "sans-serif"; font-size:13px; opacity:0.8; padding: 5px; padding-left: 10px; color:#000099; }
+#memu a .hover { color:#3f5da6; }
+#map { position: absolute; left:0px; }
+
+#focusAlternatives { padding-left: 6px; background-color:#FFFFFF; line-height: 21px; font-size:13px; padding:5px; position:absolute; top:39px; visibility:hidden; width:350px; border: 1px solid #3F5DA6; z-index: 1010; /** #3f5da6;**/ }
+#focusAlternatives a { padding: 3px; margin: 3px; height: 20px; font-weight: bold; }
+#focusAlternatives img { cursor: pointer; }
+#focusAlternatives i { margin-left: 6px; }
+
+#navPanel{ position: absolute; left: 5px; bottom: 50px;}
+#sideBar { position: absolute; border: 1px solid #3f5da6; border-top: 0px solid #ffffff; background:#fff; }
+#sideBarCriterias { position:relative; left:5px; top:5px; cursor:pointer; color: #009; font-family:"Verdana", "Tahoma", "sans-serif"; font-size:13px; }
+#sideBarCategories { position:relative; left:5px; top:10px; overflow:auto; font-family:"Verdana", "Tahoma", "sans-serif"; font-size:12px; }
+#sideBarControl { position: absolute; width:5px; top:29px; background:#3f5da6; }
+#progContainer { position:absolute; top:45%; left:35%; width:50%; height:50%; font-family: "Times New Roman, Times, serif"; font-size:10px; }
+#kafooter { background: #fff; height:35px; position:absolute; bottom:2px; font-family: "Verdana", "Tahoma", "sans-serif"; font-size:10px; }
+#footerPrint { position: relative; left: 13px; }
+#footerPrint a img { border: 0px; }
+#footerImprint { position:absolute; right:140px; bottom: 21px; font-family: "Verdana", "Tahoma", "sans-serif"; font-size:10px; }
+#footerImprint { position:absolute; right:8px; bottom: 21px; font-family: "Verdana", "Tahoma", "sans-serif"; font-size:10px; }
+#footerPoweredBy { position:absolute; right:8px; bottom: 5px; font-family: "Verdana", "Tahoma", "sans-serif"; font-size:10px; }
+#helpFont { position: absolute; bottom: 5px; font-size: 12px; font-weight: bold; color: #4170d4; text-decoration: none; }
+#helpPageOne { position: relative; left: 0px; top: 0px; }
+#navigation-helper { border-top: 1px dashed #e8e8e8; border-bottom: 1px dashed #e8e8e8; font-size:10px; margin-top:2px; padding-left: 4px; padding-bottom: 2px; padding-top:2px; padding-right: 8px; text-align: right; }
+
+#permaLinkHref { position: relative; top: 2px; }
+#permaLink { position: absolute; top: 37px; right: 695px; z-index: 1100; }
+#permaLinkLabel { cursor: pointer; border: 1px solid #3f5da6; position: absolute; right: 760px; top: 35px; width: 100px; font-weight:bold; font-family: "Arial", "Sans-Serif"; font-size: 10px; color: #009; background-color: #fff; }
+#permaLink input, #permaLink textarea { width: 400px; border: 1px solid #3f5da6;  font-size: 13px; font-family: "Arial", "Sans-Serif"; padding-top: 7px; padding-bottom: 7px; padding-left: 7px; background-color:#fff; color: #009; }
+
+.olControlPanel { background-color: #4170D4; }
+.olCntrolLayerSwitcher olControlNoSelect { background-color: #4170D4; position: absolute; bottom: 100px !important; }
+.olControlLayerSwitcher { background-color: #4170D4; position: absolute; top: 100px !important; }
+.critLinkNormal { text-decoration: underline; }
+.catRowDeselected { background: #fff; }
+.catRowSelected { background: #E6EDFF; }
+
+.propertyLabel { position:relative; left: 1px; font-weight: bold; }
+.propertyField { position:relative; left: 1px; }
+.additionalInfo { width: 270px; margin-left: 5px; padding-top: 4px; padding-right: 4px; padding-bottom: 4px; padding-left:4px; border: 1px dashed #000; }
+.additionalInfoWhite { width: 270px; margin-left: 5px; padding-top: 4px; padding-right: 4px; padding-bottom: 4px; padding-left:4px; border: 1px dashed #000; }
+.topicRowDeselected { background: #fff; }
+.topicRowSelected { background: #e6edff; }
+.olControlAttribution { position:absolute; bottom: 5px !important; right: 5px ! important; font-weight: bold;}
+.redTitle, .redTitle a:link, .redTitle a:hover, .redTitle a:-webkit-any-link { color: #b60033; }
+.layersDiv { position:relative; left: 224px; line-height: 20px; background-color: #fff; color: #3F5DA6; padding-right: 10px; padding-left: 10px; padding-bottom: 10px; border: 1px solid #3f5da6; border-top: 0px solid #fff; }
+.dataLbl { color: #3F5DA6; font-size: 12px; }
+.baseLbl { color: #3F5DA6; font-size: 12px; }
+.labelSpan:hover { text-decoration: underline; cursor: pointer; }
+.dataLayersDiv { border: 1px solid #e6edff; padding: 2px; }
+.baseLayersDiv { border: 1px solid #e6edff; padding: 2px; }
+.olControlPanZoom .olControlNoSelect {
+  position: absolute; bottom: 130px !important; left: 10px !important;
+}
+
+@-moz-document url-prefix() {
+  #permaLink { position: absolute; top: 39px; right: 695px; z-index: 1100; }
+  .layersDiv { position:relative; left: 2281px; }
+  #focusInput { position: absolute; height: 30px; top:4px; font-family:"Verdana", "Tahoma", "sans-serif"; font-size:13px; color: #3f5da6; }
+  #searchInput { position: absolute; height: 30px; top:4px; font-family:"Verdana", "Tahoma", "sans-serif"; font-size:13px; color: #3f5da6; }
+  #mapSwitcher { left: -2054px; }
+  #mapControl { width: 367px; }
+  /** #mapName { position: relative; left: 365px; padding:10px; padding-bottom: 5px; } **/
+}
+
+/**
+  .iconCell img:hover {
+    -moz-box-shadow: 5px 5px 7px #3f5da6;;
+    -moz-border-radius-bottomright: 5px;
+    -webkit-box-shadow: 5px 5px 7px #3f5da6;;
+    -webkit-border-bottom-right-radius: 5px;
+  }
+**/

@@ -1,0 +1,16 @@
+-----------------------------------------------------------------------------------
+---- Introduction of Stichworte-Property and optional Barrierefrei-Property ---
+-----------------------------------------------------------------------------------
+
+--- NOTE - a-ka-137 is the last assocId in use in this patch
+
+--- create property Stichwort ---
+
+--- create property Barrierefreiheit ---
+
+--- Question After a new Property is introduced for a TopicType, can i preset a default PropertyValue for all 
+--- - current or new - instances of a TopicType with the following line
+
+--- NOTE - We leave it up to the super-administrator to equip the geotype of a workspace with the new Barrierefrei-Property
+
+--- assign new Stiwchwort-Property to GeoObject-TopicType

@@ -1,0 +1,125 @@
+body, td {
+	font-family: Verdana, Arial, Lucida Sans;
+	font-size: 12px;
+}
+
+body {
+	background-color: #FFFFFF;
+	margin: 0px;
+}
+
+/* Kiezatlas: header area of right frame */
+.header-area {
+	width: 95%;
+	background-color: #F3F3F3;
+	padding: 8px;
+}
+
+/* Kiezatlas: content area of right frame */
+.content-area {
+	width: 95%;
+	background-color: #FFFFFF;
+	padding-top: 30px;
+	padding-bottom: 40px;
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
+/* Kiezatlas: footer area of right frame */
+.footer-area {
+	width: 95%;
+	background-color: #F3F3F3;
+	padding: 8px;
+}
+
+/* Kiezatlas: the citymap name contained in the header */
+.citymap-name {
+	font-size: 14px;
+	font-weight: bold;
+}
+
+.small {
+	font-size: 10px;
+	color: #666666;
+}
+
+.secondary-text {
+	font-size: 10px;
+	color: #666666;
+}
+
+/* Kiezatlas (list interface): the heading citymap name */
+.heading {
+	font-size: 18px;
+	font-weight: bold;
+}
+
+/* DeepaMehta list generator: the highlighted row */
+.list-highlight {
+	background-color: #FFE0E0;
+}
+
+/* DeepaMehta list generator: an even row (use for zebra striping) */
+.list-evenrow {
+	background-color: #E0E0FF;
+}
+
+/* DeepaMehta list generator: an odd row (use for zebra striping) */
+.list-oddrow {
+	background-color: #FFFFFF;
+}
+
+/* DeepaMehta list generator: higlight the table header (used for sortBy in listTopicBeans)*/
+.list-highlightcolumnheader {
+        background-color: #E0E0FF;
+        font-size: 10px;
+	color: #666666;
+}
+
+.list-highlightcolumnheader:after { 
+        content: url("../images/arrow_up.gif")" ";
+}
+
+/* DeepaMehta info generator: outmost container for label/content pairs */
+.info-container {
+}
+
+/* DeepaMehta form generator: the help text placed in a line above label and input field */
+.form-helptext {
+  font-size: small; color: #999;
+}
+
+/* DeepaMehta info generator: a label/content pair */
+.info {
+}
+
+/* DeepaMehta info generator: the label part of a label/content pair */
+.info-label {
+	font-size: 10px;
+	font-weight: bold;
+	color: #666666;
+}
+
+/* DeepaMehta info generator: the content part of a label/content pair */
+.info-content {
+}
+
+/* Kiezatlas: outmost container for notifications */
+.notification {
+	color: red;
+}
+
+/* Kiezatlas: an "info" notifications */
+.notification-info:before {
+	content: url("../images/notification-info.gif")" ";
+}
+
+/* Kiezatlas: a "warning" notifications */
+.notification-warning:before {
+	content: url("../images/notification-warning.gif")" ";
+}
+
+/* Kiezatlas: an "error" notifications */
+.notification-error:before {
+	content: url("../images/notification-error.gif")" ";
+}

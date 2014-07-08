@@ -1,0 +1,99 @@
+<project name="Kiezatlas" default="deploy" basedir=".">
+
+	<description>
+		Kiezatlas
+	</description>
+
+	<property name="project.name" value="kiezatlas"/>
+	<property name="jar" value="${project.name}.jar"/>
+	<property name="war" value="${project.name}.war"/>
+	<property name="war-test" value="${project.name}-test.war"/>
+	<property name="build" location="build"/>
+
+	<property name="dm.base-dir" location="/home/malt/source/dm2/trunk"/>
+
+	<import file="${dm.base-dir}/config.xml" />
+
+	<target name="init" description="create build directory">
+		<mkdir dir="${build}"/>
+	</target>
+
+	<target name="compile" depends="init">
+		<javac srcdir="src" destdir="${build}" debug="on" verbose="no" source="1.5" listfiles="yes" encoding="UTF8">
+			<classpath>
+				<pathelement location="${server}/DeepaMehtaService.jar"/>
+				<pathelement location="${server}/DeepaMehtaTopics.jar"/>
+				<pathelement location="${dm.base-dir}/libs/commons-fileupload-1.0.jar"/>
+				<pathelement location="libs/quartz-1.8.4.jar"/>
+				<pathelement location="libs/gson-2.2.4.jar"/>
+				<pathelement location="${web.servlet.lib}"/>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="build" depends="compile">
+    <jar jarfile="${jar}" basedir="${build}">
+			<include name="de/kiezatlas/deepamehta/KiezAtlas.class" />
+			<include name="de/kiezatlas/deepamehta/Comment.class" />
+			<include name="de/kiezatlas/deepamehta/SearchCriteria.class" />
+			<include name="de/kiezatlas/deepamehta/topics/*.class" />
+            <include name="de/kiezatlas/deepamehta/etl/*.class" />
+		</jar>
+    <war warfile="${war}" webxml="config/default/web.xml">
+		  <classes dir="${build}">
+		    <include name="de/kiezatlas/deepamehta/*.class" />
+            <include name="de/kiezatlas/deepamehta/etl/*.class" />
+		    <include name="de/swers/kiezatlas/tools/*.class" />
+		    <exclude name="de/kiezatlas/deepamehta/Comment.class" />
+		    <exclude name="de/kiezatlas/deepamehta/SearchCriteria.class" />
+      </classes>
+      <fileset dir=".">
+        <include name="images/*"/>
+        <include name="pages/*"/>
+        <include name="pages/upgrade/*"/>
+        <include name="pages/ehrenamt/*"/>
+        <include name="pages/ehrenamt/libs/*"/>
+        <include name="pages/ehrenamt/libs/leaflet/dist/*"/>
+        <include name="pages/ehrenamt/libs/leaflet/dist/images/*"/>
+        <include name="pages/ehrenamt/css/*"/>
+        <include name="pages/be.de/*"/>
+        <include name="pages/be.de/211/*"/>
+        <include name="pages/be.de/211/img/*"/>
+        <include name="pages/be.de/211/theme/*"/>
+        <include name="pages/be.de/211/theme/default/*"/>
+        <include name="pages/be.de/211/theme/default/img/*"/>
+        <include name="pages/be.de/img/*"/>
+        <include name="pages/be.de/theme/*"/>
+        <include name="pages/be.de/proxies/*"/>
+        <include name="pages/be.de/theme/default/*"/>
+        <include name="pages/be.de/theme/default/img/*"/>
+        <include name="WEB-INF/lib/*"/>
+      </fileset>
+    </war>
+    <war warfile="${war-test}" webxml="config/test/web.xml">
+      <classes dir="${build}">
+        <include name="de/kiezatlas/deepamehta/*.class" />
+        <include name="de/kiezatlas/deepamehta/etl/*.class" />
+        <include name="de/swers/kiezatlas/tools/*.class" />
+        <exclude name="de/kiezatlas/deepamehta/Comment.class" />
+        <exclude name="de/kiezatlas/deepamehta/SearchCriteria.class" />
+      </classes>
+      <fileset dir=".">
+        <include name="images/*"/>
+        <include name="pages/*"/>
+        <include name="WEB-INF/lib/*"/>
+      </fileset>
+    </war>
+  </target>
+
+	<target name="deploy" depends="build">
+        <copy file="${jar}" todir="${web.lib.dir}"/>
+        <copy file="${war}" todir="${web.deploy.dir}"/>
+        <copy file="${war-test}" todir="${web.deploy.dir}"/>
+	</target>
+
+	<target name="cleanup" description="remove build directory">
+		<delete dir="${build}"/>
+	</target>
+
+</project>

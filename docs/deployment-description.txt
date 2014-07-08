@@ -1,0 +1,29 @@
+Kiezatlas CityMap Interface Deployment - Now with Java Servlet Technology in the Back
+
+For development the URL-constants in the following files need to be replaced:
+
+- MapServlet.java (serving cityMaps the kiezatlas.de-Style/Google-Key)
+- AtlasServlet.java (serving cityMaps with berlin.de-Style/Google-Key)
+- kiezatlas.js (replace SERVICE_URL with TEST_SERVICE_URL at all occassions)
+
+- SlimerServlet.java (Master Servlet for scheduling the Import Jobs)
+
+
+MapServlet -> http://www.kiezatlas.de/map/..
+============================================
+
+
+AtlasServlet -> http://www.kiezatlas.de/atlas/..
+================================================
+
+Note: Scripts and Images are used by the AtlasServlet from the following locations
+
+http://www.kiezatlas.de/maps/embed/themes/*.*
+http://www.kiezatlas.de/maps/embed/img/*.*
+http://www.kiezatlas.de/maps/embed/*.*
+
+All icons for categories are placed in
+
+http://www.kiezatlas.de:8080/client/icons/*.*
+
+Don't forget to update the resp. files from the project folder "src/pages/be.de/*.*"

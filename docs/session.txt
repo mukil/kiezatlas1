@@ -1,0 +1,176 @@
+Kiez-Atlas 1.6.1 Documentation
+
+Web Session Attributes
+
+Jörg Richter
+10.8.2008
+
+Malte Reißig
+20.04.2011
+
+MapServlet && AtlasServlet
+==========================
+
+critId          
+originId        
+topicId         
+baseLayer       
+critIndex       
+searchTerm      
+
+
+BrowseServlet
+=============
+
+Global
+------
+
+map					BaseTopic
+mapImage			String
+criterias			array of SearchCriteria
+defaultCriteria			number of the currently selected Criteriaset, e.g. if an additional param e.g. '&1' was appended to the citymap alias
+instType			TypeTopic
+shapeTypes			Vector of ShapeType
+shapes				Vector of Shape
+searchMode			String
+						"byName"
+						"0", "1", ... (index for "criterias")
+searchValue			String
+						searchMode=byName: search string
+						searchMode=0,1,..: criteria name
+stylesheet			CSS (String)
+siteLogo			imagefile (String)
+homepageURL			String
+impressumURL		String
+
+
+CityMap
+-------
+
+hotspots			Vector of Vector
+						vector 2:
+							element 0     : icon url
+							element 1,2,..: PresentableTopic
+cluster				Vector of Clusters
+selectedGeo			GeoObject
+selectedCatId       If not null, or an empty string it is the index of the selectedCat in the hotspotsVector
+enumerationFlag     If true, numberedLabels are shown next to the GeoObjects of the selectedCat
+
+
+CategoryList
+------------
+
+categories			Vector of BaseTopic
+selectedCats		Vector of String (IDs of selected categories)
+
+
+GeoObjectList
+-------------
+
+institutions		Vector of BaseTopic
+categories			Hashtable
+						key: institution ID
+						value: Vector of BaseTopic
+addresses			Hashtable
+						key: institution ID
+						value: Hashtable
+							key: PROPERTY_STREET, PROPERTY_POSTAL_CODE
+							value: street/postalcode
+
+GeoObjectInfo
+-------------
+
+topicBean			TopicBean
+forumActivition		String (SWITCH_ON, SWITCH_OFF)
+commentCount		Integer (only initialized if "activition"=SWITCH_ON
+imagePath 			String to Base Image Folder, append the imageFileName to this
+
+
+GeoObjectForum
+--------------
+
+html				HMTLGenerator
+selectedGeo			GeoObject
+instComments		Vector of Comment
+
+
+error
+-----
+
+error				String
+
+
+CommentForm
+-----------
+
+selectedGeo			GeoObject
+comments			Vector of comments
+
+
+
+EditServlet
+===========
+
+Global
+------
+
+geo					BaseTopic
+
+
+GeoObjectHome
+-------------
+
+topicBean			TopicBean
+imagefile			full path to image 			
+
+
+ForumAdministration
+-------------------
+
+activition			String (SWITCH_ON, SWITCH_OFF)
+comments			Vector of Comment (only initialized if "activition"=SWITCH_ON)
+
+
+
+ListServlet
+===========
+
+Global
+------
+
+user				BaseTopic (logged in user)
+membership          String with either an empty String "" for full rights or "Affiliated" String of just read access
+
+
+ListHome
+--------
+
+workspaces			Vector of BaseTopic (Kiezatlas workspaces the logged in user is a member of)
+cityMaps			Hashtable
+						key: workspace ID
+						value: Vector of BaseTopic (city maps of respective workspace)
+
+List
+----
+
+cityMap				selected city map (BaseTopic)
+topics				Vector of current Beans
+cachedTopics		Vector of cached TopicBeans
+useCache			Boolean to use listed topics, not populated listedTopics 
+geo					geo object to highlight (BaseTopic)
+notifications		error notifications (Vector of Notification)
+sortField			Topic Bean Field Name, der zur Sortierung heanrgezogen wird (String) bzw. "null", wenn unsortiert
+filterField		    Topic Bean Field Name, der zur Filterung heanrgezogen wird (String) bzw. "null", wenn ungefiltert
+emailList			Liste von Email-Adressen (Vector of String)
+
+
+GeoObjectAdminForm
+------------------
+
+geo					BaseTopic (geo object to edit)
+
+
+Print
+-----
+
+formLetter			String used as a link to the file in the documents repository
