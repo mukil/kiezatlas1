@@ -993,7 +993,7 @@
     var postalCode = getTopicPostalCode(givenTopic);
     var originId = getTopicOriginId(givenTopic);
     var imageLink = "";
-    if (cityName == " Berlin" || cityName == "Berlin" || onBerlinDe || topicId == "t-1223527") { // ### FIXME sloppy
+    if (cityName == " Berlin" || cityName == "Berlin" || onBerlinDe || topicId == "t-1223527") {
       if (topicId == "t-1223527") cityName = "Berlin"
       // assemble berlin fahrinfo link
       imageLink = createBerlinFahrinfoLink(street, cityName, postalCode);
@@ -1010,10 +1010,12 @@
       } else {
         resultHandler.append(''+getTopicPostalCode(givenTopic) + ' ' + cityName + '<br/>');
       }
-      // maybe oberhausen
-      if (cityName.indexOf("Oberhausen") != -1) {
-        imageLink = createOberhausenFahrinfoLink(street, cityName, postalCode);
-        resultHandler.append('' + street + '&nbsp;' + imageLink + '<p/>');
+      //
+      if (typeof cityName !== "undefined") {
+        if (cityName.indexOf("Oberhausen") != -1) {
+          imageLink = createOberhausenFahrinfoLink(street, cityName, postalCode);
+          resultHandler.append('' + street + '&nbsp;' + imageLink + '<p/>');
+        }
       } else {
         resultHandler.append('' + street + '<p/>');
       }
@@ -2633,11 +2635,13 @@
       // resultHandler.append('<tr><td>'+topic.properties[i].label+'</td><td>'+topic.properties[i].value+'</td></tr>');
       if (topic.properties[at].name === "Address / City") {
         return topic.properties[at].value; // + ' Berlin<br/>';
+      } else if (topic.properties[at].name === "Address / Stadt") {
+        return topic.properties[at].value;
       } else if (topic.properties[at].name === "Stadt") {
         return topic.properties[at].value;
       }
     }
-    return null;
+    return undefined;
   }
 
 
