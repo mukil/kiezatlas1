@@ -1005,19 +1005,20 @@
       }
       resultHandler.append('' + street + '&nbsp;' + imageLink + '<p/>');
     } else { // not berlin
-      if (topicId == "t-331302") { // ehrenamt map on datasets have no city property
+      if (topicId == "t-331302") { // ehrenamt map on datasets have no city property but are in "Berlin""
         resultHandler.append(''+getTopicPostalCode(givenTopic) + ' Berlin<br/>');
-      } else {
+      } else { // not berlin and not from ehrenamtsnetz
         resultHandler.append(''+getTopicPostalCode(givenTopic) + ' ' + cityName + '<br/>');
-      }
-      //
-      if (typeof cityName !== "undefined") {
-        if (cityName.indexOf("Oberhausen") != -1) {
-          imageLink = createOberhausenFahrinfoLink(street, cityName, postalCode);
-          resultHandler.append('' + street + '&nbsp;' + imageLink + '<p/>');
+        if (typeof cityName !== "undefined") {
+          if (cityName.indexOf("Oberhausen") != -1) {
+            imageLink = createOberhausenFahrinfoLink(street, cityName, postalCode);
+            resultHandler.append('' + street + '&nbsp;' + imageLink + '<p/>');
+          } else {
+            resultHandler.append('' + street + '<p/>');
+          }
+        } else {
+          resultHandler.append('' + street + '<p/>');
         }
-      } else {
-        resultHandler.append('' + street + '<p/>');
       }
     }
     // stripping unwanted fields of the data container

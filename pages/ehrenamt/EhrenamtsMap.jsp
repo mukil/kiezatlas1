@@ -189,9 +189,9 @@
                         <div class="nav-collapse mainnav-collapse collapse">
                             <ul class="nav level1">
                                 <li class="citymap-navi ehrenamt-projects"><a title="Gehe zur Ansicht aller ehrenamtlichen Einsatzorte im Ehrenamtsnetz"
-                                    href="<%= basePath %>ehrenamt">Einsatzm&ouml;glichkeiten</a></li>
+                                    href="<%= basePath %>/ehrenamt">Einsatzm&ouml;glichkeiten</a></li>
                                 <li class="citymap-navi ehrenamt-events"><a title="Gehe zur Ansicht der heutigen Veranstaltungen im Ehrenamtsnetz"
-                                    href="<%= basePath %>veranstaltungen-ehrenamt">Veranstaltungen Heute</a></li>
+                                    href="<%= basePath %>/veranstaltungen-ehrenamt">Veranstaltungen Heute</a></li>
                             </ul>
                         </div>
                         <div class="beberlin"><a class="bb-logo"></a></div>

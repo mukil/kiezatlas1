@@ -332,6 +332,7 @@ public interface KiezAtlas extends DeepaMehtaConstants {
 	static final String PAGE_GEO_FORUM = "GeoObjectForum";
 	static final String PAGE_COMMENT_FORM = "CommentForm";
 	static final String PAGE_MAP_LOGIN = "MapLogin";
+	static final String PAGE_MAP_ATLAS = "be.de/AlternativeAtlas";
 	// workspace
 	static final String PAGE_WORKSPACE_LOGIN = "WorkspaceObjectLogin";
 	static final String PAGE_WORKSPACE_FORM = "WorkspaceObjectForm";

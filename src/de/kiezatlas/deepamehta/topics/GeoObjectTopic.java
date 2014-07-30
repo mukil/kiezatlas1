@@ -251,12 +251,14 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
             System.out.println("    Association \"" +assocTypeID+ "\" removed from Geo Object to " + type.getName());
             getHTTPSession(KA2_ADMIN_PASSWORD);
             JsonObject remoteTopic = getGeoObjectByTopicId(getID());
-            String remoteTopicId = parseGeoObjectParentId(remoteTopic);
-            if (Transformation.CRITERIA_MAP.containsKey(typeId)) {
-                String relFacetTypeURI = Transformation.CRITERIA_MAP.get(typeId);
-                System.out.println("    categoryRemoval of facetTypeURI: " + relFacetTypeURI);
-                JsonArray categories = getCategoryFacetTopics(relFacetTypeURI, remoteTopicId);
-                if (categories != null) deleteCategoryFacetTopics(relFacetTypeURI, categories, remoteTopicId);
+            if (remoteTopic != null) { // topic is not synchronized
+                String remoteTopicId = parseGeoObjectParentId(remoteTopic);
+                if (Transformation.CRITERIA_MAP.containsKey(typeId)) {
+                    String relFacetTypeURI = Transformation.CRITERIA_MAP.get(typeId);
+                    System.out.println("    categoryRemoval of facetTypeURI: " + relFacetTypeURI);
+                    JsonArray categories = getCategoryFacetTopics(relFacetTypeURI, remoteTopicId);
+                    if (categories != null) deleteCategoryFacetTopics(relFacetTypeURI, categories, remoteTopicId);
+                }
             }
         }
 	}
@@ -474,7 +476,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
         }
     }
 
-    /** If present, this methods deletes the remotely mirrored topic in Famportal-Instance. */
+    /** If topic present, this methods deletes it in the Famportal-Instance. */
     public void deleteRemoteTopic () {
         // 1) Get HTTP Session first
         getHTTPSession(KA2_ADMIN_PASSWORD);
