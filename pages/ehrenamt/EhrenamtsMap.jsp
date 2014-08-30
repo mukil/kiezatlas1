@@ -159,7 +159,7 @@
             <div class="span5">
                 <div class="html5-section section-logo without-logo">
                     <div class="html5-section text">
-                        <a href="<%= basePath %>ehrenamt">
+                        <a href="<%= basePath %>/ehrenamt">
                             <span class="institution">B&uuml;rgerschaftliches Engagement</span>
                             <span class="title"><%= map.getName() %></span>
                         </a>

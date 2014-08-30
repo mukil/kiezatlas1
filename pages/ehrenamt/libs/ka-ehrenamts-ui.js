@@ -23,7 +23,7 @@ Array.prototype.remove = function(from, to) {
  * - render* or show*-Methods depend on jquery, jquerymobile and a specific DOM/Layout/IDs
  * - get/set* Methods operate on the kiezatlas-object itself (and use its reference as a client-side model)
  *
- * @modified  07 August 2013
+ * @modified  30 August 2014
  */
 
 var kiezatlas = new function() {
@@ -60,6 +60,7 @@ var kiezatlas = new function() {
     this.isMobile = false
     this.pageVisible = false
     this.printView = false
+    this.offerMobileWebApp = false
 
     var IMAGES_URL = "http://www.kiezatlas.de/client/images/"
     var ICONS_URL = "http://www.kiezatlas.de/client/icons/"
@@ -72,6 +73,7 @@ var kiezatlas = new function() {
     /** initializes an interactive citymap view
      *  fixme: fails if there is just 1 element in the geomap result */
     this.render_mobile_city_map_view = function () {
+        kiezatlas.check_for_small_screen()
         // check if, and if not, initialize leaflet
         if (typeof kiezatlas.map === "undefined") {
             kiezatlas.set_map(new L.map('map'), { "trackResize": true, "zoomAnimation": false })
@@ -644,8 +646,7 @@ var kiezatlas = new function() {
                     stringValue = topic_copy.properties[i].values[k].name
                     var htmlValue = ""
                     if (stringValue.indexOf("http://") == 0) {
-                        // fixme:
-                        htmlValue = make_ehrenamt_webpage_link(stringValue, stringValue)
+                        htmlValue = make_ehrenamt_webpage_link(stringValue, origin_id)
                     } else if (stringValue.indexOf("@") != -1) {
                         htmlValue = make_email_link(stringValue, stringValue)
                     } else {
@@ -674,7 +675,9 @@ var kiezatlas = new function() {
             return value
         }
 
-        function make_ehrenamt_webpage_link (url, label) {
+        function make_ehrenamt_webpage_link (url, topic_origin_id) {
+	  var url = 'http://www.berlin.de/buergeraktiv/engagieren/buerger/ehrenamtssuche/index.cfm?'
+		+ 'dateiname=ehrenamt_projektbeschreibung.cfm&anwender_id=5&projekt_id=' + topic_origin_id + '&cfide=0.662606781956'
           return '<a href="'+url+'" target="_blank">Link zur T&auml;tigkeitsbeschreibung'
                     + '<img src="//berlin.de/.img/ml/link_extern.gif" class="c7" alt="(externer Link)" border="0" height="11" width="12"/></a>';
         }
@@ -1369,6 +1372,16 @@ var kiezatlas = new function() {
         kiezatlas.push_history(data, link)
     }
 
+    this.check_for_small_screen = function () {
+        if (screen.width < 980) { // exchange with screen.width
+            kiezatlas.offerMobileWebApp = true
+            var $mobile_btn = $('<div class="mobile-switch"><a href="http://m.kiezatlas.de/ehrenamt/list/">Bitte wechseln Sie hier mit einem Klick zur Ansicht f&uuml;r kleine Bildschirme, der Ehrenamtsnetz Web-App.</a></div><br/><br/>')
+            $($mobile_btn).insertBefore('#kiezatlas #search-controls') 
+            $('#details').css('top', '113px')
+            $('#kiezatlas').height('645px')
+        }
+    }
+
 
 
     /** City Map Utility Methods */
@@ -1545,4 +1558,3 @@ var kiezatlas = new function() {
     }
 
 }
-
