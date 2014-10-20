@@ -1045,7 +1045,7 @@
         propertyList += '<p class="additionalInfo">';
       } else if (givenTopic.properties[i].label == "Barrierefrei" || givenTopic.properties[i].value == "") {
         // skip rendering Barrierefrei-Field cause value was not set yet
-      } else if (givenTopic.properties[i].label == "Webpage") {
+      } else if (givenTopic.properties[i].label == "Webpage" || givenTopic.properties[i].label == "Website") {
         // skip rendering of the self-explaning label called "webpage" or "website"..
       } else {
         propertyList += '<p><span class="propertyLabel">'+givenTopic.properties[i].label+':&nbsp;</span>';
@@ -1077,14 +1077,21 @@
           stringValue = givenTopic.properties[i].values[k].name;
           var htmlValue = "";
           if (stringValue.startsWith("http://")) {
-            htmlValue = makeWebpageLink(stringValue, stringValue);
+            htmlValue = '<span class="propertyLabel">Website:</span><br/>';
+            htmlValue += makeWebpageLink(stringValue, stringValue);
           } else if (stringValue.indexOf("@") != -1) {
             htmlValue = makeEmailLink(stringValue, stringValue);
+          } else if (stringValue === " " || stringValue.indexOf("&nbsp;") != -1) {
+            // is equal to being empty (webpage)..
+            // .. do not set htmlValue
           } else {
             htmlValue = stringValue;
           }
-          propertyList += '<br/><img style="border-style: none; vertical-align: middle;" '
-            + ' src="'+ICONS_URL+''+givenTopic.properties[i].values[k].icon+'"/>&nbsp;' + htmlValue;
+          //
+          if (htmlValue !== "") {
+            propertyList += '<br/><img style="border-style: none; vertical-align: middle;" '
+              + ' src="'+ICONS_URL+''+givenTopic.properties[i].values[k].icon+'"/>&nbsp;' + htmlValue;
+          }
         }
         propertyList += '</span></p>';
       }
@@ -2352,8 +2359,7 @@
     var popup = new OpenLayers.Popup.FramedCloud(
       "infoPoop-"+featureData.topicId,
       lonlat, new OpenLayers.Size(250, 200),
-      htmlString, null,
-      false);
+      htmlString, null, true);
     // popup.keepInMap = true;
     popup.autoSize = true;
     popup.panMapIfOutOfView = false;
@@ -2379,7 +2385,7 @@
     var popup = new OpenLayers.Popup.FramedCloud(
       "infoPoop-"+featureData.topicId,
       lonlat, new OpenLayers.Size(250, 100),
-      htmlString, null, false);
+      htmlString, null, true);
     popup.keepInMap = true;
     // popup.panMapIfOutOfView = false;
     popup.autoSize = true;

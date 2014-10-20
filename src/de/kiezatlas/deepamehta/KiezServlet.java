@@ -565,7 +565,7 @@ public class KiezServlet extends JSONRPCServlet implements KiezAtlas {
             }
             if (lorId != null) {
                 String before = adminInfo.substring(0, matcher.start());
-                String link = "<a href=\"http://jugendserver.spinnenwerk.de/~lor/seiten/2013/06/?lor="
+                String link = "<a href=\"http://jugendserver.spinnenwerk.de/~lor/seiten/2014/06/?lor="
                         + lorId + "\" target=\"_blank\">Sozialdaten Planungsraum</a>";
                 String after = adminInfo.substring(matcher.end());
                 adminInfo = before + link + after;
