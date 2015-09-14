@@ -249,6 +249,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
             String typeId = as.getLiveTopic(relTopicID, 1).getType();
             BaseTopic type = as.getLiveTopic(typeId, 1);
             System.out.println("    Association \"" +assocTypeID+ "\" removed from Geo Object to " + type.getName());
+            // 2) Improvement: ### just try to delete specific assoc-types remotely
             getHTTPSession(KA2_ADMIN_PASSWORD);
             JsonObject remoteTopic = getGeoObjectByTopicId(getID());
             if (remoteTopic != null) { // topic is not synchronized
@@ -441,10 +442,12 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
         }
     }
 
-    /** Updates major data-facets of an edited geo-object at the configured KA 2 Web Service Endpoint. */
+    /**
+     * Updates major data-facets of an edited (or later created and not initially migrated?) geo-object at the configured KA 2 Web Service Endpoint.
+     */
     public void updateRemoteTopicFacets(String remoteTopicId, SearchCriteria[] criterias) {
-        // 1) Update most of the stuff (except bezirk and bezirksregion)
-        postPropertyFacets(getID(), remoteTopicId);
+        // 1) Update most of the stuff (except bezirk, bezirksregion and geo-coordinate)
+        postPropertyFacets(getID(), remoteTopicId); // beschreibung, öffnungszeiten, sonstiges, lor nummer
         postWebpageFacet(getID(), remoteTopicId);
         postContactFacets(getID(), remoteTopicId);
         postImageFileFacet(getID(), remoteTopicId);
@@ -514,16 +517,23 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
     // --
 
     private String parseGeoObjectParentId(JsonObject response) {
-        JsonElement geoObjectIdElement = response.get("id");
-        JsonElement geoObjectTypeElement = response.get("type_uri");
-        String geoObjectTypeUri = geoObjectTypeElement.getAsString();
-        if (geoObjectTypeUri.equals("ka2.geo_object")) {
-            // System.out.println("    Parsing Geo Object Parent Response: " + geoObjectIdElement.getAsString());
-            return geoObjectIdElement.getAsString();
+        String errorType = "- Unknown error";
+        if (response != null && response.has("id") && response.has("type_uri")) {
+            // return null;
+            JsonElement geoObjectIdElement = response.get("id");
+            JsonElement geoObjectTypeElement = response.get("type_uri");
+            String geoObjectTypeUri = geoObjectTypeElement.getAsString();
+            if (geoObjectTypeUri.equals("ka2.geo_object")) {
+                // System.out.println("    Parsing Geo Object Parent Response: " + geoObjectIdElement.getAsString());
+                return geoObjectIdElement.getAsString();
+            } else {
+                errorType = "- response JsonObject not of type k2.geo_object " + geoObjectTypeUri;
+            }
         } else {
-            System.out.println("WARNING: getGeoObject Parsing Response for Parent-ID FAILED");
-            return null;
+            errorType = "- given response JsonObject was invalid: " + response;
         }
+        System.out.println("WARNING: getGeoObject Parsing Response for Parent-ID FAILED, errorType: " + errorType);
+        return null;
     }
 
     private JsonObject postNewTopic(BaseTopic topic) {
@@ -870,7 +880,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
             // 2) Check the request for error status (204 is the expected response here).
             if (connection.getResponseCode() != HttpURLConnection.HTTP_NO_CONTENT) {
                 System.out.println(" --------");
-                System.out.println(" WARNING: setFacetValue did not succceed for "
+                System.out.println(" WARNING: setContactsFacetValue did not succceed for "
                         + as.getLiveTopic(topicId, 1).getName() + " HTTPStatusCode: " + connection.getResponseCode());
                 System.out.println(" --------");
             }
@@ -1173,7 +1183,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
                 // 2) Check the request for error status (204 is the expected response here).
                 if (connection.getResponseCode() != HttpURLConnection.HTTP_NO_CONTENT) {
                     System.out.println(" --------");
-                    System.out.println(" WARNING: setFacetValue \"" + facetTypeUri + "\" did not succceed for "
+                    System.out.println(" WARNING: setSimpleFacetValue \"" + facetTypeUri + "\" did not succceed for "
                             + as.getLiveTopic(oldTopicId, 1).getName() + " HTTP Status Code: "
                             + connection.getResponseCode());
                     System.out.println(" --------");
@@ -1406,7 +1416,6 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
                             JsonObject postalCodeElementObject = postalCodeElement.getAsJsonObject();
                             JsonElement postalCodeObjectIdElement = postalCodeElementObject.get("id");
                             String postalCodeTopicId = postalCodeObjectIdElement.getAsString();
-
                             return postalCodeTopicId;
                         }
                         if (postalCodes.size() > 1) {
@@ -2022,3 +2031,4 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
         return null;
     }
 }
+

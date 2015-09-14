@@ -603,28 +603,25 @@
   /** a get and show method implemented as
    *  an asynchronous call which renders the html directly into the sidebar when the result has arrived **/
   function getGeoObjectInfo(itemId, resultHandler, dontUpdateHistoryState) {
-    if (resultHandler == 'abc') { // ### abc?
+    if (resultHandler === 'abc') { // ### abc?
       resultHandler = jQuery("#sideBarCategories");
     }
     var url = SERVICE_URL;
     var body = '{"method": "getGeoObjectInfo", "params": ["' + itemId + '"]}';// '{' + urlencode(streetFocus) + '}';
     jQuery.ajax({
-	    type: "POST",
-	    url: url,
-	    data: body,
-      beforeSend: function(xhr) {xhr.setRequestHeader("Content-Type", "application/json")},
-      dataType: 'json',
-	    success: function(obj) {
-	      var topic = obj.result;
-          showGeoObjectInfo(topic, resultHandler, dontUpdateHistoryState);
-	    }, // end of success handler
-	    error: function(x, s, e){
-	      resultHandler.empty();
-	      resultHandler.append('&nbsp;&nbsp;<b>Projektbezogener &Uuml;bertragungsfehler</b><p/>');
-	      resultHandler.append('<table width="100%" cellpadding="2" cellspacing="0" id="sideBarCategoriesTable"><tr>'
-	        + '<td class="propertyLabel">&nbsp;&nbsp;&nbsp;&nbsp;Wir arbeiten noch daran.</td></tr></table>');
-        hideProgressFromSideBar();
-	    }
+        type: "POST", url: url, data: body, dataType: 'json',
+        beforeSend: function(xhr) {xhr.setRequestHeader("Content-Type", "application/json")},
+        success: function(obj) {
+            var topic = obj.result;
+            showGeoObjectInfo(topic, resultHandler, dontUpdateHistoryState);
+        },
+        error: function(x, s, e){
+            resultHandler.empty();
+            resultHandler.append('&nbsp;&nbsp;<b>Projektbezogener &Uuml;bertragungsfehler</b><p/>');
+            resultHandler.append('<table width="100%" cellpadding="2" cellspacing="0" id="sideBarCategoriesTable"><tr>'
+              + '<td class="propertyLabel">&nbsp;&nbsp;&nbsp;&nbsp;Wir arbeiten noch daran.</td></tr></table>');
+            hideProgressFromSideBar();
+        }
     });
   }
 
@@ -632,7 +629,7 @@
   function searchRequest(query, skipHistoryUpdate) {
     showDialog(false);
     var queryString = "";
-    if (typeof query == "undefined") {
+    if (typeof query === "undefined") {
       queryString = jQuery("#searchInputField").attr("value");
     } else {
       queryString = query;
@@ -899,7 +896,7 @@
     //
     resultHandler.empty();
     var imgSrc = getImageSource(givenTopic);
-    if (imgSrc != "undefined") {
+    if (imgSrc !== "undefined") {
       imgSrc = IMAGES_URL + imgSrc;
       // var imgWidth = jQuery("#sideBar").css("width");
       resultHandler.append('<img src="'+imgSrc+'"/><br/>');
@@ -924,28 +921,28 @@
     var propertyList = '<p>'; //<table width="100%" cellpadding="2" border="0"><tbody>';
     for (var i=0; i < givenTopic.properties.length; i++) {
       // propertyList += '<tr>';
-      if (givenTopic.properties[i].label.indexOf("Sonstiges") != -1) {
+      if (givenTopic.properties[i].label.indexOf("Sonstiges") !== -1) {
         // skipping: propertyList += '<p class="additionalInfoWhite">';
-      } else if (givenTopic.properties[i].label.indexOf("Administrator") != -1) {
+      } else if (givenTopic.properties[i].label.indexOf("Administrator") !== -1) {
         // skipping: propertyList += '<p class="additionalInfo">';
-      } else if (givenTopic.properties[i].label == "Barrierefrei" || givenTopic.properties[i].value == "") {
+      } else if (givenTopic.properties[i].label === "Barrierefrei" || givenTopic.properties[i].value === "") {
         // skip rendering Barrierefrei-Field cause value was not set yet
       } else {
         propertyList += '<p><span class="propertyLabel">'+givenTopic.properties[i].label+':&nbsp;</span>';
       }
-      if (givenTopic.properties[i].type == 0) {
-        if (givenTopic.properties[i].label.indexOf("Barrierefrei") == -1) {
+      if (givenTopic.properties[i].type === 0) {
+        if (givenTopic.properties[i].label.indexOf("Barrierefrei") === -1) {
           // ordinary rendering for DM Property Type Single Value
           propertyList += '<span class="propertyField">'+givenTopic.properties[i].value+'</span></p>';
         } else {
           // special rendering for the "BARRIERFREE_ACCESS"-Property
-          if (givenTopic.properties[i].value == "") {
+          if (givenTopic.properties[i].value === "") {
             // skip rendering Barrierefrei-Field cause value was not set yet
-          } else if (givenTopic.properties[i].value == "Ja") {
+          } else if (givenTopic.properties[i].value === "Ja") {
             propertyList += '<b>Ja Rollstuhlgerecht</b></p>';
-          } else if (givenTopic.properties[i].value.indexOf("Eingeschr") != -1) {
+          } else if (givenTopic.properties[i].value.indexOf("Eingeschr") !== -1) {
             propertyList += '<b>Eingeschr&auml;nkt Rollstuhlgerecht</b></p>';
-          } else if (givenTopic.properties[i].value == "Nein") {
+          } else if (givenTopic.properties[i].value === "Nein") {
             propertyList += '<b>Nicht Rollstuhlgerecht</b></p>';
           }
         }
@@ -953,11 +950,11 @@
         // DM Property Type Multi Value
         propertyList += '<span class="propertyField">';
         for ( var k=0; k < givenTopic.properties[i].values.length; k++ ) {
-          stringValue = givenTopic.properties[i].values[k].name;
+          var stringValue = givenTopic.properties[i].values[k].name;
           var htmlValue = "";
-          if (stringValue.startsWith("http://")) {
+          if (stringValue.startsWith("http://") && stringValue !== "http://") {
             htmlValue = makeWebpageLink(stringValue, stringValue);
-          } else if (stringValue.indexOf("@") != -1) {
+          } else if (stringValue.indexOf("@") !== -1) {
             htmlValue = makeEmailLink(stringValue, stringValue);
           } else {
             htmlValue = stringValue;
@@ -981,7 +978,7 @@
     resultHandler.empty();
     var imgSrc = getImageSource(givenTopic);
     var akteurImg = getAkteurImageSource(givenTopic);
-    if (imgSrc != "undefined") {
+    if (imgSrc !== "undefined") {
       imgSrc = IMAGES_URL + imgSrc;
       // var imgWidth = jQuery("#sideBar").css("width");
       resultHandler.append('<img src="'+imgSrc+'"/><br/>');
@@ -993,32 +990,25 @@
     var postalCode = getTopicPostalCode(givenTopic);
     var originId = getTopicOriginId(givenTopic);
     var imageLink = "";
-    if (cityName == " Berlin" || cityName == "Berlin" || onBerlinDe || topicId == "t-1223527") {
-      if (topicId == "t-1223527") cityName = "Berlin"
+    // topicId is a global var in the HTML carrying the id of the current city map (topic) we're in
+    // ehrenamt map on datasets have no city property but are in "Berlin""
+    if (cityName.trim().contains("Berlin") !== -1 || onBerlinDe || topicId === "t-1223527" || topicId === "t-331302") {
+      if (onBerlinDe || topicId === "t-331302" || topicId === "t-1223527" || topicId == "t-331302") cityName = "Berlin"
       // assemble berlin fahrinfo link
       imageLink = createBerlinFahrinfoLink(street, cityName, postalCode);
-      //
-      if (onBerlinDe || topicId == "t-331302") { // ehrenamt map datasets have no city property
-        resultHandler.append(''+ postalCode + ' Berlin<br/>');
-      } else {
-        resultHandler.append(''+ postalCode + ' ' + cityName + '<br/>');
-      }
+      resultHandler.append(''+ postalCode + ' ' + cityName + '<br/>');
       resultHandler.append('' + street + '&nbsp;' + imageLink + '<p/>');
     } else { // not berlin
-      if (topicId == "t-331302") { // ehrenamt map on datasets have no city property but are in "Berlin""
-        resultHandler.append(''+getTopicPostalCode(givenTopic) + ' Berlin<br/>');
-      } else { // not berlin and not from ehrenamtsnetz
+      if (typeof cityName !== "undefined" || cityName !== "") {
         resultHandler.append(''+getTopicPostalCode(givenTopic) + ' ' + cityName + '<br/>');
-        if (typeof cityName !== "undefined") {
-          if (cityName.indexOf("Oberhausen") != -1) {
-            imageLink = createOberhausenFahrinfoLink(street, cityName, postalCode);
-            resultHandler.append('' + street + '&nbsp;' + imageLink + '<p/>');
-          } else {
-            resultHandler.append('' + street + '<p/>');
-          }
+        if (cityName.indexOf("Oberhausen") !== -1) {
+          imageLink = createOberhausenFahrinfoLink(street, cityName, postalCode);
+          resultHandler.append('' + street + '&nbsp;' + imageLink + '<p/>');
         } else {
           resultHandler.append('' + street + '<p/>');
         }
+      } else {
+        resultHandler.append('' + street + '<p/>');
       }
     }
     // stripping unwanted fields of the data container
@@ -1039,13 +1029,13 @@
     var propertyList = '<p>'; //<table width="100%" cellpadding="2" border="0"><tbody>';
     for (var i=0; i < givenTopic.properties.length; i++) {
       // propertyList += '<tr>';
-      if (givenTopic.properties[i].label.indexOf("Sonstiges") != -1) {
+      if (givenTopic.properties[i].label.indexOf("Sonstiges") !== -1) {
         propertyList += '<p class="additionalInfoWhite">';
-      } else if (givenTopic.properties[i].label.indexOf("Administrator") != -1) {
+      } else if (givenTopic.properties[i].label.indexOf("Administrator") !== -1) {
         propertyList += '<p class="additionalInfo">';
-      } else if (givenTopic.properties[i].label == "Barrierefrei" || givenTopic.properties[i].value == "") {
+      } else if (givenTopic.properties[i].label === "Barrierefrei" || givenTopic.properties[i].value === "") {
         // skip rendering Barrierefrei-Field cause value was not set yet
-      } else if (givenTopic.properties[i].label == "Webpage" || givenTopic.properties[i].label == "Website") {
+      } else if (givenTopic.properties[i].label === "Webpage" || givenTopic.properties[i].label === "Website") {
         // skip rendering of the self-explaning label called "webpage" or "website"..
       } else {
         propertyList += '<p><span class="propertyLabel">'+givenTopic.properties[i].label+':&nbsp;</span>';
@@ -1054,19 +1044,19 @@
         if (givenTopic.properties[i].label.indexOf("Barrierefrei") == -1) {
           // ordinary rendering for DM Property Type Single Value
           var formattedValue = givenTopic.properties[i].value + ""
-          if (formattedValue.indexOf("\r") != -1 || formattedValue.indexOf("\n") != -1) {
+          if (formattedValue.indexOf("\r") !== -1 || formattedValue.indexOf("\n") !== -1) {
               formattedValue = replaceLF(formattedValue)
           }
           propertyList += '<span class="propertyField">'+formattedValue+'</span></p>';
         } else {
           // special rendering for the "BARRIERFREE_ACCESS"-Property
-          if (givenTopic.properties[i].value == "") {
+          if (givenTopic.properties[i].value === "") {
             // skip rendering Barrierefrei-Field cause value was not set yet
-          } else if (givenTopic.properties[i].value == "Ja") {
+          } else if (givenTopic.properties[i].value === "Ja") {
             propertyList += '<img src="'+ICONS_URL+'accessibility-yes.png"/ height="20" border="0" style="position: relative; top: 2px;" title="Ja Rollstuhlgerecht" alt="Ja Rollstuhlgerecht">&nbsp;<b>Rollstuhlgerecht</b></p>';
-          } else if (givenTopic.properties[i].value.indexOf("Eingeschr") != -1) {
+          } else if (givenTopic.properties[i].value.indexOf("Eingeschr") !== -1) {
             propertyList += '<img src="'+ICONS_URL+'accessibility-limited.png"/ height="20" border="0" style="position: relative; top: 2px;" title="Eingeschr&auml;nkt Rollstuhlgerecht" alt="Eingeschr&auml;nkt Rollstuhlgerecht">&nbsp;<b>Rollstuhlgerecht</b></p>';
-          } else if (givenTopic.properties[i].value == "Nein") {
+          } else if (givenTopic.properties[i].value === "Nein") {
             propertyList += '<img src="'+ICONS_URL+'accessibility-no.png"/ height="20" border="0" style="position: relative; top: 2px;" title="Nicht Rollstuhlgerecht" alt="Nicht Rollstuhlgerecht">&nbsp;<b>Rollstuhlgerecht</b></p>';
           }
         }
@@ -1079,7 +1069,7 @@
           if (stringValue.startsWith("http://")) {
             htmlValue = '<span class="propertyLabel">Website:</span><br/>';
             htmlValue += makeWebpageLink(stringValue, stringValue);
-          } else if (stringValue.indexOf("@") != -1) {
+          } else if (stringValue.indexOf("@") !== -1) {
             htmlValue = makeEmailLink(stringValue, stringValue);
           } else if (stringValue === " " || stringValue.indexOf("&nbsp;") != -1) {
             // is equal to being empty (webpage)..
@@ -1097,7 +1087,7 @@
       }
       propertyList += '</p>';
     }
-    if (akteurImg != "undefined") {
+    if (akteurImg !== "undefined") {
       akteurImg = IMAGES_URL + akteurImg;
       propertyList += '<br/><img src="'+akteurImg+'"/>';
     }
@@ -1121,7 +1111,7 @@
 
     function createBerlinFahrinfoLink(street, cityName, postalCode) {
         var target = street + "%20" + postalCode + "%20" + cityName;
-        var publicTransportURL = "http://www.fahrinfo-berlin.de/fahrinfo/bin/query.exe/d?Z=" + target + "&REQ0JourneyStopsZA1=2&start=1";
+        var publicTransportURL = "https://fahrinfo.bvg.de/Fahrinfo/bin/query.bin/dn?Z=" + target + "&REQ0JourneyStopsZA1=2&start=1&pk_campaign=kiezatlas.de"
         var link = '<a href="'+ publicTransportURL + '" target="_blank">'
             + '<img src=\"'+IMAGES_URL+'fahrinfo.gif" title="Der Fahrinfo-Link liefert ÖPNV-Daten in Zusammenarbeit mit www.fahrinfo-berlin.de" border="0" hspace="20"/></a>';
         return link;
@@ -2641,14 +2631,12 @@
     for (var at=0; at < topic.properties.length; at++) {
       // resultHandler.append('<tr><td>'+topic.properties[i].label+'</td><td>'+topic.properties[i].value+'</td></tr>');
       if (topic.properties[at].name === "Address / City") {
-        return topic.properties[at].value; // + ' Berlin<br/>';
-      } else if (topic.properties[at].name === "Address / Stadt") {
-        return topic.properties[at].value;
+        return topic.properties[at].values[0].name; // + ' Berlin<br/>';
       } else if (topic.properties[at].name === "Stadt") {
         return topic.properties[at].value;
       }
     }
-    return undefined;
+    return "";
   }
 
 
@@ -2883,15 +2871,14 @@
   }
 
   function makeWebpageLink(url, label) {
+    var urlMarkup = '<a href="'+url+'" target="_blank">'+label+'</a>';
     if (onBerlinDe) urlMarkup = '<a href="'+url+'" target="_blank">Link zur T&auml;tigkeitsbeschreibung'
       + '<img src="/.img/ml/link_extern.gif" class="c7" alt="(externer Link)" border="0" height="11" width="12"/></a>';
-    else urlMarkup = '<a href="'+url+'" target="_blank">'+label+'</a>';
-    return urlMarkup
+    return urlMarkup;
   }
 
   function makeEmailLink(url, label) {
-    urlMarkup = '<a href="mailto:'+url+'" target="_blank">'+label+'</a>';
-    return urlMarkup
+    return '<a href="mailto:'+url+'" target="_blank">'+label+'</a>';
   }
 
   function hideAllInfoWindows() {
@@ -2923,4 +2910,5 @@
       helpVisible = false;
     }
   }
+
 
