@@ -10,7 +10,7 @@
 	<property name="war-test" value="${project.name}-test.war"/>
 	<property name="build" location="build"/>
 
-	<property name="dm.base-dir" location="/home/malt/source/dm2/trunk"/>
+	<property name="dm.base-dir" location="/home/malte/source/deepamehta2"/>
 
 	<import file="${dm.base-dir}/config.xml" />
 

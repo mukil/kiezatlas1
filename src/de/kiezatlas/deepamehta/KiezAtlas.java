@@ -73,7 +73,7 @@ public interface KiezAtlas extends DeepaMehtaConstants {
 
 
 	static final String ASSOCTYPE_OUTLINE = "at-ka-outline";
-    static final String ASSOCTYPE_AFFILIATED = "at-ka-affiliated";
+	static final String ASSOCTYPE_AFFILIATED = "at-ka-affiliated";
 	static final String ASSOCTYPE_HOMEPAGE_LINK = "at-ka-homepage-link";
 	static final String ASSOCTYPE_IMPRESSUM_LINK = "at-ka-impressum-link";
 
@@ -109,7 +109,7 @@ public interface KiezAtlas extends DeepaMehtaConstants {
 	// direction is from workspace to webpage
 	static final String SEMANTIC_WORKSPACE_IMPRESSUMLINK = ASSOCTYPE_IMPRESSUM_LINK;
 
-    // direction is from user to workspac
+	// direction is from user to workspac
 	static final String SEMANTIC_AFFILIATED_MEMBERSHIP = ASSOCTYPE_AFFILIATED;
 
 	// direction is arbitrary
@@ -287,8 +287,8 @@ public interface KiezAtlas extends DeepaMehtaConstants {
 	public static final String ACTION_RESET_CRITERIAS = "resetCritCats";
 	// Maps Servlets
 	public static final String ACTION_GEO_CODE = "geoCode";
-    // Upgrade Servlets
-    public static final String ACTION_MIGRATE_CITYMAP = "upgradeCityMap";
+	// Upgrade Servlets
+	public static final String ACTION_MIGRATE_CITYMAP = "upgradeCityMap";
 
 
 
@@ -358,10 +358,10 @@ public interface KiezAtlas extends DeepaMehtaConstants {
 	static final String PAGE_IMPORTS_LOGIN = "ImportsLogin";
 	static final String PAGE_IMPORTS_HOME = "ImportsHome";
 	static final String PAGE_REPORT_HOME = "ReportInfo";
-    // upgrade
-    static final String PAGE_UPGRADE_LOGIN = "upgrade/UpgradeLogin";
-    static final String PAGE_UPGRADE_LIST = "upgrade/CityMapList";
-    static final String PAGE_UPGRADE_CITYMAP = "upgrade/CityMap";
+	// upgrade
+	static final String PAGE_UPGRADE_LOGIN = "upgrade/UpgradeLogin";
+	static final String PAGE_UPGRADE_LIST = "upgrade/CityMapList";
+	static final String PAGE_UPGRADE_CITYMAP = "upgrade/CityMap";
 	// error
 	static final String PAGE_ERROR = "error";
 	// service

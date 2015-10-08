@@ -5,8 +5,6 @@ import java.util.Vector;
 //
 import de.deepamehta.service.ApplicationService;
 import de.kiezatlas.deepamehta.topics.GeoObjectTopic;
-import de.kiezatlas.deepamehta.KiezAtlas;
-
 
 
 /**
