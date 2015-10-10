@@ -35,27 +35,27 @@
 	// edit / list / upload / maps-login
 	void begin(int servlet, HttpSession session, JspWriter out) throws IOException {
 		String title = "Kiezatlas";
-		switch (servlet) {
-            case KiezAtlas.SERVLET_EDIT:
-                BaseTopic geo = (BaseTopic) session.getAttribute("geo");
-                if (geo != null) {
-                    title = title + " - " + geo.getName();
-                } else {
-                    title = title + " - Neuer Eintrag";
-                }
-                break;
-            case KiezAtlas.SERVLET_LIST:
-                title = title + " - Listenzugang";
-                break;
-            case KiezAtlas.SERVLET_WORKSPACE:
-                title = title + " - Workspacezugang";
-                break;
-            case KiezAtlas.SERVLET_MAPS:
-                title = title + " - Stadtplanzugang";
-                break;
-            case KiezAtlas.SERVLET_IMPORT:
-                title = title + " - Importzugang";
-                break;
+            switch (servlet) {
+                case KiezAtlas.SERVLET_EDIT:
+                    BaseTopic geo = (BaseTopic) session.getAttribute("geo");
+                    if (geo != null) {
+                        title = title + " - " + geo.getName();
+                    } else {
+                        title = title + " - Neuer Eintrag";
+                    }
+                    break;
+                case KiezAtlas.SERVLET_LIST:
+                    title = title + " - Listenzugang";
+                    break;
+                case KiezAtlas.SERVLET_WORKSPACE:
+                    title = title + " - Workspacezugang";
+                    break;
+                case KiezAtlas.SERVLET_MAPS:
+                    title = title + " - Stadtplanzugang";
+                    break;
+                case KiezAtlas.SERVLET_IMPORT:
+                    title = title + " - Importzugang";
+                    break;
 		}
 		out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">\r" +
 			"<html>" +
@@ -64,6 +64,16 @@
 			"\r<title>" + title + "</title>");
 		out.println("<link href=\"../pages/kiezatlas.css\" rel=\"stylesheet\" type=\"text/css\">");
 		out.println("<script src=\"../pages/util.js\" type=\"text/javascript\"></script>");
+                out.println("<script type=\"text/javascript\">"
+                    + "var pkBaseURL = \"http://stats.kiezatlas.de/\"; "
+                    + "document.write(unescape(\"%3Cscript src='\" + pkBaseURL + \"piwik.js' type='text/javascript'%3E%3C/script%3E\"));"
+                    + "</script><script type=\"text/javascript\"> +"
+                    + "try {"
+                    + "var piwikTracker = Piwik.getTracker(pkBaseURL + \"piwik.php\", 2);"
+                    + "piwikTracker.trackPageView();"
+                    + "piwikTracker.enableLinkTracking();"
+                    + " } catch( err ) {}"
+                    + "</script><noscript><p><img src=\"http://stats.kiezatlas.de/piwik.php?idsite=2\" style=\"border:0\" alt=\"\" /></p></noscript>");
 		out.println("</head>");
 		out.println("<body>");
 		out.println();

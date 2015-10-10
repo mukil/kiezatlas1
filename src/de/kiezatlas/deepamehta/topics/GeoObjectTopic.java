@@ -46,17 +46,29 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 
 	// --- Constants
 
-	static final String DEFAULT_PASSWORD = "123password";
-	static final String KA2_TOPIC_INSTANCE_URI_PREFIX = "de.kiezatlas.topic.";
+	static final String DEFAULT_PASSWORD		= "123password";
+
 	//
-	private static String KA2_SERVICE_URL = "http://212.87.44.116:8283";
-	// private static final String KA2_SERVICE_URL = "http://localhost:8182";
-	private static final String KA2_DEFAULT_WS_TOPIC_ID = "870";
-	private static final String KA2_ADMIN_PASSWORD = "";
+	// private static String KA2_SERVICE_URL	= "http://212.87.44.116:8283";
+	private static final String KA2_SERVICE_URL	= "http://localhost:8182";
+	private static final String KA2_DEFAULT_WS_TOPIC_ID = "962"; // 870
+	private static final String KA2_ADMIN_PASSWORD	= "";
+
+	// --- HTTP Remote API Constants
+
+	static final String KA2_TOPIC_URI_PREFIX	= "de.kiezatlas.topic.";
+	private final String REQUEST_CONTENT_TYPE	= "application/json;charset=UTF-8";
+
+	private final String HTTP_AUTH_ENDPOINT		= KA2_SERVICE_URL + "/accesscontrol/login";
+	private final String CORE_TOPIC_ENDPOINT	= KA2_SERVICE_URL + "/core/topic/";
+	private final String CORE_GET_BY_URI_ENDPOINT	= KA2_SERVICE_URL + "/core/topic/by_value/uri/";
+	private final String FACET_TOPIC_ENDPOINT	= KA2_SERVICE_URL + "/facet/";
+	private final String FACET_TOPIC_MULTI_ENDPOINT	= KA2_SERVICE_URL + "/facet/multi/";
+	private final String CORE_TOPIC_SEARCH_ENDPOINT	= KA2_SERVICE_URL + "/core/topic?search=";
 
 
-	// --- Instance Variables
-	private String validSessionId = null; // KA 2 Remote Instance HTTP Session ID
+	// KA 2 Remote Instance HTTP Session ID
+	private String validSessionId			= null;
 
 	// --- Constructor
 	public GeoObjectTopic(BaseTopic topic, ApplicationService as) {
@@ -601,14 +613,10 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		if (criterias == null) {
 			criterias = getWorkspaceCriterias(mapTopicId);
 		}
-		// Get / Set HTTPSession
-		if (sessionId == null) {
+		// Possibly acquire new HTTP Session
+		if (sessionId != null) validSessionId = sessionId;
+		if (validSessionId == null) {
 			getHTTPSession(KA2_ADMIN_PASSWORD);
-			if (validSessionId == null) {
-				throw new RuntimeException("Missing HTTP Session " + validSessionId);
-			}
-		} else {
-			validSessionId = sessionId;
 		}
 		// Get (or Create) Geo Object Topic remotely
 		JsonObject newTopic = getGeoObjectByTopicId(getID());
@@ -618,7 +626,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			addressTopicId = parseGeoObjectAddressId(newTopic);
 			System.out.println("  Geo Object \"" + getName() + "\" (" + getID() + ") with KA 2 ID (" + newTopicId + ")");
 		} else {
-			newTopic = postNewTopic(as.getLiveTopic(getID(), 1));
+			newTopic = postNewTopic(as.getLiveTopic(getID(), 1)); // ### include_childs=true?
 			newTopicId = parseGeoObjectParentId(newTopic);
 			addressTopicId = parseGeoObjectAddressId(newTopic);
 			// JsonElement new_topic_id = newTopic.get("id");
@@ -636,7 +644,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		postContactFacets(getID(), newTopicId);
 		postImageFileFacet(getID(), newTopicId);
 		postAgencyFacet(getID(), newTopicId);
-		if (mapAlias.toLowerCase().indexOf("gesamt") == -1) { // no gesamt-plan..
+		if (!mapAlias.toLowerCase().contains("gesamt")) { // no gesamt-plan..
 			postBezirksregionFacet(getID(), newTopicId, mapAlias);
 		}
 		postBezirksFacet(getID(), newTopicId, as.getLiveTopic(workspaceId, 1).getName());
@@ -695,10 +703,10 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 	}
 
 	/**
-	 * Checks if this GeoObject is part of the (to Famportal-Instance)
-	 * migrated workspaces.
+	 * @return boolean	If this GeoObject is part of the (to Famportal-Instance migrated workspaces.
 	 */
 	public boolean isPartOfMigratedWorkspaces() {
+		// ### consider that types and topics may be shared across workspaces .. and citymaps
 		String typeId = getType();
 		if (typeId.equals("tt-ka-sozialeinrichtung") || // TeSch
 			typeId.equals("t-307980") || typeId.equals("t-253476") || // FaSz + Mitte
@@ -718,22 +726,22 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 	public void deleteRemoteTopic() {
 		// 1) Get HTTP Session first
 		getHTTPSession(KA2_ADMIN_PASSWORD);
-		// 2)
+		// 2) Get Remote Topic ID
 		JsonObject remoteTopic = getGeoObjectByTopicId(getID());
 		if (remoteTopic != null) {
 			String remoteTopicId = parseGeoObjectParentId(remoteTopic);
 			try {
-				HttpURLConnection connection = (HttpURLConnection) new URL(KA2_SERVICE_URL
-					+ "/core/topic/" + remoteTopicId).openConnection();
+				HttpURLConnection connection = (HttpURLConnection) new URL(CORE_TOPIC_ENDPOINT
+					+ remoteTopicId).openConnection();
 				connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
 					+ "; JSESSIONID=" + validSessionId + ";");
-				connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+				connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
 				connection.setRequestMethod("DELETE");
 				// 2) Check the request for error status (200 is the expected response here).
 				if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-					System.out.println(" ------");
-					System.out.println(" WARNING: Delete " + remoteTopicId + " (" + connection.getResponseCode() + ")");
-					System.out.println(" ------");
+					System.out.println(" ### WARNING: Delete " + remoteTopicId + " (" + connection.getResponseCode() + ")");
+				} else if (connection.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+					validSessionId = null;
 				} else {
 					System.out.println("INFO: DELETE " + getName() + " at KA 2 Web Service Endpoint - SUCCESS");
 				}
@@ -750,6 +758,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 
 	private JsonObject postNewTopic(BaseTopic topic) {
 		String result = null;
+		JsonObject object = null;
 		try {
 			// 1) Get Geo Object's Address // if this look-up fails the whole topic will not be created
 			BaseTopic address = getAddress();
@@ -767,6 +776,8 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			if (streetNrId != null) {
 				// .. ) Reference the KA 2 Street Nr Topic
 				streetNr = "ref_id:" + streetNrId;
+			} else {
+				System.out.println("> Creating new Street Topic for value \"" + streetNr + "\"");
 			}
 			postalCode = cleanUpPostalCodeValue(postalCode);
 			// ..) Check if postalCode exists (KA 2)
@@ -775,15 +786,15 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 				// .. ) Reference the KA 2 Postal Code Topic
 				postalCode = "ref_id:" + existingPostalCodeId;
 			} else {
-				System.out.println("> Creating Postal Code Topic for value \"" + postalCode + "\"");
+				System.out.println("> Creating new Postal Code Topic for value \"" + postalCode + "\"");
 			}
 			// 4) Fetch the correct cityName (KA1)
 			String city = getCity(); // getGeoObjectCityName(topic, address);
-			// 5) Perform create request ...
+			// 5) Perform create request ... // .. ### ?include_childs=true
 			URLConnection connection = new URL(KA2_SERVICE_URL + "/core/topic").openConnection();
 			connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
 				+ "; JSESSIONID=" + validSessionId + "; dm4_no_geocoding=true;");
-			connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+			connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
 			connection.setDoOutput(true);
 			OutputStream output = null;
 			output = connection.getOutputStream();
@@ -797,17 +808,9 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 				line = rd.readLine();
 			}
 			result = line;
-			try {
-				JsonElement response = new JsonParser().parse(result);
-				JsonObject new_topic = response.getAsJsonObject();
-				return new_topic;
-			} catch (Exception je) {
-				//
-				System.out.println("*** [GeoObjectTopic] postTopic error parsing response from KA 2: " + je.getMessage());
-				return null;
-			} finally {
-				rd.close();
-			}
+			object = getTopicObjectFromResponse(result);
+			rd.close();
+			return object;
 		} catch (UnknownHostException uke) {
 			System.out.println("*** [GeoObjectTopic] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
 			return null;
@@ -845,16 +848,16 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 				// .. ) Reference the KA 2 Postal Code Topic
 				postalCode = "ref_id:" + existingPostalCodeId;
 			} else {
-				System.out.println("> Creating Postal Code Topic for value \"" + postalCode + "\"");
+				System.out.println("> Creating new Postal Code Topic for value \"" + postalCode + "\"");
 			}
 			// 4) Fetch the correct cityName (KA1)
 			String city = getCity(); // getGeoObjectCityName(topic, address);
 			// 5) Perform create request ...
-			HttpURLConnection connection = (HttpURLConnection) new URL(KA2_SERVICE_URL + "/core/topic/"
+			HttpURLConnection connection = (HttpURLConnection) new URL(CORE_TOPIC_ENDPOINT
 				+ remoteAddressTopicId).openConnection();
 			connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
 				+ "; JSESSIONID=" + validSessionId + ";");
-			connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+			connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
 			connection.setRequestMethod("PUT");
 			connection.setDoOutput(true);
 			OutputStream output = null;
@@ -862,13 +865,8 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			JsonWriter writer = new JsonWriter(new OutputStreamWriter(output, "UTF-8"));
 			writeGeoObjectAddress(writer, remoteAddressTopicId, streetNr, postalCode, city, "Deutschland");
 			writer.close();
-			// 6) Check the request for error status (204 may be the expected response here).
-			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-				System.out.println(" --------");
-				System.out.println(" WARNING: postTopicAddress: " + getName() + " did not succeed ("
-					+ connection.getResponseCode() + ")");
-				System.out.println(" --------");
-			}
+			// 6) Check the request for error status (204 may!? be the expected response here).
+			checkRequestResponseCode("postTopicAddress", getID(), connection.getResponseCode());
 		} catch (UnknownHostException uke) {
 			System.out.println("*** [GeoObjectTopic] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
 		} catch (Exception ex) {
@@ -880,11 +878,11 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 	private void postTopicName(String remoteAddressTopicId) {
 		try {
 			// 1) Perform update request ...
-			HttpURLConnection connection = (HttpURLConnection) new URL(KA2_SERVICE_URL + "/core/topic/"
+			HttpURLConnection connection = (HttpURLConnection) new URL(CORE_TOPIC_ENDPOINT
 				+ remoteAddressTopicId).openConnection();
 			connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
 				+ "; JSESSIONID=" + validSessionId + ";");
-			connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+			connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
 			connection.setRequestMethod("PUT");
 			connection.setDoOutput(true);
 			OutputStream output = null;
@@ -892,13 +890,8 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			JsonWriter writer = new JsonWriter(new OutputStreamWriter(output, "UTF-8"));
 			writeGeoObjectName(writer, remoteAddressTopicId, getName());
 			writer.close();
-			// 2) Check the request for error status (204 may be the expected response here).
-			if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-				System.out.println(" --------");
-				System.out.println(" WARNING: postTopicName: " + getName() + " did not succeed ("
-					+ connection.getResponseCode() + ")");
-				System.out.println(" --------");
-			}
+			// 2) Check the request for error status (204 is the expected response here).
+			checkRequestResponseCode("postTopicName", getName(), connection.getResponseCode());
 		} catch (UnknownHostException uke) {
 			System.out.println("*** [GeoObjectTopic] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
 		} catch (Exception ex) {
@@ -1025,11 +1018,11 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 				System.out.println(" EMPTY MAIL in postContactFacet: " + de.getMessage());
 			}
 			//
-			HttpURLConnection connection = (HttpURLConnection) new URL(KA2_SERVICE_URL
-				+ "/facet/ka2.kontakt.facet/topic/" + newTopicId).openConnection();
+			HttpURLConnection connection = (HttpURLConnection) new URL(FACET_TOPIC_ENDPOINT
+				+ "ka2.kontakt.facet/topic/" + newTopicId).openConnection();
 			connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
 				+ "; JSESSIONID=" + validSessionId + ";");
-			connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+			connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
 			connection.setRequestMethod("PUT");
 			connection.setDoOutput(true);
 			OutputStream output = null;
@@ -1055,12 +1048,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			writer.endObject();
 			writer.close();
 			// 2) Check the request for error status (204 is the expected response here).
-			if (connection.getResponseCode() != HttpURLConnection.HTTP_NO_CONTENT) {
-				System.out.println(" --------");
-				System.out.println(" WARNING: setContactsFacetValue did not succceed for "
-					+ as.getLiveTopic(topicId, 1).getName() + " HTTPStatusCode: " + connection.getResponseCode());
-				System.out.println(" --------");
-			}
+			checkRequestResponseCode("postContactsFacet", topicId, connection.getResponseCode());
 		} catch (UnknownHostException uke) {
 			System.out.println("*** [GeoObjectTopic] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
 		} catch (Exception ex) {
@@ -1108,11 +1096,11 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 						fileType = "";
 					}
 					//
-					HttpURLConnection connection = (HttpURLConnection) new URL(KA2_SERVICE_URL
-						+ "/facet/ka2.bild.facet/topic/" + newTopicId).openConnection();
+					HttpURLConnection connection = (HttpURLConnection) new URL(FACET_TOPIC_ENDPOINT
+						+ "ka2.bild.facet/topic/" + newTopicId).openConnection();
 					connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
 						+ "; JSESSIONID=" + validSessionId + ";");
-					connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+					connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
 					connection.setRequestMethod("PUT");
 					connection.setDoOutput(true);
 					OutputStream output = null;
@@ -1130,14 +1118,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 					writer.endObject();
 					//
 					writer.close();
-					// 2) Check the request for error status (204 is the expected response here).
-					if (connection.getResponseCode() != HttpURLConnection.HTTP_NO_CONTENT) {
-						System.out.println(" --------");
-						System.out.println(" WARNING: setImageFileFacet did not succceed for "
-							+ as.getLiveTopic(topicId, 1).getName()
-							+ " HTTPStatusCode: " + connection.getResponseCode());
-						System.out.println(" --------");
-					}
+					checkRequestResponseCode("postImageFileFacet", topicId, connection.getResponseCode());
 				}
 			}
 		} catch (UnknownHostException uke) {
@@ -1145,6 +1126,26 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			System.out.println("*** [GeoObjectTopic] setImageFileFacet encountered problem: " + ex.getMessage());
+		}
+	}
+
+	/** Check the request for error status (204 is the expected response here). */
+	private void checkRequestResponseCode(String context, String topic, int code) {
+		String topicName = topic;
+		if (topic.startsWith("t-")) topicName = as.getLiveTopic(topic, 1).getName();
+		if (code != HttpURLConnection.HTTP_NO_CONTENT) {
+			System.out.println(" ### WARNING: " +context+ " did not succceed for "
+			    +topicName+ " HTTPStatusCode: " + code);
+		} else if (code == HttpURLConnection.HTTP_UNAUTHORIZED) {
+			System.out.println(" ### WARNING: " +context+ " did not succceed cause of invalid HTTP Session ");
+			validSessionId = null;
+		} else if (code == HttpURLConnection.HTTP_INTERNAL_ERROR) {
+			System.out.println(" ### WARNING: "+context+" did produce InternalServerError for " + topicName);
+		} else if (code == HttpURLConnection.HTTP_NO_CONTENT) {
+			// OK, fine.
+		} else {
+			System.out.println(" ### WARNING: "+context+" did produce HTTP StatusCode "
+			    + code + " for " + topicName);
 		}
 	}
 
@@ -1171,11 +1172,11 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			// 1) Do request (if filename is not empty)
 			if (agency != null && !agency.getName().isEmpty()) {
 				//
-				HttpURLConnection connection = (HttpURLConnection) new URL(KA2_SERVICE_URL
-					+ "/facet/ka2.traeger.facet/topic/" + newTopicId).openConnection();
+				HttpURLConnection connection = (HttpURLConnection) new URL(FACET_TOPIC_ENDPOINT
+					+ "ka2.traeger.facet/topic/" + newTopicId).openConnection();
 				connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
 					+ "; JSESSIONID=" + validSessionId + ";");
-				connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+				connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
 				connection.setRequestMethod("PUT");
 				connection.setDoOutput(true);
 				OutputStream output = null;
@@ -1243,11 +1244,11 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 						return;
 					}
 				}
-				HttpURLConnection connection = (HttpURLConnection) new URL(KA2_SERVICE_URL
-					+ "/facet/" + criteriaFacetTypeUri + "/topic/" + newTopicId).openConnection();
+				HttpURLConnection connection = (HttpURLConnection) new URL(FACET_TOPIC_ENDPOINT
+					+ criteriaFacetTypeUri + "/topic/" + newTopicId).openConnection();
 				connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
 					+ "; JSESSIONID=" + validSessionId + ";");
-				connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+				connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
 				connection.setRequestMethod("PUT");
 				connection.setDoOutput(true);
 				OutputStream output = null;
@@ -1277,14 +1278,15 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		}
 	}
 
+	/** ### Delete uses PUT!?*/
 	private void deleteCategoryFacetTopics(String facetTypeUri, JsonArray categoryTopics, String newTopicId) {
 		try {
 			//
-			HttpURLConnection connection = (HttpURLConnection) new URL(KA2_SERVICE_URL
-				+ "/facet/" + facetTypeUri + "/topic/" + newTopicId).openConnection();
+			HttpURLConnection connection = (HttpURLConnection) new URL(FACET_TOPIC_ENDPOINT
+				+ facetTypeUri + "/topic/" + newTopicId).openConnection();
 			connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
 				+ "; JSESSIONID=" + validSessionId + ";");
-			connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+			connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
 			connection.setRequestMethod("PUT");
 			connection.setDoOutput(true);
 			OutputStream output = null;
@@ -1344,11 +1346,11 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		//
 		if (!facetValue.isEmpty() && !topicId.isEmpty() && !facetTypeUri.isEmpty()) {
 			try {
-				HttpURLConnection connection = (HttpURLConnection) new URL(KA2_SERVICE_URL
-					+ "/facet/" + facetTypeUri + "/topic/" + topicId).openConnection();
+				HttpURLConnection connection = (HttpURLConnection) new URL(FACET_TOPIC_ENDPOINT
+					+ facetTypeUri + "/topic/" + topicId).openConnection();
 				connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
 					+ "; JSESSIONID=" + validSessionId + ";");
-				connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+				connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
 				connection.setRequestMethod("PUT");
 				connection.setDoOutput(true);
 				OutputStream output = null;
@@ -1378,11 +1380,11 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		String geoCoordinateFacetTypeUri = "dm4.geomaps.geo_coordinate_facet";
 		// String geoCordinateTypeURI = "dm4.geomaps.geo_coordinate";
 		try {
-			HttpURLConnection connection = (HttpURLConnection) new URL(KA2_SERVICE_URL
-				+ "/facet/" + geoCoordinateFacetTypeUri + "/topic/" + addressTopicId).openConnection();
+			HttpURLConnection connection = (HttpURLConnection) new URL(FACET_TOPIC_ENDPOINT
+				+ geoCoordinateFacetTypeUri + "/topic/" + addressTopicId).openConnection();
 			connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
 				+ "; JSESSIONID=" + validSessionId + ";");
-			connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+			connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
 			connection.setRequestMethod("PUT");
 			connection.setDoOutput(true);
 			OutputStream output = null;
@@ -1419,9 +1421,9 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		}
 		// 2) write json-object with topicId in URI
 		writer.beginObject();
-		writer.name("uri").value(KA2_TOPIC_INSTANCE_URI_PREFIX + topic.getID());
+		writer.name("uri").value(KA2_TOPIC_URI_PREFIX + topic.getID());
 		writer.name("type_uri").value("ka2.geo_object");
-		writer.name("composite");
+		writer.name("childs");
 		writer.beginObject();
 		writer.name("ka2.geo_object.name").value(topic.getName());
 		writer.name("dm4.contacts.address");
@@ -1450,7 +1452,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		writer.beginObject();
 		writer.name("id").value(remoteAddressTopicId);
 		writer.name("type_uri").value("dm4.contacts.address");
-		writer.name("composite");
+		writer.name("childs");
 		writer.beginObject();
 		writer.name("dm4.contacts.street").value(streetNr);
 		writer.name("dm4.contacts.postal_code").value(postalCode);
@@ -1508,12 +1510,13 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 	 */
 	private String getPostalCodeEntityByValue(String postalCode) {
 		String result = null;
+		String topicId = null;
 		try {
 			// 1) Create GET-Request
 			if (!postalCode.isEmpty()) {
-				URLConnection connection = new URL(KA2_SERVICE_URL
-					+ "/core/topic?search=" + postalCode + "&field=dm4.contacts.postal_code").openConnection();
-				connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+				URLConnection connection = new URL(CORE_TOPIC_SEARCH_ENDPOINT
+					+ postalCode + "&field=dm4.contacts.postal_code").openConnection();
+				connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
 				connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
 					+ "; JSESSIONID=" + validSessionId + ";");
 				// 2) Read in the response
@@ -1523,56 +1526,27 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 					line = rd.readLine();
 				}
 				result = line;
-				try {
-					JsonElement response = new JsonParser().parse(result);
-					if (response.isJsonNull()) {
-						return null;
-					} else {
-						JsonArray postalCodes = response.getAsJsonArray();
-						if (postalCodes.size() > 0) {
-							JsonElement postalCodeElement = postalCodes.get(0);
-							JsonObject postalCodeElementObject = postalCodeElement.getAsJsonObject();
-							JsonElement postalCodeObjectIdElement = postalCodeElementObject.get("id");
-							String postalCodeTopicId = postalCodeObjectIdElement.getAsString();
-							// JsonElement new_topic_id = new_topic.get("id");
-							return postalCodeTopicId;
-						}
-						if (postalCodes.size() > 1) {
-							System.out.println(" -------");
-							System.out.println(" WARNING KA2 has multiple postal codes with the same value, something is wrong.");
-							System.out.println(" -------");
-							throw new Error(" KA1 Upgrade Serlvet has received multiple (identical) postal codes, stopping migration.");
-						}
-					}
-					return null;
-				} catch (Exception je) {
-					//
-					je.printStackTrace();
-					System.out.println("*** [GeoObjectTopic Upgrade] getPostalCodeEntityByValue error parsing "
-						+ "postalCode response from KA 2");
-					return null;
-				} finally {
-					rd.close();
-				}
+				topicId = getFirstTopicIdFromListResponse(result);
+				rd.close();
 			}
-			return null;
 		} catch (UnknownHostException uke) {
 			System.out.println("*** [GeoObjectTopic Upgrade] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
 			return null;
 		} catch (Exception ex) {
 			System.out.println("*** [GeoObjectTopic Upgrade] getPostalCodeEntityByValue encountered problem: " + ex.getMessage());
 		}
-		return null;
+		return topicId;
 	}
 
 	private String getStreetNrEntityByValue(String streetNr) {
 		String result = null;
+		String topicId = null;
 		try {
 			if (!streetNr.isEmpty()) {
 				streetNr = URLEncoder.encode(streetNr, "UTF-8");
-				URLConnection connection = new URL(KA2_SERVICE_URL
-					+ "/core/topic?search=\"" + streetNr + "\"&field=dm4.contacts.street").openConnection();
-				connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+				URLConnection connection = new URL(CORE_TOPIC_SEARCH_ENDPOINT
+					+ "\"" + streetNr + "\"&field=dm4.contacts.street").openConnection();
+				connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
 				connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
 					+ "; JSESSIONID=" + validSessionId + ";");
 				// 2) Read in the response
@@ -1582,54 +1556,26 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 					line = rd.readLine();
 				}
 				result = line;
-				try {
-					JsonElement response = new JsonParser().parse(result);
-					if (response.isJsonNull()) {
-						return null;
-					} else {
-						JsonArray postalCodes = response.getAsJsonArray();
-						if (postalCodes.size() > 0) {
-							JsonElement postalCodeElement = postalCodes.get(0);
-							JsonObject postalCodeElementObject = postalCodeElement.getAsJsonObject();
-							JsonElement postalCodeObjectIdElement = postalCodeElementObject.get("id");
-							String postalCodeTopicId = postalCodeObjectIdElement.getAsString();
-							return postalCodeTopicId;
-						}
-						if (postalCodes.size() > 1) {
-							System.out.println(" -------");
-							System.out.println(" WARNING: KA2 has multiple street nrs with the same value, something is wrong.");
-							System.out.println(" -------");
-							throw new Error(" KA1 Upgrade Serlvet has received multiple (identical) street nrs, stopping migration.");
-						}
-					}
-					return null;
-				} catch (Exception je) {
-					//
-					je.printStackTrace();
-					System.out.println("*** [GeoObjectTopic Upgrade] getStreetNr error parsing response from KA 2");
-					return null;
-				} finally {
-					rd.close();
-				}
+				topicId = getFirstTopicIdFromListResponse(result);
+				rd.close();
 			}
-			return null;
 		} catch (UnknownHostException uke) {
 			System.out.println("*** [GeoObjectTopic Upgrade] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
-			return null;
 		} catch (Exception ex) {
 			System.out.println("*** [GeoObjectTopic Upgrade] getStreetNr encountered problem: " + ex.getMessage());
 		}
-		return null;
+		return topicId;
 	}
 
 	private String getLORNumberEntityByValue(String lorNumber) {
 		String result = null;
+		String topicId = null;
 		try {
 			// 1) Create GET-Request //
 			if (!lorNumber.isEmpty()) {
-				URLConnection connection = new URL(KA2_SERVICE_URL
-					+ "/core/topic?search=" + lorNumber + "&field=ka2.lor_nummer").openConnection();
-				connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+				URLConnection connection = new URL(CORE_TOPIC_SEARCH_ENDPOINT
+					+ lorNumber + "&field=ka2.lor_nummer").openConnection();
+				connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
 				connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
 					+ "; JSESSIONID=" + validSessionId + ";");
 				// 2) Read in the response
@@ -1639,54 +1585,25 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 					line = rd.readLine();
 				}
 				result = line;
-				try {
-					JsonElement response = new JsonParser().parse(result);
-					if (response.isJsonNull()) {
-						return null;
-					} else {
-						JsonArray numbers = response.getAsJsonArray();
-						if (numbers.size() > 0) {
-							JsonElement lorNumberElement = numbers.get(0);
-							JsonObject lorNumberElementObject = lorNumberElement.getAsJsonObject();
-							JsonElement lorNumberElementObjectId = lorNumberElementObject.get("id");
-							String lorNumberTopicId = lorNumberElementObjectId.getAsString();
-							return lorNumberTopicId;
-						}
-						if (numbers.size() > 1) {
-							System.out.println(" -------");
-							System.out.println(" WARNING KA2 has multiple LOR Numbers with the same value, something is wrong.");
-							System.out.println(" -------");
-							throw new Error(" KA1 Upgrade Serlvet has received multiple (identical) LOR Numbers, stopping migration.");
-						}
-					}
-					return null;
-				} catch (Exception je) {
-					//
-					je.printStackTrace();
-					System.out.println("*** [GeoObjectTopic Upgrade] getLORNumberEntityByValue error parsing "
-						+ "lor-number response from KA 2");
-					return null;
-				} finally {
-					rd.close();
-				}
+				topicId = getFirstTopicIdFromListResponse(result);
+				rd.close();
 			}
-			return null;
 		} catch (UnknownHostException uke) {
 			System.out.println("*** [GeoObjectTopic Upgrade] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
-			return null;
 		} catch (Exception ex) {
 			System.out.println("*** [GeoObjectTopic Upgrade] getLORNumberEntityByValue encountered problem: " + ex.getMessage());
 		}
-		return null;
+		return topicId;
 	}
 
 	private JsonArray getCategoryFacetTopics(String facetTypeUri, String remoteTopicId) {
 		String result = null;
+		JsonArray topics = null;
 		try {
 			// 1) Create GET-Request //
-			URLConnection connection = new URL(KA2_SERVICE_URL
-				+ "/facet/multi/" + facetTypeUri + "/topic/" + remoteTopicId).openConnection();
-			connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+			URLConnection connection = new URL(FACET_TOPIC_MULTI_ENDPOINT
+				+ facetTypeUri + "/topic/" + remoteTopicId).openConnection();
+			connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
 			connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
 				+ "; JSESSIONID=" + validSessionId + ";");
 			// 2) Read in the response
@@ -1696,78 +1613,113 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 				line = rd.readLine();
 			}
 			result = line;
-			try {
-				JsonElement response = new JsonParser().parse(result);
-				if (response.isJsonNull()) {
-					return null;
-				} else {
-					JsonArray topics = response.getAsJsonArray();
-					if (topics.size() > 0) {
-						return topics;
-					} else {
-						return null;
-					}
-				}
-			} catch (Exception je) {
-				//
-				je.printStackTrace();
-				System.out.println("*** [GeoObjectTopic Upgrade] getCategoryFacetTopics error parsing "
-					+ "topics response from KA 2");
-				return null;
-			} finally {
-				rd.close();
-			}
+			topics = getTopicListFromResponse(result);
+			rd.close();
 		} catch (UnknownHostException uke) {
 			System.out.println("*** [GeoObjectTopic Upgrade] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
 			return null;
-		} catch (Exception ex) {
-			System.out.println("*** [GeoObjectTopic Upgrade] getCategoryFacetTopics encountered problem: " + ex.getMessage());
+		} catch (UnsupportedEncodingException ex) {
+			System.out.println("### ERROR UnsupportedEncodingException during getting a categoryFacet: " + ex.getMessage());
+		} catch (MalformedURLException ex) {
+			System.out.println("### ERROR MalformedURLException during getting a categoryFacet: " + ex.getMessage());
+		} catch (IOException ex) {
+			System.out.println("### ERROR IOException during getting a categoryFacet: " + ex.getMessage());
 		}
-		return null;
+		return topics;
 	}
 
 	public JsonObject getGeoObjectByTopicId(String topicId) {
 		String result = null;
+		JsonObject geoObject = null;
 		try {
 			// 1) GET-Request
 			String cookieBody = "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID + "; JSESSIONID=" + validSessionId + ";";
-			HttpURLConnection connection = (HttpURLConnection) new URL(KA2_SERVICE_URL
-				+ "/core/topic/by_value/uri/" + KA2_TOPIC_INSTANCE_URI_PREFIX + topicId + "/?fetchComposite=true").openConnection();
-			connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+			HttpURLConnection connection = (HttpURLConnection) new URL(CORE_GET_BY_URI_ENDPOINT
+				+ KA2_TOPIC_URI_PREFIX + topicId + "/?include_childs=true").openConnection();
+			connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
 			connection.setRequestProperty("Cookie", cookieBody);
-			// 2) Read in the response
+			// 2) Check if auth was succesfull
+			if (connection.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+				validSessionId = null;
+				System.out.println("### ERROR We could not fetch the geo-object because"
+				    + "of our HTTP Session that got invalid ...");
+			}
+			// 3) Read in the response
 			BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8")); //
 			String line = "";
 			if (rd.ready()) {
 				line = rd.readLine();
 			}
 			result = line;
-			try {
-				JsonElement response = new JsonParser().parse(result);
-				JsonObject geoObjectObject;
-				if (response.isJsonObject()) {
-					geoObjectObject = response.getAsJsonObject();
-					return geoObjectObject;
-				}
-				return null;
-			} catch (Exception je) {
-				throw new RuntimeException(je);
-			} finally {
-				rd.close();
-			}
+			geoObject = getTopicObjectFromResponse(result);
+			rd.close();
 		} catch (UnknownHostException uke) {
 			System.out.println("*** [GeoObjectTopic Upgrade] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
-			return null;
-		} catch (Exception ex) {
-			System.out.println("*** [GeoObjectTopic Upgrade] getGeoObjectByTopicId encountered problem: " + ex.getMessage());
-			return null;
+		} catch (IOException ex) {
+			Logger.getLogger(GeoObjectTopic.class.getName()).log(Level.SEVERE, null, ex);
+			System.out.println("### ERROR IOException during getting a geo-object: " + ex.getMessage());
 		}
+		return geoObject;
 	}
 
 
 	// --
 	// --- Private KA 2 Response Helpers
 	// --
+
+	private String getFirstTopicIdFromListResponse(String body) {
+		try {
+			JsonElement response = new JsonParser().parse(body);
+			if (response.isJsonNull()) {
+				return null;
+			} else {
+				JsonArray elements = response.getAsJsonArray();
+				if (elements.size() == 1) {
+					JsonElement first = elements.get(0);
+					JsonObject topicObject = first.getAsJsonObject();
+					JsonElement topicObjectId = topicObject.get("id");
+					return topicObjectId.getAsString();
+				} else if (elements.size() > 1) {
+					System.out.println(" ### SEVERE KA2 has multiple elements with the same value, something is wrong.");
+					throw new Error(" KA1 Upgrade Serlvet has received multiple (identical) value topics, stopping migration.");
+				}
+			}
+		} catch (Exception je) {
+			//
+			je.printStackTrace();
+			System.out.println("### ERROR Could not parse "
+				+ "postalCode response from KA 2 response, HTTP Response: " + body);
+		}
+		return null;
+	}
+
+	private JsonObject getTopicObjectFromResponse(String body) {
+		try {
+			JsonElement response = new JsonParser().parse(body);
+			if (response.isJsonObject()) {
+				JsonObject new_topic = response.getAsJsonObject();
+				return new_topic;
+			}
+		} catch (Exception je) {
+			System.out.println("### ERROR Could not parse KA 2 Ttopic cause of "
+			    + je.getMessage() + "; HTTP Response: " + body);
+		}
+		return null;
+	}
+
+	private JsonArray getTopicListFromResponse(String body) {
+		JsonArray topics = null;
+		try {
+			JsonElement response = new JsonParser().parse(body);
+			if (!response.isJsonNull()) {
+				topics = response.getAsJsonArray();
+			}
+		} catch (Exception je) {
+			System.out.println("### ERROR [GeoObjectTopic] Could not parse list of "
+				+ "topics from KA 2 "+je.getMessage()+", HTTP response: " + body);
+		}
+		return topics;
+	}
 
 	private String parseGeoObjectParentId(JsonObject response) {
 		String errorType = "- Unknown error";
@@ -1791,11 +1743,16 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 
 	private String parseGeoObjectAddressId(JsonObject response) {
 		try {
-			JsonObject geoObjectComposite = response.getAsJsonObject("composite");
-			JsonObject geoObjectAddress = geoObjectComposite.getAsJsonObject("dm4.contacts.address");
-			JsonElement addressIdElement = geoObjectAddress.get("id");
-			// System.out.println("Parsing Geo Object Address Response, ID is " + addressIdElement.getAsString());
-			return addressIdElement.getAsString();
+			JsonObject geoObjectComposite = response.getAsJsonObject("childs");
+			if (geoObjectComposite.has("dm4.contacts.address")) {
+				JsonObject geoObjectAddress = geoObjectComposite.getAsJsonObject("dm4.contacts.address");
+				JsonElement addressIdElement = geoObjectAddress.get("id");
+				// System.out.println("Parsing Geo Object Address Response, ID is " + addressIdElement.getAsString());
+				return addressIdElement.getAsString();
+			} else {
+				System.out.println("### ERROR: KA 2 Geo Object was returned without Address childs");
+				return null;
+			}
 		} catch (Exception je) {
 			throw new RuntimeException(je);
 		}
@@ -1803,7 +1760,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 
 	private String parseGeoObjectNameId(JsonObject topic) {
 		try {
-			JsonObject geoObjectComposite = topic.getAsJsonObject("composite");
+			JsonObject geoObjectComposite = topic.getAsJsonObject("childs");
 			JsonObject geoObjectName = geoObjectComposite.getAsJsonObject("ka2.geo_object.name");
 			JsonElement nameIdElement = geoObjectName.get("id");
 			// System.out.println("Parsing Geo Object Name Response, ID is " + nameIdElement.getAsString());
@@ -1815,16 +1772,15 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 
 	// --- KA 2 HTTP Authentication
 
-	private boolean getHTTPSession(String secret) {
+	private String getHTTPSession(String secret) {
 		String sessionId = null;
 		if (validSessionId != null) {
-			return true;
+			return validSessionId;
 		}
 		try {
 			// 1) POST-Authentication Request
-			HttpURLConnection connection = (HttpURLConnection) new URL(KA2_SERVICE_URL
-				+ "/accesscontrol/login").openConnection();
-			connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+			HttpURLConnection connection = (HttpURLConnection) new URL(HTTP_AUTH_ENDPOINT).openConnection();
+			connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
 			connection.setRequestMethod("POST");
 			String auth_values = "admin:" + secret;
 			String authentication = "Basic " + Base64.encode(auth_values.getBytes());
@@ -1841,25 +1797,22 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 					}
 					System.out.println("      Authentication successfull: JSESSIONID is " + sessionId);
 					validSessionId = sessionId;
-					return (sessionId != null || !sessionId.isEmpty()) ? true : false;
+					return sessionId;
 				} else {
 					System.out.println("      Authentication NOT successfull: " + connection.getResponseCode() + " "
 						+ connection.getResponseMessage() + " Cookie: " + connection.getHeaderField("Set-Cookie"));
-					return false;
 				}
 			} catch (Exception je) {
 				//
 				je.printStackTrace();
 				System.out.println("*** [GeoObjectTopic Upgrade] error getting HTTPSession from KA 2");
-				return false;
 			}
 		} catch (UnknownHostException uke) {
 			System.out.println("*** [GeoObjectTopic Upgrade] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
-			return false;
 		} catch (Exception ex) {
 			System.out.println("*** [GeoObjectTopic Upgrade] getHTTPSession encountered problem: " + ex.getMessage());
-			return false;
 		}
+		return sessionId;
 	}
 	
 	// --- Helpers

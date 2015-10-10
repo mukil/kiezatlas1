@@ -76,9 +76,11 @@ public class EditServlet extends DeepaMehtaServlet implements KiezAtlas {
 			updateTopic(geo.getType(), params, session, directives);
 			// --- store image ---
 			writeFiles(params.getUploads(), geo.getImage(), as);
-            // --- update mirror-topic ---
-            geo.synchronizeGeoObject();
-            // 
+			if (geo.isPartOfMigratedWorkspaces()) {
+				// --- update mirror-topic ---
+				geo.synchronizeGeoObject();
+			}
+			//
 			return PAGE_GEO_HOME;
 			//
 		} else if (action.equals(ACTION_SHOW_FORUM_ADMINISTRATION)) {

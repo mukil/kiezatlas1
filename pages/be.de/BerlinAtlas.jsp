@@ -210,5 +210,6 @@
           <p id="modalMessage"></p>
       </div>
     </div>
+    <img src="http://stats.infokitchen.net/piwik.php?idsite=2&amp;rec=1" style="border:0" alt="" />
   </body>
 </html>
