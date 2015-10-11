@@ -238,7 +238,9 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 					System.out.println("    categoryRemoval of facetTypeURI: " + relFacetTypeURI);
 					JsonArray categories = getCategoryFacetTopics(relFacetTypeURI, remoteTopicId);
 					if (categories != null) {
-						deleteCategoryFacetTopics(relFacetTypeURI, categories, remoteTopicId);
+						if (categories.size() > 0) {
+							deleteCategoryFacetTopics(relFacetTypeURI, categories, remoteTopicId);
+						}
 					}
 				}
 			}
@@ -865,7 +867,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			JsonWriter writer = new JsonWriter(new OutputStreamWriter(output, "UTF-8"));
 			writeGeoObjectAddress(writer, remoteAddressTopicId, streetNr, postalCode, city, "Deutschland");
 			writer.close();
-			// 6) Check the request for error status (204 may!? be the expected response here).
+			// 6) Check the request for error status (200 is be the expected response here).
 			checkRequestResponseCode("postTopicAddress", getID(), connection.getResponseCode());
 		} catch (UnknownHostException uke) {
 			System.out.println("*** [GeoObjectTopic] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
@@ -890,7 +892,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			JsonWriter writer = new JsonWriter(new OutputStreamWriter(output, "UTF-8"));
 			writeGeoObjectName(writer, remoteAddressTopicId, getName());
 			writer.close();
-			// 2) Check the request for error status (204 is the expected response here).
+			// 2) Check the request for error status (200 is the expected response here).
 			checkRequestResponseCode("postTopicName", getName(), connection.getResponseCode());
 		} catch (UnknownHostException uke) {
 			System.out.println("*** [GeoObjectTopic] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
@@ -1133,18 +1135,16 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 	private void checkRequestResponseCode(String context, String topic, int code) {
 		String topicName = topic;
 		if (topic.startsWith("t-")) topicName = as.getLiveTopic(topic, 1).getName();
-		if (code != HttpURLConnection.HTTP_NO_CONTENT) {
-			System.out.println(" ### WARNING: " +context+ " did not succceed for "
-			    +topicName+ " HTTPStatusCode: " + code);
+		if (code == HttpURLConnection.HTTP_NO_CONTENT ||
+		    code == HttpURLConnection.HTTP_OK) {
+			// OK, fine.
 		} else if (code == HttpURLConnection.HTTP_UNAUTHORIZED) {
-			System.out.println(" ### WARNING: " +context+ " did not succceed cause of invalid HTTP Session ");
+			System.out.println(" ### UNAUTHORIZED: " +context+ " did not succceed cause of invalid HTTP Session ");
 			validSessionId = null;
 		} else if (code == HttpURLConnection.HTTP_INTERNAL_ERROR) {
-			System.out.println(" ### WARNING: "+context+" did produce InternalServerError for " + topicName);
-		} else if (code == HttpURLConnection.HTTP_NO_CONTENT) {
-			// OK, fine.
+			System.out.println(" ### INTERNAL_ERROR: "+context+" did produce InternalServerError for " + topicName);
 		} else {
-			System.out.println(" ### WARNING: "+context+" did produce HTTP StatusCode "
+			System.out.println(" ### ERROR : "+context+" did produce HTTP StatusCode "
 			    + code + " for " + topicName);
 		}
 	}
@@ -1305,15 +1305,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			writer.endObject();
 			writer.close();
 			// 2) Check the request for error status (204 is the expected response here).
-			if (connection.getResponseCode() != HttpURLConnection.HTTP_NO_CONTENT) {
-				System.out.println(" --------");
-				System.out.println(" WARNING: deleteCategoryFacetTopics for " + facetTypeUri + " did not succceed for "
-					+ as.getLiveTopic(getID(), 1).getName()
-					+ " HTTPStatusCode: " + connection.getResponseCode());
-				System.out.println(" --------");
-			} else {
-				System.out.println(" OK Cleaned up categoryFacetTopics for " + facetTypeUri);
-			}
+			checkRequestResponseCode("deleteCategoryFacetTopics ", getID(), connection.getResponseCode());
 		} catch (UnknownHostException uke) {
 			System.out.println("*** [GeoObjectTopic] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
 		} catch (Exception ex) {
@@ -1601,8 +1593,8 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		JsonArray topics = null;
 		try {
 			// 1) Create GET-Request //
-			URLConnection connection = new URL(FACET_TOPIC_MULTI_ENDPOINT
-				+ facetTypeUri + "/topic/" + remoteTopicId).openConnection();
+			String url = FACET_TOPIC_MULTI_ENDPOINT + facetTypeUri + "/topic/" + remoteTopicId;
+			URLConnection connection = new URL(url).openConnection();
 			connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
 			connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
 				+ "; JSESSIONID=" + validSessionId + ";");
@@ -1642,7 +1634,8 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			if (connection.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
 				validSessionId = null;
 				System.out.println("### ERROR We could not fetch the geo-object because"
-				    + "of our HTTP Session that got invalid ...");
+				    + "of our HTTP Session that got invalid!");
+				// ### need to re-fetch the geo-object!
 			}
 			// 3) Read in the response
 			BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8")); //
@@ -1711,8 +1704,14 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		JsonArray topics = null;
 		try {
 			JsonElement response = new JsonParser().parse(body);
-			if (!response.isJsonNull()) {
-				topics = response.getAsJsonArray();
+			if (response.isJsonObject()) {
+				JsonObject object = response.getAsJsonObject();
+				if (object.has("items")) {
+					JsonElement items = object.get("items");
+					topics = items.getAsJsonArray();
+				} else {
+					System.out.println("### WARNING: No ITEMS in response body found!");
+				}
 			}
 		} catch (Exception je) {
 			System.out.println("### ERROR [GeoObjectTopic] Could not parse list of "
@@ -1795,11 +1794,11 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 							sessionId = pair[1];
 						}
 					}
-					System.out.println("      Authentication successfull: JSESSIONID is " + sessionId);
+					System.out.println("Authentication successfull: JSESSIONID is " + sessionId);
 					validSessionId = sessionId;
 					return sessionId;
 				} else {
-					System.out.println("      Authentication NOT successfull: " + connection.getResponseCode() + " "
+					System.out.println("Authentication NOT successfull: " + connection.getResponseCode() + " "
 						+ connection.getResponseMessage() + " Cookie: " + connection.getHeaderField("Set-Cookie"));
 				}
 			} catch (Exception je) {
