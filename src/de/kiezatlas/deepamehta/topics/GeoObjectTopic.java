@@ -63,6 +63,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 	private final String FACET_TOPIC_ENDPOINT	= KA2_SERVICE_URL + "/facet/";
 	private final String FACET_TOPIC_MULTI_ENDPOINT	= KA2_SERVICE_URL + "/facet/multi/";
 	private final String CORE_TOPIC_SEARCH_ENDPOINT	= KA2_SERVICE_URL + "/core/topic?search=";
+        private final String GEO_ATTRIBUTE_ENDPOINT	= KA2_SERVICE_URL + "/site/geoobject/attribution/";
 
 	// KA 2 Remote Instance HTTP Session ID
 	private String validSessionId			= null;
@@ -670,6 +671,8 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			// 3) Update Geo Object Address Topic
 			String remoteTopicAddressId = parseGeoObjectAddressId(remoteTopic);
 			postTopicAddress(remoteTopicAddressId);
+			// 4) Set Owner Attribute of Geo Object
+			// Defused: postTopicOwner(remoteTopicId);
 		}
 	}
 
@@ -707,8 +710,8 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			typeId.equals("t-307980") || typeId.equals("t-253476") || // FaSz + Mitte
 			typeId.equals("t-188958") || typeId.equals("t-229909") || // Li, TreKoe
 			typeId.equals("t-96793") || typeId.equals("t-202842") || // Spa + CW
-			typeId.equals("t-239973") || typeId.equals("t-181717") || // FriKre + NK
-			typeId.equals("t-230507")) { // PK
+			typeId.equals("t-239973") || typeId.equals("t-181717")) { // FriKre + NK
+			// typeId.equals("t-230507")) { // Defused PK
 			return true;
 		} else {
 			return false;
@@ -887,6 +890,30 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			writer.close();
 			// 2) Check the request for error status (200 is the expected response here).
 			checkRequestResponseCode("Set Name", getName(), connection.getResponseCode());
+		} catch (UnknownHostException uke) {
+			System.out.println("*** [GeoObjectTopic] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
+		} catch (Exception ex) {
+			// fixme: is thrown, e.g. if topic has no address (currently we log but ignore it)
+			System.out.println("*** [GeoObjectTopic] postTopicNameencountered problem: " + ex.getMessage());
+		}
+	}
+
+	private void postTopicOwner(String remoteAddressTopicId) {
+		try {
+			// 1) Perform update request ...
+			HttpURLConnection connection = (HttpURLConnection) new URL(GEO_ATTRIBUTE_ENDPOINT
+				+ remoteAddressTopicId + "/" + getWebAlias()).openConnection();
+			connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
+				+ "; JSESSIONID=" + validSessionId + ";");
+			connection.setRequestProperty("Content-Type", "text/plain");
+			connection.setRequestMethod("PUT");
+			connection.setDoOutput(true);
+			Writer output = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
+			String keyValue = getKeyword();
+			output.write(keyValue);
+			output.close();
+			// 2) Check the request for error status (200 is the expected response here).
+			checkRequestResponseCode("Set Attribution", getName(), connection.getResponseCode());
 		} catch (UnknownHostException uke) {
 			System.out.println("*** [GeoObjectTopic] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
 		} catch (Exception ex) {
@@ -1494,6 +1521,14 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 	// --
 	// --- Upgrade Service Getters
 	// --
+
+	public String getWebAlias() {
+		return getProperty(PROPERTY_WEB_ALIAS);
+	}
+
+	public String getKeyword() {
+		return getProperty(PROPERTY_PASSWORD);
+	}
 
 	/**
 	 * Eliminates - empty spaces - " Berlin" strings in the postal code
