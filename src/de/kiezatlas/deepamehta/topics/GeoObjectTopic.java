@@ -24,7 +24,6 @@ import de.deepamehta.util.DeepaMehtaUtils;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.io.*;
-import java.lang.String;
 import java.net.*;
 import java.util.*;
 import java.util.logging.Level;
@@ -48,7 +47,6 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 
 	static final String DEFAULT_PASSWORD		= "123password";
 
-	//
 	// private static String KA2_SERVICE_URL	= "http://212.87.44.116:8283";
 	private static final String KA2_SERVICE_URL	= "http://localhost:8182";
 	private static final String KA2_DEFAULT_WS_TOPIC_ID = "962"; // 870
@@ -65,7 +63,6 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 	private final String FACET_TOPIC_ENDPOINT	= KA2_SERVICE_URL + "/facet/";
 	private final String FACET_TOPIC_MULTI_ENDPOINT	= KA2_SERVICE_URL + "/facet/multi/";
 	private final String CORE_TOPIC_SEARCH_ENDPOINT	= KA2_SERVICE_URL + "/core/topic?search=";
-
 
 	// KA 2 Remote Instance HTTP Session ID
 	private String validSessionId			= null;
@@ -178,10 +175,10 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 					return false;
 				}
 			} catch (DeepaMehtaException ex) {
-		// catches nullpointer in as.type() call, should never happen.
+				// catches nullpointer in as.type() call, should never happen.
 				// but i got a error report for this. i assume that it's session timer issue
 				directives.add(DIRECTIVE_SHOW_MESSAGE, "Beim aktualisieren des Webalias einer Einrichtung "
-					+ "ist folgender Fehler aufgetreten: " + ex, new Integer(NOTIFICATION_ERROR));
+				+ "ist folgender Fehler aufgetreten: " + ex, new Integer(NOTIFICATION_ERROR));
 			}
 		}
 		return super.propertyChangeAllowed(propName, propValue, session, directives);
@@ -429,10 +426,6 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			System.out.println("*** GeoObjectTopic.getEmail(): " + e);
 			return e.getDefaultTopic();
 		}
-	}
-
-	public String getWebAlias() {
-		return getProperty(PROPERTY_WEB_ALIAS);
 	}
 
 	// ---
@@ -868,7 +861,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			writeGeoObjectAddress(writer, remoteAddressTopicId, streetNr, postalCode, city, "Deutschland");
 			writer.close();
 			// 6) Check the request for error status (200 is be the expected response here).
-			checkRequestResponseCode("postTopicAddress", getID(), connection.getResponseCode());
+			checkRequestResponseCode("Set Address", getID(), connection.getResponseCode());
 		} catch (UnknownHostException uke) {
 			System.out.println("*** [GeoObjectTopic] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
 		} catch (Exception ex) {
@@ -893,7 +886,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			writeGeoObjectName(writer, remoteAddressTopicId, getName());
 			writer.close();
 			// 2) Check the request for error status (200 is the expected response here).
-			checkRequestResponseCode("postTopicName", getName(), connection.getResponseCode());
+			checkRequestResponseCode("Set Name", getName(), connection.getResponseCode());
 		} catch (UnknownHostException uke) {
 			System.out.println("*** [GeoObjectTopic] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
 		} catch (Exception ex) {
@@ -1133,20 +1126,26 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 
 	/** Check the request for error status (204 is the expected response here). */
 	private void checkRequestResponseCode(String context, String topic, int code) {
-		String topicName = topic;
-		if (topic.startsWith("t-")) topicName = as.getLiveTopic(topic, 1).getName();
-		if (code == HttpURLConnection.HTTP_NO_CONTENT ||
-		    code == HttpURLConnection.HTTP_OK) {
-			// OK, fine.
-		} else if (code == HttpURLConnection.HTTP_UNAUTHORIZED) {
-			System.out.println(" ### UNAUTHORIZED: " +context+ " did not succceed cause of invalid HTTP Session ");
-			validSessionId = null;
-		} else if (code == HttpURLConnection.HTTP_INTERNAL_ERROR) {
-			System.out.println(" ### INTERNAL_ERROR: "+context+" did produce InternalServerError for " + topicName);
-		} else {
-			System.out.println(" ### ERROR : "+context+" did produce HTTP StatusCode "
-			    + code + " for " + topicName);
-		}
+                String topicName = topic;
+                if (topic.startsWith("t-")) topicName = as.getLiveTopic(topic, 1).getName();
+                switch (code) {
+                        case HttpURLConnection.HTTP_NO_CONTENT:
+                        case HttpURLConnection.HTTP_OK:
+                                // OK, fine.
+                                System.out.println(" ### No Content/OK: " +context+ " to " + topicName + " ran FINE!");
+                                break;
+                        case HttpURLConnection.HTTP_UNAUTHORIZED:
+                                System.out.println(" ### UNAUTHORIZED: " +context+ " did not succceed cause of invalid HTTP Session ");
+                                validSessionId = null;
+                                break;
+                        case HttpURLConnection.HTTP_INTERNAL_ERROR:
+                                System.out.println(" ### INTERNAL_ERROR: "+context+" did produce InternalServerError for " + topicName);
+                                break;
+                        default:
+                                System.out.println(" ### ERROR: "+context+" did produce HTTP StatusCode "
+                                    + code + " for " + topicName);
+                                break;
+                }
 	}
 
 	private void postAgencyFacet(String topicId, String newTopicId) {
@@ -1734,7 +1733,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 				errorType = "- response JsonObject not of type k2.geo_object " + geoObjectTypeUri;
 			}
 		} else {
-			errorType = "- given response JsonObject was invalid: " + response;
+			errorType = "- The endpoints response was \"" + response + "\"";
 		}
 		System.out.println("WARNING: getGeoObject Parsing Response for Parent-ID FAILED, errorType: " + errorType);
 		return null;
@@ -1927,9 +1926,10 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		boolean emptyLat = (as.getTopicProperty(this, PROPERTY_GPS_LAT).equals("")) ? true : false;
 		boolean emptyLong = (as.getTopicProperty(this, PROPERTY_GPS_LONG).equals("")) ? true : false;
 		if (!emptyLat && !emptyLong) {
-			directives.add(DIRECTIVE_SHOW_MESSAGE, "WGS 84 coordinates are already known to the system, "
-				+ "skipping repositioning. (Means: Changes to the <i>Address</i> do not <i>automatically</i> update "
-				+ "the position of this GeoObject in a \"Citymap\".", new Integer(NOTIFICATION_DEFAULT));
+                        directives.add(DIRECTIVE_SHOW_MESSAGE, "Falls Sie gerade die Adresse des Datensatzes ge&auml;ndert haben " +
+                            "m&uuml;ssten Sie den neuen L&auml;ngen und Breitengrad " +
+                            "<a href=\"http://maps.google.de\" title=\"in Google Maps Rechtsklick am Ort > Was ist hier? klicken\">manuell</a> korrigieren.",
+                            new Integer(NOTIFICATION_DEFAULT));
 		} else {
 			// ### alternatively fetch city property
 			String[] point = loadGPSCoordinates(directives);
