@@ -707,8 +707,8 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			typeId.equals("t-307980") || typeId.equals("t-253476") || // FaSz + Mitte
 			typeId.equals("t-188958") || typeId.equals("t-229909") || // Li, TreKoe
 			typeId.equals("t-96793") || typeId.equals("t-202842") || // Spa + CW
-			typeId.equals("t-239973") || typeId.equals("t-181717") || // FriKre + NK
-			typeId.equals("t-230507")) { // PK
+			typeId.equals("t-239973") || typeId.equals("t-181717")) { // FriKre + NK
+			// typeId.equals("t-230507")) { // Defused PK
 			return true;
 		} else {
 			return false;
