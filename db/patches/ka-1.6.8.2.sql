@@ -1,3 +1,8 @@
+
+-------------------------------------------------------------------
+--- Add Stichworte field to Geo Object and Barrierefrei Options ---
+-------------------------------------------------------------------
+
 INSERT INTO Topic VALUES ('tt-property', 1, 1, 'pp-ka-stichwort', 'Stichworte');
 INSERT INTO TopicProp VALUES ('pp-ka-stichwort', 1, 'Name', 'Stichworte');
 INSERT INTO TopicProp VALUES ('pp-ka-stichwort', 1, 'Visualization', 'Input Field');

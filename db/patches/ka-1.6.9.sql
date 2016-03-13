@@ -1,3 +1,7 @@
+----------------------------------------
+--- Add "Mobile" Switch to Stadtplan ---
+----------------------------------------
+
 INSERT INTO Topic VALUES ('tt-property', 1, 1, 'pp-ka-mobile-citymap', 'Mobiler Stadtplan');
 INSERT INTO TopicProp VALUES ('pp-ka-mobile-citymap', 1, 'Name', 'Mobiler Stadtplan');
 INSERT INTO TopicProp VALUES ('pp-ka-mobile-citymap', 1, 'Visualization', 'Switch');

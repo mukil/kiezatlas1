@@ -1,13 +1,16 @@
 
---------------------
---- New Property ---
---------------------
+-------------------------------------
+--- Last modified for Geo Objects ---
+-------------------------------------
 
 --- "Zuletzt geändert" ---
+
 INSERT INTO Topic VALUES ('tt-property', 1, 1, 'pp-ka-last-modified', 'Zuletzt geändert');
 INSERT INTO TopicProp VALUES ('pp-ka-last-modified', 1, 'Name', 'Zuletzt geändert');
 INSERT INTO TopicProp VALUES ('pp-ka-last-modified', 1, 'Visualization', 'Date Chooser');
+
 -- assign property to "Geo Objekt"
+
 INSERT INTO Association VALUES ('at-composition', 1, 1, 'a-ka-105', '', 'tt-ka-geoobject', 1, 'pp-ka-last-modified', 1);
 INSERT INTO AssociationProp VALUES ('a-ka-105', 1, 'Ordinal Number', '380');
 
