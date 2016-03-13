@@ -123,31 +123,31 @@
 				"<a href=\"controller?action=" + KiezAtlas.ACTION_SHOW_CATEGORIES + "&critNr=" + i + "\">" + critName + "</a></td></tr>");
 		}
 		out.println("</table>");
-        // introduce breadcrumb and link to new maps-interface
-        out.println("" +
-        "<div id=\"navigation-helper\" class=\"secondary-text\" style=\"border-top: 1px dashed #fff; margin-top:3px; " +
-            "padding-left: 2px; padding-bottom: 0px; padding-top:3px;\">" +
-            "<a href=\"http://www.kiezatlas.de/map/"+session.getAttribute("webAlias")+"\" " +
-             "title=\"Zur interaktiven Kartenansicht wechseln\" target=\"_blank\">zur OpenStreetMap Ansicht</a>" +
-        "</div>");
-		out.println("</div>");								// --- end header area
-		out.println();
-		out.println("<div class=\"content-area\">");		// --- begin content area
+                // introduce breadcrumb and link to new maps-interface
+                out.println("" +
+                "<div id=\"navigation-helper\" class=\"secondary-text\" style=\"border-top: 1px dashed #fff; margin-top:3px; " +
+                    "padding-left: 2px; padding-bottom: 0px; padding-top:3px;\">" +
+                    "<a href=\"http://www.kiezatlas.de/map/"+session.getAttribute("webAlias")+"\" " +
+                     "title=\"Zur interaktiven Kartenansicht wechseln\" target=\"_blank\">zur OpenStreetMap Ansicht</a>" +
+                "</div>");
+                        out.println("</div>");								// --- end header area
+                        out.println();
+                        out.println("<div class=\"content-area\">");		// --- begin content area
 	}
 
 	// atlas / maps
 	void startMaps(HttpSession session, JspWriter out) throws IOException {
-        String header = "<!-- This new comment shall put IE 6, 7 and 8 in quirks mode -->\r" +
-            "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\r" +
-            "<html xmlns=\"http://www.w3.org/1999/xhtml\">\r";
-        out.println(header);
+            String header = "<!-- This new comment shall put IE 6, 7 and 8 in quirks mode -->\r" +
+                "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\r" +
+                "<html xmlns=\"http://www.w3.org/1999/xhtml\">\r";
+            out.println(header);
 	}
 
 
 	// atlas / maps
 	void startNewMaps(HttpSession session, JspWriter out) throws IOException {
-        String header = "<!DOCTYPE html>\n";
-        out.println(header);
+            String header = "<!DOCTYPE html>\n";
+            out.println(header);
 	}
 
 	// --- footer area ---
