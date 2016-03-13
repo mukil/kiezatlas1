@@ -10,7 +10,7 @@
 	<property name="war-test" value="${project.name}-test.war"/>
 	<property name="build" location="build"/>
 
-	<property name="dm.base-dir" location="/home/malte/source/deepamehta2"/>
+	<property name="dm.base-dir" location="/home/malted/source/deepamehta2"/>
 
 	<import file="${dm.base-dir}/config.xml" />
 
@@ -19,7 +19,7 @@
 	</target>
 
 	<target name="compile" depends="init">
-		<javac srcdir="src" destdir="${build}" debug="on" verbose="no" source="1.5" listfiles="yes" encoding="UTF8">
+		<javac srcdir="src" destdir="${build}" debug="on" verbose="no" source="1.5" target="1.5" listfiles="yes" encoding="UTF8">
 			<classpath>
 				<pathelement location="${server}/DeepaMehtaService.jar"/>
 				<pathelement location="${server}/DeepaMehtaTopics.jar"/>
