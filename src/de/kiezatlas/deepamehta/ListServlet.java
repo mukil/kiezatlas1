@@ -1075,10 +1075,15 @@ public class ListServlet extends DeepaMehtaServlet implements KiezAtlas {
 
     private void inserTopicIntoCache(GeoObjectTopic geo, Session session) {
         Vector topics = getCachedTopicList(session);
-        TopicBean geoBean = as.createTopicBean(geo.getID(), 1);
-        topics.add(1, geoBean); // put geoobject as bean in first place
-        System.out.println(">>>> updated cache, inserted a fresh bean (" + geoBean.id + ") ");
-        setCachedTopicList(topics, session);
+        if (topics != null) {
+            TopicBean geoBean = as.createTopicBean(geo.getID(), 1);
+            topics.add(1, geoBean); // put geoobject as bean in first place
+            System.out.println(">>>> updated cache, inserted a fresh bean (" + geoBean.id + ") ");
+            setCachedTopicList(topics, session);
+        } else {
+            System.out.println(">>>> List cache empty, do not cache anything");
+        }
+
     }
 
     private void removeTopicFromCache(String topicId, Session session) {

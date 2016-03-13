@@ -5,7 +5,7 @@ import de.deepamehta.DeepaMehtaConstants;
 
 
 /**
- * Kiezatlas 1.6.8.3<br>
+ * Kiezatlas 1.6.10<br>
  * Requires DeepaMehta 2.0b8.
  * <p>
  * Last change: 23.11.2011<br>
@@ -134,8 +134,8 @@ public interface KiezAtlas extends DeepaMehtaConstants {
 	static final String PROPERTY_YADE_Y = "YADE y";
 	static final String PROPERTY_GPS_LONG = "LONG";
 	static final String PROPERTY_GPS_LAT = "LAT";
-	static final String PROPERTY_LAST_MODIFIED = "Zuletzt geändert";
-	static final String PROPERTY_LAST_UPDATED = "Zuletzt aktualisiert";
+	static final String PROPERTY_LAST_MODIFIED = "Zuletzt geändert"; // Geo Objekt
+	static final String PROPERTY_LAST_UPDATED = "Zuletzt aktualisiert"; // Stadtplan
 	//
 	static final String PROPERTY_FORUM_ACTIVITION = "Aktivierung";
 	static final String PROPERTY_COMMENT_AUTHOR = "Autor";
@@ -161,8 +161,7 @@ public interface KiezAtlas extends DeepaMehtaConstants {
 	static final String PROPERTY_PROJECT_LAST_MODIFIED = "Timestamp";
 	static final String PROPERTY_PROJECT_ORGANISATION = "Organisation";
 	static final String PROPERTY_WORKSPACE_ALIAS = "Workspace Web Alias";
-	// KiezAtlas-App Property to publish citymaps in html5 mobile client
-	static final String PROPERTY_MOBILE_CITYMAP = "Mobiler Stadtplan";
+	static final String PROPERTY_MOBILE_CITYMAP = "Mobiler Stadtplan"; //deprecated to publish citymaps on mobile.
 
 	// -----------------------
 	// --- Property Values ---
