@@ -47,9 +47,8 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 
 	static final String DEFAULT_PASSWORD		= "123password";
 
-	// private static String KA2_SERVICE_URL	= "http://212.87.44.116:8283";
-	private static final String KA2_SERVICE_URL	= "http://localhost:8182";
-	private static final String KA2_DEFAULT_WS_TOPIC_ID = "962"; // 870
+	private static final String KA2_SERVICE_URL	= "http://api.kiezatlas.de";
+	private static final String KA2_DEFAULT_WS_TOPIC_ID = "";
 	private static final String KA2_ADMIN_PASSWORD	= "";
 
 	// --- HTTP Remote API Constants
@@ -378,6 +377,10 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		address.append(" " + getCity());
 		result = address.toString();
 		return result;
+	}
+
+	public String getWebAlias() {
+		return getProperty(PROPERTY_WEB_ALIAS);
 	}
 
 	public BaseTopic getAddress() {
@@ -851,7 +854,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			HttpURLConnection connection = (HttpURLConnection) new URL(CORE_TOPIC_ENDPOINT
 				+ remoteAddressTopicId).openConnection();
 			connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
-				+ "; JSESSIONID=" + validSessionId + ";");
+				+ "; JSESSIONID=" + validSessionId + "; dm4_no_geocoding=true;" );
 			connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
 			connection.setRequestMethod("PUT");
 			connection.setDoOutput(true);
