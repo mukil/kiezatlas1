@@ -646,6 +646,7 @@ var kiezatlas = new function() {
                     stringValue = topic_copy.properties[i].values[k].name
                     var htmlValue = ""
                     if (stringValue.indexOf("http://") == 0) {
+                        // fixme:
                         htmlValue = make_ehrenamt_webpage_link(stringValue, origin_id)
                     } else if (stringValue.indexOf("@") != -1) {
                         htmlValue = make_email_link(stringValue, stringValue)
@@ -688,8 +689,8 @@ var kiezatlas = new function() {
 
         function create_berlin_fahrinfo_link (street, city_name, code) {
             var target = street + "%20" + code + "%20" + city_name
-            var url = "http://www.fahrinfo-berlin.de/fahrinfo/bin/query.exe/d?Z=" + target 
-                + "&REQ0JourneyStopsZA1=2&start=1"
+            var url = "https://fahrinfo.bvg.de/Fahrinfo/bin/query.bin/dn?Z=" + target
+                + "&REQ0JourneyStopsZA1=2&start=1&pk_campaign=kiezatlas.de"
             var link = '<a href="'+ url + '" target="_blank" class="fahrinfo-link">'
                 + '<img src=\"'+IMAGES_URL+'fahrinfo.gif" title="Der Fahrinfo-Link liefert Fahrzeiten in '
                 + ' Zusammenarbeit mit www.fahrinfo-berlin.de" border="0" hspace="20"/></a>'
@@ -1373,7 +1374,7 @@ var kiezatlas = new function() {
     }
 
     this.check_for_small_screen = function () {
-        if (screen.width < 980) { // exchange with screen.width
+        if (window.innerWidth < 980) { // exchange with screen.width
             kiezatlas.offerMobileWebApp = true
             var $mobile_btn = $('<div class="mobile-switch"><a href="http://m.kiezatlas.de/ehrenamt/list/">Bitte wechseln Sie hier mit einem Klick zur Ansicht f&uuml;r kleine Bildschirme, der Ehrenamtsnetz Web-App.</a></div><br/><br/>')
             $($mobile_btn).insertBefore('#kiezatlas #search-controls') 
