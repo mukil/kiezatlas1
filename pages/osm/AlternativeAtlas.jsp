@@ -21,23 +21,20 @@
 %>
 <% startMaps(session, out); %>
 <head>
-    <!-- meta http-equiv="Content-type" content="text/html; charset=ISO-8859-15"/-->
-    <meta http-equiv="content-type" content="text/html charset=UTF-8"/>
+    <meta http-equiv="content-type" content="text/html charset=UTF-8"/><-- charset=ISO-8859-15" -->
     <title> <%= title %> </title>
     <!--[if gte IE 7]>
-      <link rel="stylesheet" href="<%= basePath %>/pages/be.de/maps-ie.css" type="text/css">
+      <link rel="stylesheet" href="<%= basePath %>/pages/osm/css/maps-ie.css" type="text/css">
     <![endif]-->
     <style type="text/css">
-        @import url('<%= basePath %>/pages/be.de/maps-mini.css') handheld, screen and (max-device-width: 800px);
+        @import url('<%= basePath %>/pages/osm/css/maps-mini.css') handheld, screen and (max-device-width: 800px);
     </style>
-    <link rel="stylesheet" href="<%= basePath %>/pages/be.de/maps.css" type="text/css">
-    <link rel="stylesheet" href="<%= basePath %>/pages/be.de/211/theme/default/style.css" type="text/css">
-    <link rel="stylesheet" href="<%= basePath %>/pages/be.de/211/theme/default/google.css" type="text/css">
-    <!-- script type="text/javascript" src="http://maps.google.com/maps/api/js?v=3&key=AIzaSyB3raVpLb3EPWfKOwCOvszGB86kCcQpA54&sensor=false"></script-->
-    <script type="text/javascript" src="<%= basePath %>/pages/be.de/211/OpenLayers.js"></script>
-    <script type="text/javascript" src="<%= basePath %>/pages/be.de/CustomLayerSwitcher.js"></script>
-    <script type="text/javascript" src="<%= basePath %>/pages/be.de/jquery.min.js"></script>
-    <script type="text/javascript" src="<%= basePath %>/pages/be.de/kiezatlas.js"></script>
+    <link rel="stylesheet" href="<%= basePath %>/pages/osm/css/maps.css" type="text/css">
+    <link rel="stylesheet" href="<%= basePath %>/pages/vendor/ol/2.11/theme/default/style.css" type="text/css">
+    <script type="text/javascript" src="<%= basePath %>/pages/vendor/ol/2.11/OpenLayers.js"></script>
+    <script type="text/javascript" src="<%= basePath %>/pages/vendor/ol/CustomLayerSwitcher.js"></script>
+    <script type="text/javascript" src="<%= basePath %>/pages/vendor/jquery.min.js"></script>
+    <script type="text/javascript" src="<%= basePath %>/pages/osm/kiezatlas.js"></script>
     <script type="text/javascript">
           var basePath = '<%= basePath %>';
           var mapTitle = '<%= map.getName() %>';
@@ -185,7 +182,7 @@
 
             <div id="headerButtons">
                 <img id="resizeButton" title="Seitenleiste ausblenden"
-                     onclick="javascript:handleSideBar()" src="<%= basePath %>/pages/be.de/img/go-last.png"
+                     onclick="javascript:handleSideBar()" src="<%= basePath %>/pages/osm/img/go-last.png"
                      alt="Seitenleiste ausblenden">
             </div>
         </div>

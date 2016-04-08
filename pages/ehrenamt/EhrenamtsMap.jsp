@@ -1,38 +1,37 @@
 <%@ include file="../KiezAtlas.jsp" %>
 <%
-	BaseTopic map = (BaseTopic) session.getAttribute("map");
-	BaseTopic workspace = (BaseTopic) session.getAttribute("workspace");
-	String mapTopics = (String) session.getAttribute("mapTopics");
-	String workspaceCriterias = (String) session.getAttribute("workspaceCriterias");
-	String workspaceImprint = (String) session.getAttribute("workspaceImprint");
-	String workspaceLogo = (String) session.getAttribute("workspaceLogo");
-	String mapAlias = (String) session.getAttribute("mapAlias");
-	String workspaceHomepage = (String) session.getAttribute("workspaceHomepage");
-	String searchTerm = (String) session.getAttribute("searchTerm");
-	String originId = (String) session.getAttribute("originId");
-	String topicId = (String) session.getAttribute("topicId");
-	String catIds = (String) session.getAttribute("categories");
-	String baseLayer = (String) session.getAttribute("baseLayer");
+    BaseTopic map = (BaseTopic) session.getAttribute("map");
+    BaseTopic workspace = (BaseTopic) session.getAttribute("workspace");
+    String mapTopics = (String) session.getAttribute("mapTopics");
+    String workspaceCriterias = (String) session.getAttribute("workspaceCriterias");
+    String workspaceImprint = (String) session.getAttribute("workspaceImprint");
+    String workspaceLogo = (String) session.getAttribute("workspaceLogo");
+    String mapAlias = (String) session.getAttribute("mapAlias");
+    String workspaceHomepage = (String) session.getAttribute("workspaceHomepage");
+    String searchTerm = (String) session.getAttribute("searchTerm");
+    String originId = (String) session.getAttribute("originId");
+    String topicId = (String) session.getAttribute("topicId");
+    String catIds = (String) session.getAttribute("categories");
+    String baseLayer = (String) session.getAttribute("baseLayer");
     Object onProjectMap = session.getAttribute("onProjectMap");
-	Object onEventMap = session.getAttribute("onEventMap");
-	Integer critIndex = (Integer) session.getAttribute("critIndex");
+    Object onEventMap = session.getAttribute("onEventMap");
+    Integer critIndex = (Integer) session.getAttribute("critIndex");
     // note: this is just used as a base to construct our history-state-url
-	// String basePath = "http://localhost:8080/kiezatlas/new-atlas";
-	String basePath = "http://www.berlin.de/atlas";
-	String title = "" + map.getName() + " im Kiezatlas - berlin.de";
-
+    // String basePath = "http://localhost:8080/kiezatlas/new-atlas";
+    String basePath = "http://www.berlin.de/atlas";
+    String title = "" + map.getName() + " im Kiezatlas - berlin.de";
 %>
 <% startNewMaps(session, out); %>
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=ISO-8859-15"/>
     <title> <%= title %> </title>
 
-    <link rel="stylesheet" href="http://www.kiezatlas.de/maps/embed/014/libs/leaflet7/leaflet.css"/>
-    <link rel="stylesheet" href="http://www.kiezatlas.de/maps/embed/014/css/sitestyle.css"/>
+    <link rel="stylesheet" href="//www.kiezatlas.de/maps/statics/vendor/leaflet7/leaflet.css"/>
+    <link rel="stylesheet" href="//www.kiezatlas.de/maps/statics/styles/sitestyle.css"/>
 
-    <script src="http://www.kiezatlas.de/maps/embed/014/libs/ka-ehrenamt-2.0.js"></script>
-    <script src="http://www.kiezatlas.de/maps/embed/014/libs/jquery-1.9.1.min.js"></script>
-    <script src="http://www.kiezatlas.de/maps/embed/014/libs/leaflet7/leaflet.js"></script>
+    <script src="//www.kiezatlas.de/maps/statics/scripts/ka-ehrenamt-2.0.js"></script>
+    <script src="//www.kiezatlas.de/maps/statics/vendor/jquery-1.9.1.min.js"></script>
+    <script src="//www.kiezatlas.de/maps/statics/vendor/leaflet7/leaflet.js"></script>
 
     <script type="text/javascript">
 

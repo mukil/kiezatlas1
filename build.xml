@@ -52,21 +52,18 @@
         <include name="pages/*"/>
         <include name="pages/upgrade/*"/>
         <include name="pages/ehrenamt/*"/>
-        <include name="pages/ehrenamt/libs/*"/>
-        <include name="pages/ehrenamt/libs/leaflet/dist/*"/>
-        <include name="pages/ehrenamt/libs/leaflet/dist/images/*"/>
         <include name="pages/ehrenamt/css/*"/>
-        <include name="pages/be.de/*"/>
-        <include name="pages/be.de/211/*"/>
-        <include name="pages/be.de/211/img/*"/>
-        <include name="pages/be.de/211/theme/*"/>
-        <include name="pages/be.de/211/theme/default/*"/>
-        <include name="pages/be.de/211/theme/default/img/*"/>
-        <include name="pages/be.de/img/*"/>
-        <include name="pages/be.de/theme/*"/>
-        <include name="pages/be.de/proxies/*"/>
-        <include name="pages/be.de/theme/default/*"/>
-        <include name="pages/be.de/theme/default/img/*"/>
+        <include name="pages/osm/*"/>
+        <include name="pages/osm/css/*"/>
+        <include name="pages/osm/img/*"/>
+        <include name="pages/vendor/*"/>
+        <include name="pages/vendor/leaflet/dist/*"/>
+        <include name="pages/vendor/leaflet/dist/images/*"/>
+        <include name="pages/vendor/ol/*"/>
+        <include name="pages/vendor/ol/2.11/*"/>
+        <include name="pages/vendor/ol/2.11/theme/*"/>
+        <include name="pages/vendor/ol/2.11/theme/default/*"/>
+        <include name="pages/vendor/ol/2.11/theme/default/img/*"/>
         <include name="WEB-INF/lib/*"/>
       </fileset>
     </war>

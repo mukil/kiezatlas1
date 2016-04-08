@@ -1446,7 +1446,7 @@
         if (onBerlinDe) {
             window.open(baseUrl + "pages/PrintAtlas.html");
         } else {
-            window.open("http://www.kiezatlas.de/pages/be.de/PrintAtlas.html");
+            window.open("http://www.kiezatlas.de/pages/osm/PrintAtlas.html");
         }
     }
 
@@ -1980,7 +1980,7 @@
                 label: "${name}", fontSize: "12px", fontStyle: "bold",
                 fontFamily: "Arial,Helvetica,sans-serif", fontColor: "#B60033"}
         });
-        var pathToFile = SERVER_URL + "/pages/be.de/img/districts.kml";
+        var pathToFile = SERVER_URL + "/pages/osm/img/districts.kml";
         var districtLayer = new OpenLayers.Layer.Vector("Bezirksgrenzen", {
             styleMap: dStyleMap, zIndexing: true,
             projection: map.displayProjection,
