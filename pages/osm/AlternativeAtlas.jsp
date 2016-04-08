@@ -21,7 +21,7 @@
 %>
 <% startMaps(session, out); %>
 <head>
-    <meta http-equiv="content-type" content="text/html charset=UTF-8"/><-- charset=ISO-8859-15" -->
+    <meta http-equiv="content-type" content="text/html charset=UTF-8"/><!-- charset=ISO-8859-15" -->
     <title> <%= title %> </title>
     <!--[if gte IE 7]>
       <link rel="stylesheet" href="<%= basePath %>/pages/osm/css/maps-ie.css" type="text/css">

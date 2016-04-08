@@ -318,11 +318,9 @@ public interface KiezAtlas extends DeepaMehtaConstants {
 	// -------------
 
 
-
-	// atlas
-	static final String PAGE_BERLIN_ATLAS = "be.de/BerlinAtlas";
+	static final String PAGE_MAP_ATLAS = "osm/AlternativeAtlas";
 	static final String PAGE_EHRENAMTS_MAP = "ehrenamt/EhrenamtsMap";
-		// browse
+	// browse
 	static final String PAGE_FRAMESET = "frameset";
 	static final String PAGE_CITY_MAP = "CityMap";
 	static final String PAGE_CATEGORY_LIST = "CategoryList";
@@ -331,7 +329,6 @@ public interface KiezAtlas extends DeepaMehtaConstants {
 	static final String PAGE_GEO_FORUM = "GeoObjectForum";
 	static final String PAGE_COMMENT_FORM = "CommentForm";
 	static final String PAGE_MAP_LOGIN = "MapLogin";
-	static final String PAGE_MAP_ATLAS = "be.de/AlternativeAtlas";
 	// workspace
 	static final String PAGE_WORKSPACE_LOGIN = "WorkspaceObjectLogin";
 	static final String PAGE_WORKSPACE_FORM = "WorkspaceObjectForm";
