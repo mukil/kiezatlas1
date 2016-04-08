@@ -15,20 +15,13 @@ function confirmDelete () {
 
 function toggleNumeration() {
     // citymap
-    if (jQuery("#numbers", window.parent.frames["left"].document).css("visibility") == "visible") {
-        jQuery("#numbers", window.parent.frames["left"].document).css("visibility", "hidden");
+    if (jQuery(".numbers", window.parent.frames["left"].document).css("visibility") === "visible") {
+        jQuery(".numbers", window.parent.frames["left"].document).css("visibility", "hidden");
         jQuery("#enumeration", window.parent.frames["right"].document).html("<img src=\"../images/pow-in-numbers-dark.png\" height=\"17\" title=\"Nummern einblenden\" alt=\"Nummern einblenden\" border=\"0\">");
     } else {
-        jQuery("#numbers", window.parent.frames["left"].document).css("visibility", "visible");
+        jQuery(".numbers", window.parent.frames["left"].document).css("visibility", "visible");
         jQuery("#enumeration", window.parent.frames["right"].document).html("<img src=\"../images/pow-in-numbers-bright.png\" height=\"17\" title=\"Nummern ausblenden\" alt=\"Nummern ausblenden\" border=\"0\">");
     }
-    /** sidebar
-    if (jQuery("#numbers", window.parent.frames["right"].document).css("visibility") == "visible") {
-        jQuery("#numbers", window.parent.frames["right"].document).css("visibility", "hidden");
-    } else {
-        jQuery("#numbers", window.parent.frames["right"].document).css("visibility", "visible");
-    }*/
-    //alert("changed-css attributes");
 }
 
 function deselectOptions (id){

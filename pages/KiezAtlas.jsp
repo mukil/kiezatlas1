@@ -99,7 +99,7 @@
 			"<meta http-equiv=\"content-type\" content=\"text/html; charset=iso-8859-1\">" +
 			"\r<title>Kiezatlas</title>" +
 			"\r<style type=\"text/css\">\r" + stylesheet + "\r</style>\r" +
-            "\r<script src=\"../pages/jQuery-min.1.4.2.js\" type=\"text/javascript\"></script>\r" +
+            "\r<script src=\"../pages/vendor/jquery-1.9.1.min.js\" type=\"text/javascript\"></script>\r" +
             "\r<script src=\"../pages/util.js\" type=\"text/javascript\"></script>\r" +
 			"</head>\r" +
 			"<body" + (refreshMap ? " onLoad=\"top.frames.left.location.href='controller?action=initFrame&frame=" +

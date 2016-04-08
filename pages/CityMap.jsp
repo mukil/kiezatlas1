@@ -153,7 +153,7 @@
                                         "<img src=\"" + icon + "\" style=\"position:absolute; top:" + (p.y - 7) + "px; left:" +
                                         (p.x - 7) + "px;\" alt=\"" + inst.getName() + "\" title=\"" + inst.getName() + "\" border=\"0\">");
                                 if (enumerateThis) {
-                                    out.println("<div id=\"numbers\" style=\"position: absolute; top:" + (p.y - 7) + "px; left:" + (p.x - 5) + "px;\" class=\"numbers\">"+ presentableIndex +"</div></a>");
+                                    out.println("<div style=\"position: absolute; top:" + (p.y - 7) + "px; left:" + (p.x - 5) + "px;\" class=\"numbers\">"+ presentableIndex +"</div></a>");
                                 }
                         }
                 }
