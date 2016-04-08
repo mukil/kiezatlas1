@@ -19,6 +19,13 @@ h1.my-title {
     margin: 10px 10px !important;
 }
 
+.content-navi-top .nav.level1 li.selected.citymap-navi:hover,
+.content-navi-top .nav.level1 li.citymap-navi:hover,
+.content-navi-top .nav.level1 li.citymap-navi {
+    padding: 4px 0px 0px 4px;
+    border: none;
+}
+
 .content-navi-top ul.level1 li a {
     text-shadow: 0 0 transparent;
 }
@@ -263,6 +270,18 @@ li.citymap-navi.selected {
 
 #kiezatlas #search-controls input[type='text']{
     padding: 6px 4px;
+    width: 280px;
+}
+
+#do-search {
+    width: 80px;
+    position: relative;
+    top: -2px;
+}
+
+#do-nearby {
+    position: relative;
+    top: -5px;
 }
 
 #kiezatlas #search-controls {
