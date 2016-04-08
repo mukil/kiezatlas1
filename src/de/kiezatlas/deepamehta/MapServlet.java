@@ -54,7 +54,7 @@ public class MapServlet extends DeepaMehtaServlet implements KiezAtlas {
 	// --
 
 
-    private final String SERVICE_URL = "http://www.kiezatlas.de/rpc/";
+	private final String SERVICE_URL = "http://www.kiezatlas.de/rpc/";
 	// private final String SERVICE_URL = "http://localhost:8080/kiezatlas/rpc/";
 	// private final String urlStr = "http://212.87.44.116:8080/rpc/";
 	private final String charset = "ISO-8859-1";

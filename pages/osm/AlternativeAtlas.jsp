@@ -33,7 +33,7 @@
     <link rel="stylesheet" href="<%= basePath %>/pages/vendor/ol/2.11/theme/default/style.css" type="text/css">
     <script type="text/javascript" src="<%= basePath %>/pages/vendor/ol/2.11/OpenLayers.js"></script>
     <script type="text/javascript" src="<%= basePath %>/pages/vendor/ol/CustomLayerSwitcher.js"></script>
-    <script type="text/javascript" src="<%= basePath %>/pages/vendor/jquery.min.js"></script>
+    <script type="text/javascript" src="<%= basePath %>/pages/vendor/jquery-1.5.2.min.js"></script>
     <script type="text/javascript" src="<%= basePath %>/pages/osm/kiezatlas.js"></script>
     <script type="text/javascript">
           var basePath = '<%= basePath %>';
