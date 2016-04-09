@@ -5,10 +5,10 @@ import de.deepamehta.DeepaMehtaConstants;
 
 
 /**
- * Kiezatlas 1.6.10<br>
- * Requires DeepaMehta 2.0b8.
+ * Kiezatlas 1.7<br>
+ * Requires DeepaMehta 2.0b8 (latest revision).
  * <p>
- * Last change: 23.11.2011<br>
+ * Last change: 09.04.2016<br>
  * J&ouml;rg Richter / Malte Rei&szlig;ig<br>
  * jri@deepamehta.de / mre@deepamehta.de
  */
@@ -318,8 +318,15 @@ public interface KiezAtlas extends DeepaMehtaConstants {
 	// -------------
 
 
-	static final String PAGE_MAP_ATLAS = "osm/AlternativeAtlas";
+	// map
+	static final String PAGE_MAP_ATLAS = "alternative/OSMAtlas";
+	// new-atlas
 	static final String PAGE_EHRENAMTS_MAP = "ehrenamt/EhrenamtsMap";
+	// mobile
+	static final String PAGE_EHRENAMTS_APP = "ehrenamt/EhrenamtsWebApp";
+	static final String PAGE_MOBILE_INDEX = "mobile/MobileWebApp";
+	static final String PAGE_EHRENAMTS_APP_LIST = "mobile/ehrenamt/list/index";
+	static final String PAGE_EHRENAMTS_APP_INFO = "mobile/ehrenamt/info/index";
 	// browse
 	static final String PAGE_FRAMESET = "frameset";
 	static final String PAGE_CITY_MAP = "CityMap";

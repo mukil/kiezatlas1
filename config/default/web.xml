@@ -12,7 +12,7 @@
 	<!-- General description of the web application -->
 
 	<display-name>Kiezatlas</display-name>
-	<description>Version 1.6.8
+	<description>Version 1.7
 		Written by Jörg Richter (jri@deepamehta.de) and Malte Reißig (mre@deepamehta.de)</description>
 
 	<!-- Context initialization parameters that define shared
@@ -48,6 +48,12 @@
 		<servlet-name>Browse Servlet</servlet-name>
 		<description>Browse Servlet Controller</description>
 		<servlet-class>de.kiezatlas.deepamehta.BrowseServlet</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>Mobile Servlet</servlet-name>
+		<description>Mobile Servlet Controller</description>
+		<servlet-class>de.kiezatlas.deepamehta.MobileServlet</servlet-class>
 	</servlet>
 
 	<servlet>
@@ -90,12 +96,6 @@
 		<servlet-name>Upgrade Servlet</servlet-name>
 		<description>The servlet to migrate KA1 citymaps into a KA2 instance.</description>
 		<servlet-class>de.kiezatlas.deepamehta.UpgradeServlet</servlet-class>
-	</servlet>
-
-	<servlet>
-		<servlet-name>Atlas Servlet</servlet-name>
-		<description>www.berlin.de/atlas as the new /browse</description>
-		<servlet-class>de.kiezatlas.deepamehta.AtlasServlet</servlet-class>
 	</servlet>
 
 	<servlet>
@@ -142,6 +142,11 @@
 	</servlet-mapping>
 
 	<servlet-mapping>
+		<servlet-name>Mobile Servlet</servlet-name>
+		<url-pattern>/mobile/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
 		<servlet-name>Edit Servlet</servlet-name>
 		<url-pattern>/edit/*</url-pattern>
 	</servlet-mapping>
@@ -164,11 +169,6 @@
 	<servlet-mapping>
 		<servlet-name>Service Servlet</servlet-name>
 		<url-pattern>/rpc/*</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>Atlas Servlet</servlet-name>
-		<url-pattern>/atlas/*</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>

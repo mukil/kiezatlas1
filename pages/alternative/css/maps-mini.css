@@ -1,0 +1,84 @@
+/* 
+ * Kiezatlas Alternative Maps Interface - Kiezatlas Labs Stylesheet
+ * 
+ * @author Malte Reißig - mre@deepamehta.de (2011/11/21)
+ */
+
+#kiezatlas { font: 76% Arial, Helvetica, sans-serif; width:98%; }
+#kiezatlas a { text-decoration: none; }
+#kiezatlas a:hover { text-decoration: underline; } /** 3f5da6 **/
+#kaheader { position: absolute; left:0px; top:0px; height:35px; background:#fff; border-bottom: 5px solid #3f5da6; }
+#mapName { position: absolute; left: 365px; padding:11px; padding-bottom: 5px; padding-left: 20px; height:35px; font-family:"Verdana", "Tahoma", "sans-serif"; font-size:13px; color:#3f5da6; }
+#mapName:hover { background-color: #3f5da6; color: #fff; height: 20px; }
+.mapTitle { font-weight: bold; }
+/** .mapTitle:hover { background-color: #3f5da6; color: #fff; padding-top: 10px; padding-bottom: 5px; padding-right: 10px; } **/
+/** most stuff positioned in the kiezatlas.js script **/
+#focusInput { position: absolute; height: 30px; top:3px; font-family:"Verdana", "Tahoma", "sans-serif"; font-size:13px; color: #3f5da6; }
+#focusInput input, #focusInput textarea { border: 1px solid #40B0E2; font-weight: bold; font-family:"Verdana", "Tahoma", "sans-serif"; font-size:13px; padding: 4px; background-color:#fff; color: #3f5da6; width:180px; }
+#searchInput { position: absolute; height: 30px; top:3px; font-family:"Verdana", "Tahoma", "sans-serif"; font-size:13px; color: #3f5da6; }
+#searchInput input, #searchInput textarea { border: 1px solid #40B0E2; font-weight: bold; font-family:"Verdana", "Tahoma", "sans-serif"; font-size:13px; font-size: 13px; padding: 4px; background-color:#fff; color: #3f5da6; width:140px; }
+#headerButtons { position: absolute; top:1px; }
+#mapControl { position: absolute; vertical-align: top; height: 25px; padding-right: 10px; padding-top: 5px; color:#4170D4; background-color: #fff; font: 13px Arial, Helvetica, sans-serif; font-weight: bold; background-color: #fff; border: 1px solid #3f5da6; z-index: 1001; }
+#mapControl a { color:#3f5da6; font-size: 13px; padding: 5px; }
+#resetMarkerHref { position: relative; top: 2px; }
+#toggleMarkerHref { position: relative; top: 2px; }
+#permaLinkHref { position: relative; top: 2px; }
+#permaLink { position: absolute; top: 37px; right: 660px; z-index: 1100; }
+#permaLinkLabel { cursor: pointer; border: 1px solid #3f5da6; position: absolute; right: 760px; top: 35px; width: 100px; font-weight:bold; font-family: "Arial", "Sans-Serif"; font-size: 10px; color: #009; background-color: #fff; }
+#permaLink input, #permaLink textarea { width: 400px; border: 1px solid #3f5da6;  font-size: 13px; font-family: "Arial", "Sans-Serif"; padding-top: 7px; padding-bottom: 7px; padding-left: 7px; background-color:#fff; color: #009; }
+#dialogMessage { margin-left: auto; margin-right: auto; position: relative; top: 150px; width: 310px; height: 150px; background-color: #fff; border: 1px solid #3f5da6; cursor: pointer; }
+#modalTitle { position: relative; top: 5px; padding: 10px; margin-right: auto; margin-left: auto; width: 260px; }
+#modalMessage { padding: 10px; width: 290px; }
+#closeDialog { position: relative; top: 130px; left: 175px; }
+#mapSwitcher { font: 10px Arial, Helvetica, sans-serif; color: #4170d4 !important; position: relative; top: 30px; }
+#mapMarkerButtons { font: 12px Arial, Helvetica, sans-serif; color: #4170d4; font-weight:bold; !important; text-decoration: none; }
+#memu { position: absolute; top: 4px; left: 10px; background-color: #fff; width:325px; font-family:"Verdana", "Tahoma", "sans-serif"; font-size:13px; opacity:0.8; padding: 5px; padding-left: 10px; color:#000099; }
+#memu a .hover { color:#3f5da6; }
+#map { position: absolute; left:0px; }
+#focusAlternatives { background-color:#FFFFFF; font-size:13px; padding:5px; position:absolute; top:40px; visibility:hidden; width:350px; }
+#navPanel{ position: absolute; left: 5px; bottom: 50px;}
+#sideBar { position: absolute; border: 1px solid #3f5da6; border-top: 0px solid #ffffff; background:#fff; }
+#sideBarCriterias { position:relative; left:5px; top:5px; cursor:pointer; color: #009; font-family:"Verdana", "Tahoma", "sans-serif"; font-size:13px; }
+#sideBarCategories { position:relative; left:5px; top:10px; overflow:auto; font-family:"Verdana", "Tahoma", "sans-serif"; font-size:12px; }
+#sideBarControl { position: absolute; width:5px; top:29px; background:#3f5da6; }
+#progContainer { position:absolute; top:45%; left:35%; width:50%; height:50%; font-family: "Times New Roman, Times, serif"; font-size:10px; }
+#kafooter { background: #fff; height:35px; position:absolute; bottom:2px; font-family: "Verdana", "Tahoma", "sans-serif"; font-size:10px; }
+#footerImprint { position:absolute; right:8px; bottom: 21px; font-family: "Verdana", "Tahoma", "sans-serif"; font-size:10px; }
+#footerPoweredBy { position:absolute; right:8px; bottom: 5px; font-family: "Verdana", "Tahoma", "sans-serif"; font-size:10px; }
+#helpFont { position: absolute; bottom: 5px; font-size: 12px; font-weight: bold; color: #4170d4; text-decoration: none; }
+#helpPageOne { position: relative; left: 0px; top: 0px; }
+#navigation-helper { border-top: 1px dashed #e8e8e8; border-bottom: 1px dashed #e8e8e8; font-size:10px; margin-top:2px; padding-left: 4px; padding-bottom: 2px; padding-top:2px; padding-right: 8px; text-align: right; }
+.olControlPanel { background-color: #4170D4; }
+.olCntrolLayerSwitcher olControlNoSelect { background-color: #4170D4; position: absolute; bottom: 100px !important; }
+.olControlLayerSwitcher { background-color: #4170D4; position: absolute; top: 100px !important; }
+.critLinkNormal { text-decoration: underline; }
+.catRowDeselected { background: #fff; }
+.catRowSelected { background: #E6EDFF; }
+/** .iconCell img:hover {
+  -moz-box-shadow: 5px 5px 7px #3f5da6;;
+  -moz-border-radius-bottomright: 5px;
+  -webkit-box-shadow: 5px 5px 7px #3f5da6;;
+  -webkit-border-bottom-right-radius: 5px;
+} **/
+.propertyLabel { position:relative; left: 1px; font-weight: bold; }
+.propertyField { position:relative; left: 1px; }
+.additionalInfo { width: 270px; margin-left: 5px; padding-top: 4px; padding-right: 4px; padding-bottom: 4px; padding-left:4px; border: 1px dashed #000; }
+.additionalInfoWhite { width: 270px; margin-left: 5px; padding-top: 4px; padding-right: 4px; padding-bottom: 4px; padding-left:4px; border: 1px dashed #000; }
+.topicRowDeselected { background: #fff; }
+.topicRowSelected { background: #e6edff; }
+.olControlAttribution { position:absolute; bottom: 5px !important; right: 5px ! important; font-weight: bold;}
+.redTitle a, .redTitle a:hover, .redTitle a:-webkit-any-link { color: #b60033; }
+.layersDiv { position:relative; left: 204px; background-color: #fff; padding-right: 10px; padding-left: 10px; padding-bottom: 10px; border: 1px solid #3f5da6; border-top: 0px solid #fff; }
+.dataLbl { color: #4170D4; font-size: 13px; }
+.baseLbl { color: #4170D4; font-size: 13px; }
+.dataLayersDiv { border: 1px solid #e6edff; padding: 2px; }
+.baseLayersDiv { border: 1px solid #e6edff; padding: 2px; }
+.olControlPanZoom .olControlNoSelect {
+  position: absolute; bottom: 130px !important; left: 10px !important;
+}
+@-moz-document url-prefix() {
+  #permaLink { position: absolute; top: 39px; right: 675px; z-index: 1100; }
+  #focusInput { position: absolute; height: 30px; top:4px; font-family:"Verdana", "Tahoma", "sans-serif"; font-size:13px; color: #3f5da6; }
+  #searchInput { position: absolute; height: 30px; top:4px; font-family:"Verdana", "Tahoma", "sans-serif"; font-size:13px; color: #3f5da6; }
+  #mapName { position: absolute; left: 365px; padding:10px; padding-bottom: 5px; }
+}

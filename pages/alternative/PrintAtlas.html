@@ -1,0 +1,189 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title></title>
+    <!--@set var="std-layout" val="pixel"-->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <style type="text/css">
+    @import url('http://www.kiezatlas.de/pages/osm/css/maps-print.css');
+  </style>
+  <link rel="stylesheet" href="http://www.kiezatlas.de/pages/vendor/ol/2.11/theme/default/style.css" type="text/css">
+  <script type="text/javascript" src="http://www.kiezatlas.de/pages/vendor/ol/2.11/OpenLayers.js"></script>
+  <script type="text/javascript" src="http://www.kiezatlas.de/pages/vendor/ol/CustomLayerSwitcher.js"></script>
+  <script type="text/javascript" src="http://www.kiezatlas.de/pages/vendor/jquery-1.5.2.min.js"></script>
+  <script type="text/javascript" src="http://www.kiezatlas.de/pages/osm/kiezatlas-osm-SNAPSHOT.js"></script>
+  <script type="text/javascript">
+    var myLayerSwitcher = null;
+    var myNewLayer = null;
+    // var loadWorkspaceInfos = null;
+    var districtLayer;
+    var gMarkers = [];
+    var allFeatures = [];
+    var hotspots = [];
+    var districtNames = [];
+    var markerGroupIds = new Array();
+    var mapAlias = window.opener.mapAlias;
+    var helpVisible = false;
+    //
+    // var kiezatlas = new kiezatlas();
+    // var slimWidth = false;
+    // var totalWidth = 1000; // 953
+    var map = undefined;
+    var bounds = undefined;
+    var markerLayer = "";
+    // gui elements
+    var sideBarVisible = true;
+    var gKey = 'ABQIAAAAyg-5-YjVJ1InfpWX9gsTuxRa7xhKv6UmZ1sBua05bF3F2fwOehRUiEzUjBmCh76NaeOoCu841j1qnQ';
+    //
+    jQuery(document).ready(function() {
+      // init app state in this printing view
+      // alert("We want to print \"" + window.opener.workspaceImprint+ "\" for " + window.opener.mapTitle);
+      var basePath = undefined;
+      var mapTitle = window.opener.mapTitle;
+      var topicId = undefined;
+      var baseLayer = window.opener.map.baseLayer;
+      var workspaceId = undefined;
+      // options
+      var crtCritIndex = window.opener.crtCritIndex;
+      var cats = undefined;
+      var catIds = undefined;
+      var searchTerm = window.opener.searchTerm;
+      var linkToTopicId = window.opener.linkToTopicId;
+      var linkTo = window.opener.linkTo;
+      //
+      // alert(window.opener.map.baseLayer.getExtent());
+      // var google = map.getLayer("Google Streets");
+      // var viewport = google.getExtent();
+      // viewport = window.opener.kiezatlas.getCurrentBounds();
+      // if (viewport != null) {
+        // alert("viewport " + viewport);
+      // }
+      // body
+      var mapTopics = window.opener.mapTopics;
+      // kiezatlas.setMapTopics(mapTopics);
+      //
+      var workspaceCriterias = window.opener.workspaceCriterias;
+      // var workspaceInfos = null;
+      var workspaceHomepage = window.opener.workspaceHomepage;
+      var workspaceLogo = window.opener.workspaceLogo;
+      var workspaceImprint = window.opener.workspaceImprint;
+      //
+      var markerGroupIds = new Array(); // window.opener.markerGroupIds;
+      //
+      bounds = calculateInitialBounds(mapTopics);
+      // register resize
+      jQuery(window).resize(function() {
+        // ### handleResize();
+      });
+      if (window.location.toString().indexOf("berlin.de") != -1) {
+        onBerlinDe = true;
+      } else {
+        onBerlinDe = false;
+      }
+      // cityMap setup
+      // window.opener.kiezatlas.getCurrentBounds();
+      // bounds = calculateInitialBounds();
+      // after the dom is loaded we can init our parts of the app
+      jQuery(window).load(function() {
+        // if (console != undefined) console.log("testLog...");
+        document.namespaces; // some curios ie workaround for openlayers
+        handlePrintLayout(false);
+        setPrintableWorkspaceInfos(workspaceHomepage, workspaceLogo, workspaceImprint, mapTitle);
+        setCityMapName(mapTitle); // fetch and set CityMapName
+        // initialize this kiezatlas instances states
+        kiezatlas.setWorkspaceCriterias(workspaceCriterias);
+        kiezatlas.setSelectedTopic(window.opener.kiezatlas.selectedTopic);
+        kiezatlas.setCityMapId(window.opener.kiezatlas.cityMapId);
+        // ### without navpanel control...
+        // fixme: viewport seems to be undeinfed
+        // var currentBounds = viewport;
+        // alert("currentbounds is: " + currentBounds + " bounds are: " + bounds);
+        openLayersInit(bounds, baseLayer, true);
+        // updateVisibleBounds(viewport, true, null, true); // reset to initial bound
+        // handleResize(); // do the layout
+        // setup mapObject and layers
+        // openLayersInit(bounds);
+        // ...
+        // renderCritCatListing(crtCritIndex);
+        // renderCritCatListing(criteria, baseUrl, mapAlias, workspaceCriterias, crtCritIndex, mapTitle, onBerlinDe);
+        // create an array of OpenLayoers.Marker based on mapTopics
+        gMarkers = setupOpenMarkers(mapTopics);
+        // initialize Features and their control
+        initLayerAllFeatures(gMarkers, map);
+        // initBerlinDistrictsLayer();
+        // reSetMarkers(myNewLayer); // ### fixme: shouldnt rely one initialized workspaceCriterias
+        // inputFieldBehaviour();
+        // check if a special projectId was given through the entry url
+        // if (linkTo != 'null') {
+        // selectAndShowInMap(linkTo, false);
+        // } else if (linkToTopicId != 'null') {
+        // selectAndShowInMap(linkToTopicId, true);
+        hideAllKiezatlasFeatures();
+        catIds = window.opener.markerGroupIds;
+        kiezatlas.setSelectedCriteria(crtCritIndex);
+        var critName = kiezatlas.workspaceCriterias.result[crtCritIndex].critName;
+        var critHtml = "<p>Kriterium: <b>" + critName + "</b></p>";
+        var catHtml = "Ausgew&auml;hlte Kategorien sind: <br/>";
+        if (kiezatlas.selectedTopic != undefined) {
+          // print view 1 with one item displayed..
+          handlePrintLayout(true);
+          jQuery("#sideBarCategories").css("display", "none");
+          infoObject(kiezatlas.selectedTopic, jQuery("#categoryListing"));
+          // feature = checkFeatureByTopicId();
+          showTopicInMap(kiezatlas.selectedTopic.id);
+          hideAllInfoWindows();
+          //
+        } else if (catIds.length > 1) {
+          // print view 3 with all items in one category listed
+          for (var catIdx = 0; catIdx < catIds.length; catIdx++) {
+            var catId = catIds[catIdx];
+            showCategoryGroup(catId);
+            catHtml += "<img src=\""+ICONS_URL+kiezatlas.getCategory(catIds[catIdx]).icon+"\" width=\"13px\" height=\"13px\"\"><b class=\"redTitle\">"
+              + kiezatlas.getCategory(catIds[catIdx]).name + "&nbsp;&nbsp;&nbsp;</b>";
+          }
+        } else if (catIds.length == 1) {
+            // print view 2 with all items in one category listed
+            var topics = getAllTopicsInCat(catIds[0]);
+            if (topics.length <= 20) { // will most probably fit on a single landscape din a4 page on the side..
+              var catName = kiezatlas.getCategory(catIds[0]).name
+              catHtml += "<img src=\""+ICONS_URL+kiezatlas.getCategory(catIds[0]).icon+"\" width=\"13px\" height=\"13px\"\"><b class=\"redTitle\">"
+                + catName + "&nbsp;&nbsp;&nbsp;</b>";
+              listCategory(catIds[0], catName, topics);
+              showTopicsInMapWithNumbers(topics);
+              var newBounds = getBoundsOfCurrentVisibleFeatures(); // out features inside
+              // updateVisibleBounds(newBounds, false, LEVEL_OF_DETAIL_ZOOM, false);
+              // ###
+            } else {
+              // ### for more than 20 items open up a new page..
+            }
+
+        }
+        // if (searchTerm != 'null') {
+          // searchRequest(searchTerm);
+        // }
+        map.events.register("zoomend", map, redrawAfterZoomOperation);
+        jQuery("#sideBarCategories").html(critHtml + catHtml);
+      });
+    });
+  </script>
+  </head>
+  <body>
+    <div id="kiezatlas" style="visibility: hidden;">
+
+      <div id="kaheader">
+		    <div id="mapName"></div>
+      </div>
+      <div id="map"></div>
+      <div id="sideBar">
+		    <div id="sideBarCategories"></div>
+      </div>
+      <div id="kafooter"></div>
+      <div id="dialogMessage" style="visibility: hidden;" title="Dialog schlie&szlig;en">
+          <div id="closeDialog" onclick="javascript:showDialog(false)">(Dialog schlie&szlig;en)</div>
+          <b id="modalTitle" class="redTitle"></b>
+          <p id="modalMessage"></p>
+      </div>
+      <div id="categoryListing"></div>
+    </div>
+  </body>
+</html>

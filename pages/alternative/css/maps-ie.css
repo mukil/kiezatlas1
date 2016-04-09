@@ -1,0 +1,10 @@
+/* 
+ * Kiezatlas Alternative CityMaps Interface - berlin.de/atlas Internet Explorer Stylesheet
+ * 
+ * @author Malte Rei&szlig;ig - mre@deepamehta.de (15th of May 2011)
+ */
+
+/** fixing maps layout **/
+
+#kaheader { height: 40px !important; }
+.layersDiv { left: -139px !important; top: -5px; }
