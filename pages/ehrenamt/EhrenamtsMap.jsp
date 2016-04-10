@@ -27,7 +27,7 @@
     <title> <%= title %> </title>
 
     <link rel="stylesheet" href="//www.kiezatlas.de/maps/statics/vendor/leaflet7/leaflet.css"/>
-    <link rel="stylesheet" href="//www.kiezatlas.de/maps/statics/styles/sitestyle.css"/>
+    <link rel="stylesheet" href="//www.kiezatlas.de/maps/statics/styles/berlin-de-sitestyle.css"/>
 
     <script src="//www.kiezatlas.de/maps/statics/scripts/ka-ehrenamt-2.0.js"></script>
     <script src="//www.kiezatlas.de/maps/statics/vendor/jquery-1.9.1.min.js"></script>

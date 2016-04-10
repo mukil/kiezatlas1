@@ -53,13 +53,14 @@ public class MobileServlet extends DeepaMehtaServlet implements KiezAtlas {
 		if (action == null) {
 			try {
 				String pathInfo = params.getPathInfo();
-				System.out.println("Routing Mobile Web App: " +  pathInfo + " Alias: " + alias);
 				// error check
 				if (pathInfo == null || pathInfo.length() == 1) {
+					System.out.println("Routing Mobile Web App: Index");
 					return PAGE_MOBILE_INDEX;
 				}
 				String[] elements = pathInfo.split("/");
 				String alias = pathInfo.substring(1);
+				System.out.println("Routing Mobile Web App: " +  pathInfo + " Alias: " + alias);
 				if (pathInfo.contains("&")) {
 					alias = pathInfo.substring(1, pathInfo.indexOf("&"));
 				} else if (pathInfo.indexOf("/", 1) != -1) {
@@ -78,9 +79,8 @@ public class MobileServlet extends DeepaMehtaServlet implements KiezAtlas {
 					return PAGE_EHRENAMTS_APP;
 				}
 			} catch (DeepaMehtaException e) {
-				System.out.println("*** BrowseServlet.performAction(): " + e);
-				session.setAttribute("error", e.getMessage());
-				return PAGE_ERROR;
+				System.out.println("*** MobileServlet.performAction(): " + e + ", Routing Mobile Web App Index");
+				return PAGE_MOBILE_INDEX;
 			}
 		}
 		return PAGE_MOBILE_INDEX;

@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="/kiezatlas/pages/vendor/jquerymobile/jquery.mobile.theme-1.3.0.min.css">
     <link rel="stylesheet" href="/kiezatlas/pages/vendor/jquerymobile/jquery.mobile-1.3.0.min.css">
     <link rel="stylesheet" href="/kiezatlas/pages/vendor/leaflet/dist/leaflet.css"/>
-    <link rel="stylesheet" href="/kiezatlas/pages/mobile/css/sitestyle.css"/>
+    <link rel="stylesheet" href="/kiezatlas/pages/mobile/css/mobile-sitestyle.css"/>
     <script src="/kiezatlas/pages/mobile/ka-mobile-SNAPSHOT.js"></script>
     <script src="/kiezatlas/pages/vendor/jquery-1.9.1.min.js"></script>
     <script src="/kiezatlas/pages/vendor/leaflet/dist/leaflet.js"></script>

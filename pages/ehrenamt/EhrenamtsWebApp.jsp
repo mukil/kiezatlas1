@@ -16,7 +16,7 @@
 
   <link rel="stylesheet" href="/kiezatlas/pages/vendor/leaflet/dist/leaflet.css"/>
   <!--[if lte IE 8]><link rel="stylesheet" href="//www.kiezatlas.de/maps/statics/vendor/leaflet7/leaflet.ie.css" /><![endif]-->
-  <link rel="stylesheet" href="/kiezatlas/pages/mobile/ehrenamt/css/sitestyle.css"/>
+  <link rel="stylesheet" href="/kiezatlas/pages/mobile/ehrenamt/css/ehrenamt-sitestyle.css"/>
   <script src="/kiezatlas/pages/vendor/jquery-1.9.1.min.js"></script>
   <script src="/kiezatlas/pages/vendor/leaflet/dist/leaflet.js"></script>
   <script src="/kiezatlas/pages/mobile/ehrenamt/ka-mobile-ehrenamt-SNAPSHOT.js"></script>
