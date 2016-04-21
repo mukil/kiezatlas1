@@ -743,6 +743,8 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			postTopicAddress(remoteTopicAddressId, false);
 			// 4) Mirror all other properties to remote instance
 			updateRemoteTopicFacets(remoteTopicId, getRelatedWorkspaceCriterias());
+			// 5) ### Set Owner Attribute of Geo Object
+			// Defused: postTopicOwner(remoteTopicId);
 		}
 	}
 
@@ -2115,6 +2117,14 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 				// System.out.println("[WARNING] GeoObjectTopic.setGPSCoordinates(): was not successful for " + getAddressString());
 			}
 		}
+	}
+
+	public String getWebAlias() {
+		return getProperty(PROPERTY_WEB_ALIAS);
+	}
+
+	public String getKeyword() {
+		return getProperty(PROPERTY_PASSWORD);
 	}
 
 	private String convertAddressForRequest(String address) {
