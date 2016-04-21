@@ -38,6 +38,7 @@ public class UpgradeServlet extends DeepaMehtaServlet implements KiezAtlas {
 	// --- KiezAtlas 1 Upgrade Servlet
 	// --
 	private static final String KA2_SERVICE_URL	= "http://api.kiezatlas.de";
+	// private static final String KA2_SERVICE_URL = "http://localhost:8182";
 	private static final String KA2_ADMIN_PASSWORD	= "";
 
 	// --- Instance Variables
@@ -46,7 +47,7 @@ public class UpgradeServlet extends DeepaMehtaServlet implements KiezAtlas {
 	public static Map<String, String> PROPERTY_FACET_MAP = new HashMap();
 
 	protected String performAction(String action, RequestParameter params, Session session,
-	    CorporateDirectives directives) throws ServletException {
+					CorporateDirectives directives) throws ServletException {
 		if (action == null) {
 			try {
 				String pathInfo = params.getPathInfo();
@@ -158,13 +159,10 @@ public class UpgradeServlet extends DeepaMehtaServlet implements KiezAtlas {
 				try {
 					topic = (BaseTopic) allTopics.get(i);
 					GeoObjectTopic geoObject = (GeoObjectTopic) as.getLiveTopic(topic);
-					//
 					geoObject.postRemoteGeoObject(mapTopicId, mapAlias, workspaceId, criterias, validSessionId);
 				} catch (DeepaMehtaException ex) {
-					System.out.println(" --------");
 					System.out.println(" WARNING: Skipped processing topic \"" + topic.getName() + "\" (" + topic.getID() + ") "
 					    + "because of " + ex.getLocalizedMessage());
-					System.out.println(" --------");
 				}
 			}
 		}

@@ -50,6 +50,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 	// --- HTTP Remote API Constants
 
 	private static final String KA2_SERVICE_URL = "http://api.kiezatlas.de";
+	// private static final String KA2_SERVICE_URL = "http://localhost:8182";
 	private static final String KA2_DEFAULT_WS_TOPIC_ID = "";
 	private static final String KA2_ADMIN_PASSWORD = "";
 	private static final String REQUEST_CONTENT_TYPE = "application/json;charset=UTF-8";
@@ -59,7 +60,10 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 	private static final String FACET_TOPIC_ENDPOINT = KA2_SERVICE_URL + "/facet/";
 	private static final String FACET_TOPIC_MULTI_ENDPOINT = KA2_SERVICE_URL + "/facet/multi/";
 	private static final String CORE_TOPIC_SEARCH_ENDPOINT = KA2_SERVICE_URL + "/core/topic?search=";
+	private static final String SITE_TOPIC_ADD_ENDPOINT = KA2_SERVICE_URL + "/site/add/";
+	private static final String CREATE_SITE_TOPIC_ENDPOINT = KA2_SERVICE_URL + "/site/create/";
 	public static final String KA2_TOPIC_URI_PREFIX	= "de.kiezatlas.topic.";
+	public static final String KA2_SITE_URI_PREFIX	= "de.kiezatlas.site_ws_";
 
 	// KA 2 Remote Instance HTTP Session ID
 	private String validSessionId			= null;
@@ -184,6 +188,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 	public CorporateDirectives propertiesChanged(Hashtable newProps, Hashtable oldProps,
 		String topicmapID, String viewmode, Session session) {
 		CorporateDirectives directives = super.propertiesChanged(newProps, oldProps, topicmapID, viewmode, session);
+		System.out.println("INFO: Durnig an EDIT, when Properties change, we inspect all the CityMaps this topic is part of to UPDATED their moditication Timestamp");
 		// --- "YADE" ---
 		if (newProps.get(PROPERTY_YADE_X) != null || newProps.get(PROPERTY_YADE_Y) != null) {
 			try {
@@ -209,6 +214,9 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		//     for the ease we now update this property for *all* citymaps a topic is part (also of the unpublished)
 		for (int i = 0; i < cityMaps.size(); i++) {
 			BaseTopic cityMap = cityMaps.get(i);
+			// String webAlias = getCityMapWebAlias(cityMap);
+			// System.out.println(">>> Geo Object Topic ("+ getID()+") is contained in City Map \""
+				// + cityMap.getName() + "\" (webAlias: " + webAlias +")");
 			long lastUpdated = new Date().getTime();
 			as.setTopicProperty(cityMap, PROPERTY_LAST_UPDATED, "" + lastUpdated + "");
 		}
@@ -221,7 +229,6 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			// 1) delete all category-facet topics related in ka2
 			String typeId = as.getLiveTopic(relTopicID, 1).getType();
 			BaseTopic type = as.getLiveTopic(typeId, 1);
-			System.out.println("    Association \"" + assocTypeID + "\" removed from Geo Object to " + type.getName());
 			// 2) Improvement: ### just try to delete specific assoc-types remotely
 			getHTTPSession(KA2_ADMIN_PASSWORD);
 			JsonObject remoteTopic = getGeoObjectByTopicId(getID());
@@ -229,10 +236,11 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 				String remoteTopicId = parseGeoObjectParentId(remoteTopic);
 				if (Transformation.CRITERIA_MAP.containsKey(typeId)) {
 					String relFacetTypeURI = Transformation.CRITERIA_MAP.get(typeId);
-					System.out.println("    categoryRemoval of facetTypeURI: " + relFacetTypeURI);
+					System.out.println("INFO: Fetch category assocation on remote Geo Object (facetTypeURI: " + relFacetTypeURI + ")");
 					JsonArray categories = getCategoryFacetTopics(relFacetTypeURI, remoteTopicId);
 					if (categories != null) {
 						if (categories.size() > 0) {
+							System.out.println("INFO: DELETING category associations on remote Geo Object (facetTypeURI: " + relFacetTypeURI + ")");
 							deleteCategoryFacetTopics(relFacetTypeURI, categories, remoteTopicId);
 						}
 					}
@@ -353,6 +361,10 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 
 	public String getWebAlias() {
 		return getProperty(PROPERTY_WEB_ALIAS);
+	}
+
+	public String getCityMapWebAlias(BaseTopic cityMap) {
+		return as.getTopicProperty(cityMap.getID(), 1, PROPERTY_WEB_ALIAS);
 	}
 
 	public BaseTopic getAddress() {
@@ -556,7 +568,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		BaseTopic add = getAddress();
 		if (add != null) {
 			if (add.getName().equals("")) {
-				System.out.println("*** loadGPSCoordinates.WARNING: addressString is empty for: " + getName());
+				System.out.println("WARNING: getAddressString found that Address Topic Name is EMPTY for: " + getID());
 				return "";
 			}
 			address.append(add.getName());
@@ -606,65 +618,131 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		if (criterias == null) {
 			criterias = getWorkspaceCriterias(mapTopicId);
 		}
-		// Possibly acquire new HTTP Session
+		// 0) Possibly acquire new HTTP Session
 		if (sessionId != null) validSessionId = sessionId;
 		if (validSessionId == null) {
 			getHTTPSession(KA2_ADMIN_PASSWORD);
 		}
-		// Get (or Create) Geo Object Topic remotely
+		// 1) Get (or Create) Geo Object Topic (Geo Object + Address Topic) remotely
 		JsonObject newTopic = getGeoObjectByTopicId(getID());
-		String newTopicId = "", addressTopicId = "";
+		String newTopicId = null, addressTopicId = null;
 		if (newTopic != null) {
 			newTopicId = parseGeoObjectParentId(newTopic);
 			addressTopicId = parseGeoObjectAddressId(newTopic);
-			System.out.println("  Geo Object \"" + getName() + "\" (" + getID() + ") with KA 2 ID (" + newTopicId + ")");
+			System.out.println("> Fetched Remote Geo Object \"" + getName() + "\" (" + getID() + ") with KA 2 ID (" + newTopicId + ")");
 		} else {
 			newTopic = postNewTopic(as.getLiveTopic(getID(), 1));
-			newTopicId = parseGeoObjectParentId(newTopic);
-			addressTopicId = parseGeoObjectAddressId(newTopic);
-			if (newTopicId != null) {
-				System.out.println("> Created GeoObject \"" + getName() + "\" (" + getID()
-					+ ") Topic with KA 2 ID \"" + newTopicId + "\"");
+			if (newTopic != null) {
+				newTopicId = parseGeoObjectParentId(newTopic);
+				addressTopicId = parseGeoObjectAddressId(newTopic);
+				if (newTopicId != null) {
+					System.out.println("> Created GeoObject \"" + getName() + "\" (" + getID()
+						+ ") Topic with KA 2 ID \"" + newTopicId + "\"");
+				}
+			} else {
+				System.out.println("WARNING: Skipped creating remote Geo Object Topic: " + getName() + " ID: " + getID() + " due to a PREVIOUS ERROR");
 			}
 		}
-		postGeoCoordinateFacet(getID(), addressTopicId);
-		// ..) see also ### compare to updateRemoteTopicFacets
-		// Enrich Kiezatlas 2 Geo Object Topic with standard Facets
-		postPropertyFacets(getID(), newTopicId);
-		postWebpageFacet(getID(), newTopicId);
-		postContactFacets(getID(), newTopicId);
-		postImageFileFacet(getID(), newTopicId);
-		postAgencyFacet(getID(), newTopicId);
-		if (!mapAlias.toLowerCase().contains("gesamt")) { // no gesamt-plan..
-			postBezirksregionFacet(getID(), newTopicId, mapAlias);
-		}
-		postBezirksFacet(getID(), newTopicId, as.getLiveTopic(workspaceId, 1).getName());
-		// Post Category of GeoObjectTopic
-		for (int k = 0; k < criterias.length; k++) {
-			SearchCriteria criteria = criterias[k];
-			postCategoryFacets(getID(), newTopicId, criteria);
+		// 2) If geo object is to be upgraded POST all its basic facets
+		if (newTopicId != null && addressTopicId != null) {
+			postGeoCoordinates(getID(), addressTopicId);
+			// ..) see also ### compare to updateRemoteTopicFacets
+			// Enrich Kiezatlas 2 Geo Object Topic with standard Facets
+			postPropertyFacets(getID(), newTopicId);
+			postWebpageFacet(getID(), newTopicId);
+			postContactFacets(getID(), newTopicId);
+			postImageFileFacet(getID(), newTopicId);
+			postAgencyFacet(getID(), newTopicId);
+			if (!mapAlias.toLowerCase().contains("gesamt")) { // no gesamt-plan..
+				postBezirksregionFacet(getID(), newTopicId, mapAlias);
+			}
+			postBezirksFacet(getID(), newTopicId, as.getLiveTopic(workspaceId, 1).getName());
+			// Post Category of GeoObjectTopic
+			for (int k = 0; k < criterias.length; k++) {
+				SearchCriteria criteria = criterias[k];
+				postCategoryFacets(getID(), newTopicId, criteria);
+			}
+		} else {
+			System.out.println("WARNING: DID NOT post infos to remote Geo Object Topic due to MISSING ADDRESS DATA");
 		}
 	}
 
 	/**
-	 * Synchronize data of a just _edited_ geo-object at the service endpoint.
+	 * Mirror all workspace this topic (by type in use relation) is involved in as Site-Topics to Kiezatlas 2.
+	 * @param remoteTopicId
 	 */
+	public void postAllWorkspacesAsSites(String remoteTopicId) {
+		// Identifies ALL the workspace this geo-object type is used in and creates Site for them
+		Vector<BaseTopic> workspaces = getWorkspacesUsingTopicType();
+		for (int a = 0; a < workspaces.size(); a++) {
+			BaseTopic workspace = (BaseTopic) workspaces.get(a);
+			String siteName = workspace.getName();
+			String siteUri = KA2_SITE_URI_PREFIX + workspace.getID();
+			JsonObject siteTopic = postSiteTopic(siteName, siteUri);
+			JsonElement siteTopicId = siteTopic.get("id");
+			postTopicToSite(remoteTopicId, siteTopicId.getAsString());
+		}
+	}
+
+	/**
+	 * Updated remote geo object but with re-setting the bezirks and bezirksregion facets. This is possible when
+	 * edits are made from within a specific CityMap over the ListServlet
+	 */
+	public void synchronizeGeoObject(String mapAlias, String workspaceName) {
+		getHTTPSession(KA2_ADMIN_PASSWORD);
+		// Update with Bezirks and Bezirksregion Assignment
+		System.out.println("SITE: Updating Einrichtungs Details with Bezirks and Bezirskregionen-Facets...");
+		JsonObject remoteTopic = getGeoObjectByTopicId(getID());
+		String remoteTopicId = null;
+		if (remoteTopic != null) {
+			remoteTopicId = parseGeoObjectParentId(remoteTopic);
+		}
+		if (!mapAlias.toLowerCase().contains("gesamt")) { // is no gesamt-plan..
+			postBezirksregionFacet(getID(), remoteTopicId, mapAlias);
+		}
+		postBezirksFacet(getID(), remoteTopicId, workspaceName);
+		synchronizeGeoObject(remoteTopic);
+	}
+
 	public void synchronizeGeoObject() {
-	// Check if we have to update a topic remotely..
+		synchronizeGeoObject(null);
+	}
+
+	/**
+	 * Synchronize data of a just _edited_ geo-object at the service endpoint. At the moment, edits to the address
+	 * are just reflected in the map location if the user manually sets Lat/Lng values to " " strings.
+	 * Optimal it would be if we could fiind out if the address value actually has changed.
+	 */
+	public void synchronizeGeoObject(JsonObject remoteObject) {
+		// Checks if we have to update a topic remotely..
 		// 1) In any case, we need a new HTTP-Session for this GeoObject-Instance
 		getHTTPSession(KA2_ADMIN_PASSWORD);
-		JsonObject remoteTopic = getGeoObjectByTopicId(getID());
+		JsonObject remoteTopic = (remoteObject == null) ? getGeoObjectByTopicId(getID()) : remoteObject;
+		String remoteTopicId = parseGeoObjectParentId(remoteTopic);
+		// 2) Mirror all Sites
+		postAllWorkspacesAsSites(remoteTopicId);
+		// 3) Mirror Topic Details
 		// update major facets of existing geo-object (without bezirk and bezirksregion)
-		if (remoteTopic != null) {
-			String remoteTopicId = parseGeoObjectParentId(remoteTopic);
-			System.out.println("INFO: UPDATE " + getName() + " in Famportal-Instance - Session-ID: " + validSessionId);
-			updateRemoteTopicFacets(remoteTopicId, getRelatedWorkspaceCriterias());
-			// 2) Update Geo Object Name
+		if (remoteTopicId != null) {
+			System.out.println("INFO: --- Mirror recent to remoteTopicId="+remoteTopicId+" in Kiezatlas 2 Instance ("+KA2_SERVICE_URL+")");
+			// 2.2) Update Geo Object Details
 			String remoteTopicNameId = parseGeoObjectNameId(remoteTopic);
 			postTopicName(remoteTopicNameId);
-			// 3) Update Geo Object Address Topic // ### find out if address value has changed
+			// 3) Update Geo Object Address Topic
 			String remoteTopicAddressId = parseGeoObjectAddressId(remoteTopic);
-			postTopicAddress(remoteTopicAddressId, false); // without changing the geoCoordinates
+			if (hasEmptyCoordinates(this)) {
+				// 3.1) Re-code and Update Geo Coordinates locally (KA 1)
+				System.out.println("INFO: Geo Coordinates have just been RESET, ");
+				setGPSCoordinates(new CorporateDirectives());
+				System.out.println("INFO: Updated Geo Coordinates via Google GeoCoding API");
+				// 3.2) Synch new coordinates to the (remote) address topic too
+				postGeoCoordinates(getID(), remoteTopicAddressId);
+			} else if (!hasEmptyCoordinates(this)) {
+				// ### what if no address BUT geo-coordinates?
+			}
+			postTopicAddress(remoteTopicAddressId, false);
+			// 4) Mirror all other properties to remote instance
+			updateRemoteTopicFacets(remoteTopicId, getRelatedWorkspaceCriterias());
 		}
 	}
 
@@ -686,9 +764,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 				postCategoryFacets(getID(), remoteTopicId, criteria);
 			}
 		} else {
-			System.out.println(" ------");
-			System.out.println("WARNING: Failed to load necessary SearchCriterias for geo-object and workspace.. ");
-			System.out.println(" ------");
+			System.out.println("ERROR: Failed to load necessary SearchCriterias for geo-object and workspace.. ");
 		}
 	}
 
@@ -696,7 +772,11 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 	 * @return boolean	If this GeoObject is part of the (to Famportal-Instance migrated workspaces.
 	 */
 	public boolean isPartOfMigratedWorkspaces() {
-		// ### consider that types and topics may be shared across workspaces .. and citymaps
+		// ### Fixme: consider that types and topics may be shared across workspaces .. and citymaps
+		// This was the case as just recently 6 topics were entered into old (un-deletable) citymaps and
+		// were thus mirrored despite the workspace is not to be migrated. (Recent changes to ListServlet
+		// will help us to correct these 6 entries lazily via the new  synchronizeGeoObject));
+		System.out.println("INFO: Upgrader checking if topic is part of upgraded Workspaces");
 		String typeId = getType();
 		if (typeId.equals("tt-ka-sozialeinrichtung") || // TeSch
 			typeId.equals("t-307980") || typeId.equals("t-253476") || // FaSz + Mitte
@@ -750,6 +830,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 
 
 
+	/** Just called when CREATING a new remote topic, never used for UPDATEs. */
 	private JsonObject postNewTopic(BaseTopic topic) {
 		String result = null;
 		JsonObject object = null;
@@ -766,7 +847,16 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 				streetNr = as.getTopicProperty(topic, PROPERTY_STREET);
 				postalCode = as.getTopicProperty(topic, PROPERTY_POSTAL_CODE);
 			}
-			String streetNrId = getStreetNrEntityByValue(streetNr);
+			if (streetNr.isEmpty()) {
+				// ### when creating a new remote topic ..
+				System.out.println("INFO: Checking Geo Coordinates TOO to find out whether to mirror at ALL due to an EMPTY STREET Value");
+				if (hasEmptyCoordinates(topic)) {
+					System.out.println("WARNING: Skipping to Post Geo Object due to an EMPTY STREET & NO GEO COORDINATES");
+					return null;
+				}
+				// .. continue and DO POST NEW TOPIC (has no address data but geo-coordinates
+			}
+			String streetNrId = fetchStreetNrEntityTopicByStringValue(streetNr);
 			if (streetNrId != null) {
 				// .. ) Reference the KA 2 Street Nr Topic
 				streetNr = "ref_id:" + streetNrId;
@@ -775,7 +865,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			}
 			postalCode = cleanUpPostalCodeValue(postalCode);
 			// ..) Check if postalCode exists (KA 2)
-			String existingPostalCodeId = getPostalCodeEntityByValue(postalCode);
+			String existingPostalCodeId = fetchPostalCodeEntityTopicByStringValue(postalCode);
 			if (existingPostalCodeId != null) {
 				// .. ) Reference the KA 2 Postal Code Topic
 				postalCode = "ref_id:" + existingPostalCodeId;
@@ -783,8 +873,8 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 				System.out.println("> Creating new Postal Code Topic for value \"" + postalCode + "\"");
 			}
 			// 4) Fetch the correct cityName (KA1)
-			String city = getCity(); // getGeoObjectCityName(topic, address);
-			// 5) Perform create request ... // .. ### ?include_childs=true
+			String city = getCity(); // ### KA 2 City Topics other than BERLIN are not UNIQUE/re-used here
+			// 5) Perform Geo Object Create request ... // .. ### ?include_childs=true
 			URLConnection connection = new URL(KA2_SERVICE_URL + "/core/topic").openConnection();
 			connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
 				+ "; JSESSIONID=" + validSessionId + "; dm4_no_geocoding=true;");
@@ -817,8 +907,10 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		}
 	}
 	
+	/** Just called when UPDATING a remote topic instance, never used for CREATEs. */
 	private void postTopicAddress(String remoteAddressTopicId, boolean geoCodeRequest) {
 		try {
+			System.out.println("INFO: Set Address Topic, remoteTopicId=" + remoteAddressTopicId + " doGeoCode=" + geoCodeRequest);
 			// 1) Get Geo Object's Address // if this look-up fails the whole topic will not be created
 			BaseTopic address = getAddress();
 			// 2) Check if streetNr already exists (KA2) and Postal Code
@@ -831,39 +923,42 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 				streetNr = as.getTopicProperty(as.getLiveTopic(getID(), 1), PROPERTY_STREET);
 				postalCode = as.getTopicProperty(as.getLiveTopic(getID(), 1), PROPERTY_POSTAL_CODE);
 			}
-			String streetNrId = getStreetNrEntityByValue(streetNr);
-			if (streetNrId != null) {
-				// .. ) Reference the KA 2 Street Nr Topic
-				streetNr = "ref_id:" + streetNrId;
+			if (streetNr.isEmpty() && !hasEmptyCoordinates(this) || !streetNr.isEmpty()) {
+				// .. continue and DO WRITE ADDRESS TOPIC (even if Geo Object has no address data but geo-coordinates)
+				String streetNrId = fetchStreetNrEntityTopicByStringValue(streetNr);
+				if (streetNrId != null) {
+					// .. ) Reference the KA 2 Street Nr Topic
+					streetNr = "ref_id:" + streetNrId;
+				}
+				postalCode = cleanUpPostalCodeValue(postalCode);
+				// ..) Check if postalCode exists (KA 2)
+				String existingPostalCodeId = fetchPostalCodeEntityTopicByStringValue(postalCode);
+				if (existingPostalCodeId != null) {
+					// .. ) Reference the KA 2 Postal Code Topic
+					postalCode = "ref_id:" + existingPostalCodeId;
+				} else {
+					System.out.println("> Creating new Postal Code Topic for value \"" + postalCode + "\"");
+				}
+				// 4) Fetch the correct cityName (KA1)
+				String city = getCity(); // ### KA 2 City Topics other than BERLIN are not UNIQUE/re-used here
+				// 5) Perform Address Topic Create request ...
+				String geoCodingCookie = "";
+				if (!geoCodeRequest) geoCodingCookie = " dm4_no_geocoding=true;";
+				HttpURLConnection connection = (HttpURLConnection) new URL(CORE_TOPIC_ENDPOINT
+					+ remoteAddressTopicId).openConnection();
+				connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
+					+ "; JSESSIONID=" + validSessionId + ";" + geoCodingCookie );
+				connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
+				connection.setRequestMethod("PUT");
+				connection.setDoOutput(true);
+				OutputStream output = null;
+				output = connection.getOutputStream();
+				JsonWriter writer = new JsonWriter(new OutputStreamWriter(output, "UTF-8"));
+				writeGeoObjectAddress(writer, remoteAddressTopicId, streetNr, postalCode, city, "Deutschland");
+				writer.close();
+				// 6) Check the request for error status (200 is be the expected response here).
+				checkRequestResponseCode("Set Address", getID(), connection.getResponseCode());
 			}
-			postalCode = cleanUpPostalCodeValue(postalCode);
-			// ..) Check if postalCode exists (KA 2)
-			String existingPostalCodeId = getPostalCodeEntityByValue(postalCode);
-			if (existingPostalCodeId != null) {
-				// .. ) Reference the KA 2 Postal Code Topic
-				postalCode = "ref_id:" + existingPostalCodeId;
-			} else {
-				System.out.println("> Creating new Postal Code Topic for value \"" + postalCode + "\"");
-			}
-			// 4) Fetch the correct cityName (KA1)
-			String city = getCity(); // getGeoObjectCityName(topic, address);
-			// 5) Perform create request ...
-			String geoCodingCookie = "";
-			if (geoCodeRequest) geoCodingCookie = " dm4_no_geocoding=true;";
-			HttpURLConnection connection = (HttpURLConnection) new URL(CORE_TOPIC_ENDPOINT
-				+ remoteAddressTopicId).openConnection();
-			connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
-				+ "; JSESSIONID=" + validSessionId + ";" + geoCodingCookie );
-			connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
-			connection.setRequestMethod("PUT");
-			connection.setDoOutput(true);
-			OutputStream output = null;
-			output = connection.getOutputStream();
-			JsonWriter writer = new JsonWriter(new OutputStreamWriter(output, "UTF-8"));
-			writeGeoObjectAddress(writer, remoteAddressTopicId, streetNr, postalCode, city, "Deutschland");
-			writer.close();
-			// 6) Check the request for error status (200 is be the expected response here).
-			checkRequestResponseCode("Set Address", getID(), connection.getResponseCode());
 		} catch (UnknownHostException uke) {
 			System.out.println("*** [GeoObjectTopic] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
 		} catch (Exception ex) {
@@ -872,11 +967,12 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		}
 	}
 
-	private void postTopicName(String remoteAddressTopicId) {
+	private void postTopicName(String remoteTopicId) {
 		try {
+			System.out.println("INFO: Set Geo Object Topic Name, Remote Topic ID:" + remoteTopicId);
 			// 1) Perform update request ...
 			HttpURLConnection connection = (HttpURLConnection) new URL(CORE_TOPIC_ENDPOINT
-				+ remoteAddressTopicId).openConnection();
+				+ remoteTopicId).openConnection();
 			connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
 				+ "; JSESSIONID=" + validSessionId + ";");
 			connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
@@ -885,7 +981,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			OutputStream output = null;
 			output = connection.getOutputStream();
 			JsonWriter writer = new JsonWriter(new OutputStreamWriter(output, "UTF-8"));
-			writeGeoObjectName(writer, remoteAddressTopicId, getName());
+			writeGeoObjectName(writer, remoteTopicId, getName());
 			writer.close();
 			// 2) Check the request for error status (200 is the expected response here).
 			checkRequestResponseCode("Set Name", getName(), connection.getResponseCode());
@@ -897,33 +993,83 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		}
 	}
 
-	private void postGeoCoordinateFacet(String oldTopicId, String addressTopicId) {
-		String latValue = as.getTopicProperty(oldTopicId, 1, PROPERTY_GPS_LAT);
-		String lngValue = as.getTopicProperty(oldTopicId, 1, PROPERTY_GPS_LONG);
-		double latitude = 0;
-		double longitude = 0;
-		if (latValue.isEmpty() || lngValue.isEmpty()) {
-			//
-			System.out.println("--------");
-			System.out.println("WARNING: Geo Coordinates of Topic "
-				+ as.getLiveTopic(oldTopicId, 1).getName() + " is EMPTY");
-			System.out.println("--------");
-			// If GPS is not set in KA 1 we can correct this through turning geoCoding=on
-			postTopicAddress(addressTopicId, true);
-		} else {
+	private JsonObject postSiteTopic(String siteName, String siteUri) {
+		JsonObject object = null;
+		String result = null;
+		try {
+			System.out.println("SITE: Get or Create Site Topic: " + siteName + " Site URI: " + siteUri);
+			// 1) Perform update request ...
+			HttpURLConnection connection = (HttpURLConnection) new URL(CREATE_SITE_TOPIC_ENDPOINT
+				+ URLEncoder.encode(siteName, "UTF-8") + "/" + siteUri).openConnection();
+			connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
+				+ "; JSESSIONID=" + validSessionId + ";");
+			connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
+			connection.setRequestMethod("POST");
+			connection.setDoOutput(true);
+			OutputStream output = null;
+			output = connection.getOutputStream();
+			// 2) Check the request for error status (200 is the expected response here).
+			// ## checkRequestResponseCode("Set Site Topic", getName(), connection.getResponseCode());
+			// 3) Check the response
+			BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8")); //
+			String line = "";
+			if (rd.ready()) {
+				line = rd.readLine();
+			}
+			result = line;
+			object = getTopicObjectFromResponse(result);
+			rd.close();
+			return object;
+		} catch (UnknownHostException uke) {
+			System.out.println("*** [GeoObjectTopic] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
+			return null;
+		} catch (Exception ex) {
+			// fixme: is thrown, e.g. if topic has no address (currently we log but ignore it)
+			System.out.println("*** [GeoObjectTopic] postSiteTopic problem: " + ex.getMessage());
+			return null;
+		}
+	}
+
+	private void postTopicToSite(String remoteTopicId, String siteTopicId) {
+		try {
+			System.out.println("SITE: Add Geo Object Topic (" + remoteTopicId + ") to Site URI: " + siteTopicId);
+			// 1) Perform update request ...
+			HttpURLConnection connection = (HttpURLConnection) new URL(SITE_TOPIC_ADD_ENDPOINT
+				+ remoteTopicId + "/" + siteTopicId).openConnection();
+			connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
+				+ "; JSESSIONID=" + validSessionId + ";");
+			connection.setRequestProperty("Content-Type", REQUEST_CONTENT_TYPE);
+			connection.setRequestMethod("POST");
+			connection.setDoOutput(true);
+			OutputStream output = null;
+			output = connection.getOutputStream();
+			// 2) Check the request for error status (200 is the expected response here).
+			checkRequestResponseCode("Add Topic to Site", getName(), connection.getResponseCode());
+		} catch (UnknownHostException uke) {
+			System.out.println("*** [GeoObjectTopic] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
+		} catch (Exception ex) {
+			// fixme: is thrown, e.g. if topic has no address (currently we log but ignore it)
+			System.out.println("*** [GeoObjectTopic] postTopicToSite problem: " + ex.getMessage());
+		}
+	}
+
+	/** Writes the current Geo Coordinates (if numerical) directly to the cooresponding (remote) address topic. */
+	private void postGeoCoordinates(String oldTopicId, String addressTopicId) {
+		if (!hasEmptyCoordinates(this)) {
 			try {
-				latitude = Double.parseDouble(latValue);
-				longitude = Double.parseDouble(lngValue);
-				setGeoCoordinateFacet(latitude, longitude, addressTopicId);
+				double latitude = Double.parseDouble(as.getTopicProperty(oldTopicId, 1, PROPERTY_GPS_LAT));
+				double longitude = Double.parseDouble(as.getTopicProperty(oldTopicId, 1, PROPERTY_GPS_LONG));
+				postGeoCoordinateFacet(latitude, longitude, addressTopicId);
 			} catch (NumberFormatException ne) {
-				// If GPS is not set in KA 1 we can correct this through turning geoCoding=on
-				postTopicAddress(addressTopicId, true);
+				System.out.println("ERROR: Geo Coordinates set on " + as.getLiveTopic(oldTopicId, 1).getName()
+					+ " are not numbers and could not be parsed");
 			}
 		}
 	}
 
-	/** Sets manually a Geo Coordinate topic for a given Address Topic at the service endpoint. */
-	private void setGeoCoordinateFacet(double latValue, double lngValue, String addressTopicId) {
+	/** Posts a new Geo Coordinate topic to a given Address Topic at the service endpoint. */
+	private void postGeoCoordinateFacet(double latValue, double lngValue, String addressTopicId) {
+		System.out.println("DEBUG: Set Geo Coordinates Facet on Address Topic=" + addressTopicId);
 		String geoCoordinateFacetTypeUri = "dm4.geomaps.geo_coordinate_facet";
 		try {
 			HttpURLConnection connection = (HttpURLConnection) new URL(FACET_TOPIC_ENDPOINT
@@ -940,16 +1086,13 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			writer.close();
 			// 2) Check the request for error status (204 is the expected response here).
 			if (connection.getResponseCode() != HttpURLConnection.HTTP_NO_CONTENT) {
-				System.out.println(" --------");
-				System.out.println(" WARNING: setGeoCoordinateFacets for " + geoCoordinateFacetTypeUri + " did not succceed for "
-					+ as.getLiveTopic(addressTopicId, 1).getName()
-					+ " HTTPStatusCode: " + connection.getResponseCode());
-				System.out.println(" --------");
+				System.out.println("WARNING: postGeoCoordinateFacets for " + geoCoordinateFacetTypeUri + " did not succceed for "
+					+ as.getLiveTopic(addressTopicId, 1).getName() + " HTTPStatusCode: " + connection.getResponseCode());
 			}
 		} catch (UnknownHostException uke) {
 			System.out.println("*** [GeoObjectTopic] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
 		} catch (Exception ex) {
-			System.out.println("*** [GeoObjectTopic] setGeoCoordinateFacets for "
+			System.out.println("*** [GeoObjectTopic] postGeoCoordinateFacet for "
 				+ geoCoordinateFacetTypeUri + " encountered problem: " + ex.getMessage());
 		}
 	}
@@ -1159,17 +1302,17 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			case HttpURLConnection.HTTP_NO_CONTENT:
 			case HttpURLConnection.HTTP_OK:
 				// OK, fine.
-				System.out.println(" ### No Content/OK: " +context+ " to " + topicName + " ran FINE!");
+				// System.out.println("INFO: No Content/OK: " +context+ " to " + topicName + " ran FINE!");
 				break;
 			case HttpURLConnection.HTTP_UNAUTHORIZED:
-				System.out.println(" ### UNAUTHORIZED: " +context+ " did not succceed cause of invalid HTTP Session ");
+				System.out.println("ERROR: UNAUTHORIZED: " +context+ " did not succceed cause of invalid HTTP Session ");
 				validSessionId = null;
 				break;
 			case HttpURLConnection.HTTP_INTERNAL_ERROR:
-				System.out.println(" ### INTERNAL_ERROR: "+context+" did produce InternalServerError for " + topicName);
+				System.out.println("ERROR: INTERNAL_ERROR: "+context+" did produce InternalServerError for " + topicName);
 				break;
 			default:
-				System.out.println(" ### ERROR: "+context+" did produce HTTP StatusCode "
+				System.out.println("ERROR: "+context+" did produce HTTP StatusCode "
 					+ code + " for " + topicName);
 				break;
 		}
@@ -1220,11 +1363,9 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 				writer.close();
 				// 2) Check the request for error status (204 is the expected response here).
 				if (connection.getResponseCode() != HttpURLConnection.HTTP_NO_CONTENT) {
-					System.out.println(" --------");
 					System.out.println(" WARNING: setTraegerFileFacet did not succceed for "
 						+ as.getLiveTopic(topicId, 1).getName()
 						+ " HTTPStatusCode: " + connection.getResponseCode());
-					System.out.println(" --------");
 				}
 			}
 		} catch (UnknownHostException uke) {
@@ -1249,12 +1390,20 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		bezirke.put("Pankow", "ka2.bezirk.pankow");
 		bezirke.put("Spandau", "ka2.bezirk.spandau");
 		bezirke.put("Tempelhof", "ka2.bezirk.tempelhof-schoeneberg");
+		// ### some people are still editing topics in our old citymaps, a pity that we cannot delete them
+		// bezirke.put("Kiez-Atlas", "ka2.bezirk.tempelhof-schoeneberg");
 		bezirke.put("Treptow-Köpenick", "ka2.bezirk.tk");
 		bezirke.put("Friedrichshain-Kreuzberg", "ka2.bezirk.friedrichshain-kreuzberg");
 		bezirke.put("Neukoelln", "ka2.bezirk.neukoelln");
 		bezirke.put("Familienatlas Steglitz-Zehlendorf", "ka2.bezirk.familienatlas-sz");
-		String facetValue = "ref_uri:" + bezirke.get(bezirkName);
-		System.out.println("Setting Bezirks Facet: \"" + facetValue + "\"");
+		String bezirkValue = bezirke.get(bezirkName);
+		String facetValue = "ref_uri:" + bezirkValue;
+		if (bezirkValue == null) {
+			// Note: This may happen in seldom cases due to type-based synchronization approach and type defs being re-used across workspaces and
+			// users still working with oudated Citymaps
+			System.out.println("WARNING: Trying to migrate a topic of a workspace we did not consider to UPGRADE (YET) \"" + bezirkValue + "\"");
+		}
+		System.out.println("INFO: Updated Bezirk Facet Value: \"" + bezirkValue + "\"");
 		setSimpleFacetValue(oldTopicId, newTopicId, "ka2.bezirk.facet", "ka2.bezirk", facetValue);
 	}
 
@@ -1262,15 +1411,19 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		String criteriaFacetTypeUri = Transformation.CRITERIA_MAP.get(criteria.criteria.getID());
 		try {
 			Vector<BaseTopic> topics = this.as.getRelatedTopics(oldTopicId, ASSOCTYPE_ASSOCIATION, criteria.criteria.getID(), 2);
-			//
 			if (topics.size() > 0) {
 				for (BaseTopic topic : topics) {
 					String categoryUri = (String) Transformation.CATEGORY_MAP.get(topic.getID());
 					if ((categoryUri == null) && (topics.size() == 1)) {
-						System.out.println(" EMPTY Categories, skipping operation");
+						System.out.println("DEBUG: EMPTY categories on \"" + categoryUri
+							+ "\" - skipping operation, relatedTopicsCount=" + topics.size());
 						return;
+					} else {
+						System.out.println("INFO: > Identified categories on \"" + categoryUri
+							+ "\", on criteriaFacetTypeUri \"" + criteriaFacetTypeUri + "\"");
 					}
 				}
+				System.out.println("INFO: Posting " + criteriaFacetTypeUri + " categories on remoteTopicId=" + newTopicId + ", ");
 				HttpURLConnection connection = (HttpURLConnection) new URL(FACET_TOPIC_ENDPOINT
 					+ criteriaFacetTypeUri + "/topic/" + newTopicId).openConnection();
 				connection.setRequestProperty("Cookie", "dm4_workspace_id=" + KA2_DEFAULT_WS_TOPIC_ID
@@ -1286,15 +1439,10 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 				writer.close();
 				// 2) Check the request for error status (204 is the expected response here).
 				if (connection.getResponseCode() != HttpURLConnection.HTTP_NO_CONTENT) {
-					System.out.println(" --------");
-					System.out.println(" WARNING: setCategoryFacets for " + criteriaFacetTypeUri + " did not succceed for "
+					System.out.println("ERROR: setCategoryFacets for " + criteriaFacetTypeUri + " did not succceed for "
 						+ as.getLiveTopic(oldTopicId, 1).getName()
 						+ " HTTPStatusCode: " + connection.getResponseCode());
-					System.out.println(" --------");
 				}
-			} else {
-				System.out.println("  Skipping to PUT Category Facets for "
-					+ criteriaFacetTypeUri + " - No categories related.");
 			}
 		} catch (UnknownHostException uke) {
 			System.out.println("*** [GeoObjectTopic] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
@@ -1489,7 +1637,7 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 	// ------------------------------------------------------------------------------------ Kiezatlas 2 Service Getters
 
 	// ### Refactor Postal Code, Street and LOR Number into one Getter Method
-	private String getPostalCodeEntityByValue(String postalCode) {
+	private String fetchPostalCodeEntityTopicByStringValue(String postalCode) {
 		String result = null;
 		String topicId = null;
 		try {
@@ -1514,12 +1662,12 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 			System.out.println("*** [GeoObjectTopic Upgrade] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
 			return null;
 		} catch (Exception ex) {
-			System.out.println("*** [GeoObjectTopic Upgrade] getPostalCodeEntityByValue encountered problem: " + ex.getMessage());
+			System.out.println("*** [GeoObjectTopic Upgrade] fetchPostalCodeEntityTopicByStringValue encountered problem: " + ex.getMessage());
 		}
 		return topicId;
 	}
 
-	private String getStreetNrEntityByValue(String streetNr) {
+	private String fetchStreetNrEntityTopicByStringValue(String streetNr) {
 		String result = null;
 		String topicId = null;
 		try {
@@ -1539,11 +1687,13 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 				result = line;
 				topicId = getFirstTopicIdFromListResponse(result);
 				rd.close();
+			} else {
+				System.out.println("WARNING: Attempted to fetch KA 2 Street Entity for an empty Street Value String");
 			}
 		} catch (UnknownHostException uke) {
 			System.out.println("*** [GeoObjectTopic Upgrade] connecting to " + KA2_SERVICE_URL + " cause is: " + uke.getCause());
 		} catch (Exception ex) {
-			System.out.println("*** [GeoObjectTopic Upgrade] getStreetNr encountered problem: " + ex.getMessage());
+			System.out.println("*** [GeoObjectTopic Upgrade] fetchStreetNrEntityTopicByStringValue encountered problem: " + ex.getMessage());
 		}
 		return topicId;
 	}
@@ -1780,11 +1930,10 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 							sessionId = pair[1];
 						}
 					}
-					System.out.println("Authentication successfull: JSESSIONID is " + sessionId);
 					validSessionId = sessionId;
 					return sessionId;
 				} else {
-					System.out.println("Authentication NOT successfull: " + connection.getResponseCode() + " "
+					System.out.println("ERROR: Authentication NOT successfull: " + connection.getResponseCode() + " "
 						+ connection.getResponseMessage() + " Cookie: " + connection.getHeaderField("Set-Cookie"));
 				}
 			} catch (Exception je) {
@@ -1829,34 +1978,65 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 		return streetNr;
 	}
 
+	public Vector<BaseTopic> getWorkspacesUsingTopicType() {
+		return as.getRelatedTopics(getType(), ASSOCTYPE_USES, 1);
+	}
+
+	public Vector<BaseTopic> getWorkspacesUsingTopicType(String type) {
+		return as.getRelatedTopics(type, ASSOCTYPE_USES, 1);
+	}
+
+	/** Just fetching the very first searchCriterias via the geo object topoc type definition. */
 	public SearchCriteria[] getRelatedWorkspaceCriterias() {
 		// 1) Fetch topic criterias via the (very first) related workspaces.
-		Vector workspaces = as.getRelatedTopics(getType(), ASSOCTYPE_USES, 1);
+		Vector workspaces = getWorkspacesUsingTopicType();
 		BaseTopic finalWorkspace = null;
 		SearchCriteria[] criterias = null;
 		for (int a = 0; a < workspaces.size(); a++) {
 			finalWorkspace = (BaseTopic) workspaces.get(a);
-			System.out.println("    Preparing remote Geo Object update: Type of WS " + finalWorkspace.getName());
-			BaseTopic workspaceMap = as.getRelatedTopic(finalWorkspace.getID(),
-				ASSOCTYPE_AGGREGATION, TOPICTYPE_TOPICMAP, 2, true);
+			BaseTopic workspaceMap = as.getRelatedTopic(finalWorkspace.getID(), ASSOCTYPE_AGGREGATION, TOPICTYPE_TOPICMAP, 2, true);
 			if (workspaceMap != null) {
-				Vector<BaseTopic> publishedCityMaps = cm.getViewTopics(workspaceMap.getID(), 1);
-				for (int b = 0; b < publishedCityMaps.size(); b++) {
-					try {
-						System.out.println("INFO: Checking Citymaps in Workspace to load SearchCriterias ... ");
-						CityMapTopic someCityMap = (CityMapTopic) as.getLiveTopic(publishedCityMaps.get(b).getID(), 1);
-						criterias = someCityMap.getSearchCriterias();
-						return criterias;
-					} catch (ClassCastException ce) {
-						System.out.println("INFO: Workspace has Topicmaps among " + publishedCityMaps.size() + " published ... ");
-					}
+				Vector<BaseTopic> cityMaps= getCityMapTopicsPublishedInWorkspace(workspaceMap);
+				for (int b = 0; b < cityMaps.size(); b++) {
+					criterias = getWorkspaceCriterias(cityMaps.get(b).getID());
+					break;
 				}
 			}
 		}
-		return null;
+		return criterias;
 	}
 
-	public String[] loadGPSCoordinates(CorporateDirectives directives) {
+	private Vector<BaseTopic> getCityMapTopicsPublishedInWorkspace(BaseTopic workspaceMap) {
+		if (workspaceMap == null) {
+			System.out.println("ERROR: Trying to fetch all City Map Topics from a NULL Workspace Map!");
+			return null;
+		}
+		Vector<BaseTopic> results = new Vector<BaseTopic>();
+		Vector<BaseTopic> publishedCityMaps = cm.getViewTopics(workspaceMap.getID(), 1);
+		for (int b = 0; b < publishedCityMaps.size(); b++) {
+			try {
+				CityMapTopic someCityMap = (CityMapTopic) as.getLiveTopic(publishedCityMaps.get(b).getID(), 1);
+				results.add(someCityMap);
+			} catch (ClassCastException ce) {
+				// System.out.println("DEBUG: Workspace contains a published standard \"Topicmap\" ... ");
+			}
+		}
+		return results;
+	}
+
+	private boolean hasEmptyCoordinates(BaseTopic geo) {
+		if (as.getTopicProperty(geo, PROPERTY_GPS_LAT).equals("")
+			| as.getTopicProperty(geo, PROPERTY_GPS_LONG).equals("")
+			| as.getTopicProperty(geo, PROPERTY_GPS_LAT).equals(" ")
+			| as.getTopicProperty(geo, PROPERTY_GPS_LONG).equals(" ")
+			| as.getTopicProperty(geo, PROPERTY_GPS_LAT).equals("0")
+			| as.getTopicProperty(geo, PROPERTY_GPS_LONG).equals("0")) {
+			return true;
+		}
+		return false;
+	}
+
+	public String[] geoCodeTopicAddressString(CorporateDirectives directives) {
 		//
 		String givenAddress = getAddressString();
 		if (givenAddress.equals("")) {
@@ -1910,16 +2090,16 @@ public class GeoObjectTopic extends LiveTopic implements KiezAtlas {
 	 *
 	 */
 	public void setGPSCoordinates(CorporateDirectives directives) {
-		boolean emptyLat = (as.getTopicProperty(this, PROPERTY_GPS_LAT).equals("")) ? true : false;
-		boolean emptyLong = (as.getTopicProperty(this, PROPERTY_GPS_LONG).equals("")) ? true : false;
-		if (!emptyLat && !emptyLong) {
+		if (!hasEmptyCoordinates(this)) {
+			System.out.println("[GeoObjectTopic] Topic already has Geo Coordinate Values - Skip Geo Coding");
+			// 1) if location values are SET we do not override them with new ones
 			directives.add(DIRECTIVE_SHOW_MESSAGE, "Falls Sie gerade die Adresse des Datensatzes ge&auml;ndert haben " +
 				"m&uuml;ssten Sie den neuen L&auml;ngen und Breitengrad " +
 				"<a href=\"http://maps.google.de\" title=\"in Google Maps Rechtsklick am Ort > Was ist hier? klicken\">manuell</a> korrigieren.",
 				new Integer(NOTIFICATION_DEFAULT));
 		} else {
-			// ### alternatively fetch city property
-			String[] point = loadGPSCoordinates(directives);
+			// 2) if BOTH location values are EMPTY we load new one via Googles Geo Location API
+			String[] point = geoCodeTopicAddressString(directives);
 			if (point.length > 3 && point[2] != null && point[3] != null) {
 				if (!point[2].equals("") && !point[3].equals("")) {
 					as.setTopicProperty(this, PROPERTY_GPS_LAT, point[2]);
