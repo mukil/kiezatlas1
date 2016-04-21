@@ -80,7 +80,8 @@ public class EditServlet extends DeepaMehtaServlet implements KiezAtlas {
 				// --- update mirror-topic ---
 				geo.synchronizeGeoObject();
 			}
-			//
+			// --- update GPS coordinates ---
+			geo.setGPSCoordinates(directives); // will load new geo-coordinates IF values are set to " "
 			return PAGE_GEO_HOME;
 			//
 		} else if (action.equals(ACTION_SHOW_FORUM_ADMINISTRATION)) {

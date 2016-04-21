@@ -124,9 +124,15 @@ public class ListServlet extends DeepaMehtaServlet implements KiezAtlas {
             }
             EditServlet.writeFiles(params.getUploads(), geo.getImage(), as);
             // --- update mirror topics (if remotely already known/present)
-            geo.synchronizeGeoObject();
+            if (geo.isPartOfMigratedWorkspaces()) {
+		String mapTopicId = cityMap.getID();
+		String mapAlias = as.getTopicProperty(cityMap, PROPERTY_WEB_ALIAS);
+		BaseTopic workspace = getWorkspaceTopic(session);
+		System.out.println("INFO: Remote Geo Object during EDIT in LIST Servlet in cityMap: " + mapAlias + ", WS: " + workspace.getID());
+		geo.synchronizeGeoObject(mapAlias, workspace.getName());
+	    }
             //
-            setGPSCoordinates(geo, directives); //{ // ### should load coordinates if address is empty
+            setGPSCoordinates(geo, directives); // will should load coordinates if coordinate values are empty
             if (session.getAttribute("isSlim").equals("true")) {
                 setUseCache(Boolean.FALSE, session);	// slim list don't use the cache
                 return PAGE_SLIM_LIST;
@@ -156,7 +162,7 @@ public class ListServlet extends DeepaMehtaServlet implements KiezAtlas {
             setGeoObject(cm.getTopic(geoObjectID, 1), session);
             GeoObjectTopic geo = getGeoObject(session);
             // --- update GPS coordinates ---
-            setGPSCoordinates(geo, directives); //{ // loads gps coordinates
+            setGPSCoordinates(geo, directives); // will load geo-coordinates if values are empty
             // --- store image ---
             EditServlet.writeFiles(params.getUploads(), geo.getImage(), as);
             // --- check if new topic is to be synced remotely too
@@ -165,7 +171,7 @@ public class ListServlet extends DeepaMehtaServlet implements KiezAtlas {
                 String mapTopicId = cityMap.getID();
                 String mapAlias = as.getTopicProperty(cityMap, PROPERTY_WEB_ALIAS);
                 BaseTopic workspace = getWorkspaceTopic(session);
-                System.out.println("INFO: POSTing new topic in \"" + mapAlias + "\" (\"" + workspace.getName() + "\")");
+                System.out.println("INFO: Creating new topic remotely in \"" + mapAlias + "\" (\"" + workspace.getName() + "\") LIST Servlet");
                 geo.postRemoteGeoObject(mapTopicId, mapAlias, workspace.getID());
             }
             //
@@ -449,14 +455,9 @@ public class ListServlet extends DeepaMehtaServlet implements KiezAtlas {
                 }
                 //
                 setCachedTopicList(topicBeans, session);
-                System.out.println(">>> refreshed " + topicBeans.size() + " topics for the fat list");
                 // fresh topic data & re sorted
                 if (sortBy != null) {
                     sortBeans(topicBeans, sortBy);
-                    System.out.println(">>>> topics are fresh from server and sorted by: "
-                            + session.getAttribute("sortField"));
-                } else {
-                    System.out.println(">>>> topics are fresh from server with sort ByTopic Name");
                 }
                 // fresh topic data & re filtered (just used after create geo)
                 if (getFilterField(session) != null) {
@@ -502,14 +503,11 @@ public class ListServlet extends DeepaMehtaServlet implements KiezAtlas {
                 }
                 //
                 setCachedTopicList(topics, session);
-                System.out.println(">>> slim refresh " + topics.size() + " topics in cache with serverside data");
                 // fresh topic data & re sorted
                 if (sortBy != null) {
                     sortBeans(topics, sortBy);
                     // System.out.println(">>>> topics are fresh from server and sorted by: "
                     //+ session.getAttribute("sortField") );
-                } else {
-                    System.out.println(">>>> topics are fresh from server with sortByTopicName");
                 }
                 // fresh topic data & re filtered (just used after create geo)
                 if (getFilterField(session) != null) {
