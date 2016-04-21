@@ -343,12 +343,12 @@ public class CityMapTopic extends TopicMapTopic implements KiezAtlas {
 		return cm.getViewTopics(getID(), 1, TOPICTYPE_YADE_POINT);
 	}
 
-  public static boolean isProtected(BaseTopic map, ApplicationService as) {
-    if (as.getTopicProperty(map, PROPERTY_PASSWORD).equals("")) return false; else return true;
+	public static boolean isProtected(BaseTopic map, ApplicationService as) {
+		if (as.getTopicProperty(map, PROPERTY_PASSWORD).equals("")) return false; else return true;
 	}
 
-  public static boolean passwordCorrect(BaseTopic map, ApplicationService as, String password) {
-    if (as.getTopicProperty(map, PROPERTY_PASSWORD).equals(password)) return true; else return false;
+	public static boolean passwordCorrect(BaseTopic map, ApplicationService as, String password) {
+		if (as.getTopicProperty(map, PROPERTY_PASSWORD).equals(password)) return true; else return false;
 	}
 
 	// --- lookupCityMap (3 forms) ---
@@ -359,7 +359,7 @@ public class CityMapTopic extends TopicMapTopic implements KiezAtlas {
 	}
 
 	public static BaseTopic lookupCityMap(String alias, boolean throwIfNotFound, ApplicationService as)
-																				throws DeepaMehtaException {
+		throws DeepaMehtaException {
 		// search "Kiezatlas" workspace
 		BaseTopic map = lookupCityMap(alias, WORKSPACE_KIEZATLAS, as);
 		// search sub-workspaces
@@ -384,7 +384,7 @@ public class CityMapTopic extends TopicMapTopic implements KiezAtlas {
 	}
 
 	private static BaseTopic lookupCityMap(String alias, String workspaceID, ApplicationService as)
-																				throws DeepaMehtaException {
+		throws DeepaMehtaException {
 		Hashtable props = new Hashtable();
 		props.put(PROPERTY_WEB_ALIAS, alias);
 		//
