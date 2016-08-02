@@ -24,8 +24,8 @@
     // --- Settings helping you to configure this script
     // --
 
-    // var SERVER_URL = "http://www.kiezatlas.de";
-    var SERVER_URL = "http://localhost:8080/kiezatlas";
+    var SERVER_URL = "http://www.kiezatlas.de";
+    // var SERVER_URL = "http://localhost:8080/kiezatlas";
     var SERVICE_URL = SERVER_URL + "/rpc/"; // to be used by the jquery ajax methods
     var ICONS_URL = "http://www.kiezatlas.de/client/icons/"; // to be used by all icons if not relative to this folder
 
@@ -1251,7 +1251,7 @@
     }
 
     function openThisPrintView() {
-        window.open("http://www.kiezatlas.de/pages/osm/PrintAtlas.html");
+        window.open("http://www.kiezatlas.de/pages/alternative/PrintAtlas.html");
     }
 
     function isCategoryVisible(myCatId) {
@@ -1784,7 +1784,7 @@
                 label: "${name}", fontSize: "12px", fontStyle: "bold",
                 fontFamily: "Arial,Helvetica,sans-serif", fontColor: "#B60033"}
         });
-        var pathToFile = SERVER_URL + "/pages/osm/img/districts.kml";
+        var pathToFile = SERVER_URL + "/pages/alternative/img/districts.kml";
         var districtLayer = new OpenLayers.Layer.Vector("Bezirksgrenzen", {
             styleMap: dStyleMap, zIndexing: true,
             projection: map.displayProjection,

@@ -15,14 +15,14 @@
     <meta property="og:description" content="Diese kostenlose App f&uuml;r Ihr Smartphone liefert Ihnen alle 
         Stadtpl&auml;ne aus dem Berliner KiezAtlas auf Ihr mobiles Endger&auml;t."/>
 
-    <link rel="stylesheet" href="/kiezatlas/pages/vendor/jquerymobile/jquery.mobile.theme-1.3.0.min.css">
-    <link rel="stylesheet" href="/kiezatlas/pages/vendor/jquerymobile/jquery.mobile-1.3.0.min.css">
-    <link rel="stylesheet" href="/kiezatlas/pages/vendor/leaflet/dist/leaflet.css"/>
-    <link rel="stylesheet" href="/kiezatlas/pages/mobile/css/mobile-sitestyle.css"/>
-    <script src="/kiezatlas/pages/mobile/ka-mobile-SNAPSHOT.js"></script>
-    <script src="/kiezatlas/pages/vendor/jquery-1.9.1.min.js"></script>
-    <script src="/kiezatlas/pages/vendor/leaflet/dist/leaflet.js"></script>
-    <script src="/kiezatlas/pages/vendor/jquerymobile/jquery.mobile-1.3.0.min.js"></script>
+    <link rel="stylesheet" href="/pages/vendor/jquerymobile/jquery.mobile.theme-1.3.0.min.css">
+    <link rel="stylesheet" href="/pages/vendor/jquerymobile/jquery.mobile-1.3.0.min.css">
+    <link rel="stylesheet" href="/pages/vendor/leaflet/dist/leaflet.css"/>
+    <link rel="stylesheet" href="/pages/mobile/css/mobile-sitestyle.css"/>
+    <script src="/pages/mobile/ka-mobile-SNAPSHOT.js"></script>
+    <script src="/pages/vendor/jquery-1.9.1.min.js"></script>
+    <script src="/pages/vendor/leaflet/dist/leaflet.js"></script>
+    <script src="/pages/vendor/jquerymobile/jquery.mobile-1.3.0.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function(e) {
 

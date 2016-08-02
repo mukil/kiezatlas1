@@ -14,12 +14,12 @@
   <meta property="og:site_name" content="Berliner Ehrenamtsnetz-App"/>
   <meta property="og:description" content="Diese kostenlose App f&uuml;r Ihr Smartphone liefert Ihnen tagesaktuelle Infos zu ehrenamtlichen Veranstaltungen und Einsatzm&ouml;glichkeiten in Berlin."/>
 
-  <link rel="stylesheet" href="/kiezatlas/pages/vendor/leaflet/dist/leaflet.css"/>
+  <link rel="stylesheet" href="/pages/vendor/leaflet/dist/leaflet.css"/>
   <!--[if lte IE 8]><link rel="stylesheet" href="//www.kiezatlas.de/maps/statics/vendor/leaflet7/leaflet.ie.css" /><![endif]-->
-  <link rel="stylesheet" href="/kiezatlas/pages/mobile/ehrenamt/css/ehrenamt-sitestyle.css"/>
-  <script src="/kiezatlas/pages/vendor/jquery-1.9.1.min.js"></script>
-  <script src="/kiezatlas/pages/vendor/leaflet/dist/leaflet.js"></script>
-  <script src="/kiezatlas/pages/mobile/ehrenamt/ka-mobile-ehrenamt-SNAPSHOT.js"></script>
+  <link rel="stylesheet" href="/pages/mobile/ehrenamt/css/ehrenamt-sitestyle.css"/>
+  <script src="/pages/vendor/jquery-1.9.1.min.js"></script>
+  <script src="/pages/vendor/leaflet/dist/leaflet.js"></script>
+  <script src="/pages/mobile/ehrenamt/ka-mobile-ehrenamt-SNAPSHOT.js"></script>
 </head>
 <body>
   <div id="map" class="fullsize">loading citymap ...</div>

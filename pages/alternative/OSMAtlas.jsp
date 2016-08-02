@@ -14,8 +14,8 @@
         String catIds = (String) session.getAttribute("categories");
         String baseLayer = (String) session.getAttribute("baseLayer");
         Integer critIndex = (Integer) session.getAttribute("critIndex");
-        String basePath = "http://localhost:8080/kiezatlas";
-        // String basePath = "http://www.kiezatlas.de";
+        // String basePath = "http://localhost:8080/kiezatlas";
+        String basePath = "http://www.kiezatlas.de";
         String title = "Kiezatlas Stadtplan - " + map.getName();
 %>
 <% startMaps(session, out); %>
@@ -23,17 +23,17 @@
     <meta http-equiv="content-type" content="text/html charset=UTF-8"/><!-- charset=ISO-8859-15" -->
     <title> <%= title %> </title>
     <!--[if gte IE 7]>
-      <link rel="stylesheet" href="<%= basePath %>/pages/osm/css/maps-ie.css" type="text/css">
+      <link rel="stylesheet" href="<%= basePath %>/pages/alternative/css/maps-ie.css" type="text/css">
     <![endif]-->
     <style type="text/css">
-        @import url('<%= basePath %>/pages/osm/css/maps-mini.css') handheld, screen and (max-device-width: 800px);
+        @import url('<%= basePath %>/pages/alternative/css/maps-mini.css') handheld, screen and (max-device-width: 800px);
     </style>
-    <link rel="stylesheet" href="<%= basePath %>/pages/osm/css/maps.css" type="text/css">
+    <link rel="stylesheet" href="<%= basePath %>/pages/alternative/css/maps.css" type="text/css">
     <link rel="stylesheet" href="<%= basePath %>/pages/vendor/ol/2.11/theme/default/style.css" type="text/css">
     <script type="text/javascript" src="<%= basePath %>/pages/vendor/ol/2.11/OpenLayers.js"></script>
     <script type="text/javascript" src="<%= basePath %>/pages/vendor/ol/CustomLayerSwitcher.js"></script>
     <script type="text/javascript" src="<%= basePath %>/pages/vendor/jquery-1.5.2.min.js"></script>
-    <script type="text/javascript" src="<%= basePath %>/pages/osm/kiezatlas-osm-SNAPSHOT.js"></script>
+    <script type="text/javascript" src="<%= basePath %>/pages/alternative/kiezatlas-osm-SNAPSHOT.js"></script>
     <script type="text/javascript">
           var basePath = '<%= basePath %>';
           var mapTitle = '<%= map.getName() %>';
@@ -181,7 +181,7 @@
 
             <div id="headerButtons">
                 <img id="resizeButton" title="Seitenleiste ausblenden"
-                     onclick="javascript:handleSideBar()" src="<%= basePath %>/pages/osm/img/go-last.png"
+                     onclick="javascript:handleSideBar()" src="<%= basePath %>/pages/alternative/img/go-last.png"
                      alt="Seitenleiste ausblenden">
             </div>
         </div>
