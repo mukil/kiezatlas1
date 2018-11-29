@@ -354,7 +354,7 @@ public class BrowseServlet extends DeepaMehtaServlet implements KiezAtlas {
 				"------------------------------\r\r" +
 				"Im Falle des Mißbrauchs: In der \"Forum Administration\" ihres persönlichen Kiezatlas-Zugangs haben " +
 				"Sie die Möglichkeit, einzelne Kommentare zu löschen, bzw. das Forum ganz zu deaktivieren.\r" +
-				"www.kiezatlas.de:8080/edit/" + inst.getWebAlias() + "\r\r" +
+				"www.kiezatlas.de/edit/" + inst.getWebAlias() + "\r\r" +
 				"Mit freundlichen Grüßen\r" +
 				"ihr Kiezatlas-Team";
 			//

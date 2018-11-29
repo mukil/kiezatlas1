@@ -256,7 +256,7 @@
 		StringBuffer html = new StringBuffer();
 		// render googlelink if address is complete
 		if (isSet(city) && isSet(street) && isSet(postalCode)) {
-			String mapURL = "http://maps.google.de/maps?q=" + street + ", " + postalCode + " " + city + "&mrt=loc&lci=lmc:panoramio,lmc:wikipedia_en&layer=tc&t=h";
+			String mapURL = "http://maps.google.de/maps?q=" + street + ", " + postalCode + " " + city;
 			String imageLink = " <a href=\"" + mapURL + "\" target=\"_blank\"><img src=\"../images/google_logo_small.png\" alt=\"Ansicht in Google \" hspace=\"20\" border=\"0\"></a>";
 			html.append(imageLink);
 			return html.toString();

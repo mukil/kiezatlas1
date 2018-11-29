@@ -9,6 +9,7 @@ public class Transformation {
 
     public static Map<String, String> CRITERIA_MAP = new HashMap();
     public static Map<String, String> CATEGORY_MAP = new HashMap();
+    public static Map<String, String> DISTRICT_MAP = new HashMap();
 
     static {
         putCrit("t-253478",           "ka2.criteria.thema.facet");          // Mitte
@@ -609,9 +610,27 @@ public class Transformation {
         putCat("t-1220614", "ka2.category.gesamtbezirk");                                               // FrKr
     }
 
+    static {
+        putDistrict("Mitte", "mitte-gesamt");
+        putDistrict("Friedrichshain-Kreuzberg", "friedrichshain-kreuzberg-gesamt");
+        putDistrict("Tempelhof-Schöneberg", "tempelhof-schoeneberg-gesamt");
+        putDistrict("Pankow", "pankow-gesamt");
+        putDistrict("Charlottenburg-Wilmersdorf", "charlottenburg-wilmersdorf-gesamt");
+        putDistrict("Familienatlas Steglitz-Zehlendorf", "familienatlas-sz-gesamt");
+        putDistrict("Lichtenberg", "lichtenberg-gesamt");
+        putDistrict("Spandau", "spandau-gesamt");
+        putDistrict("Treptow-Köpenick", "tk-gesamt");
+    }
+
     private static void putCrit(String ka1CriteriaTypeId, String ka2FacetTypeUri) {
         if (CRITERIA_MAP.put(ka1CriteriaTypeId, ka2FacetTypeUri) != null) {
             throw new RuntimeException("More than one entry for KA1 criteria \"" + ka1CriteriaTypeId + "\"");
+        }
+    }
+
+    private static void putDistrict(String districtName, String webAlias) {
+        if (DISTRICT_MAP.put(districtName, webAlias) != null) {
+            throw new RuntimeException("More than one web-alias entered for KA1 district \"" + districtName + "\"");
         }
     }
 
